@@ -1,10 +1,10 @@
 {
   "email_notifications_enabled": true,
   "email_reminder_interval_minutes": 60,
-  "recipient_email": "dr.vet.waleedtam@gmail.com",
-  "push_notifications_enabled": false,
+  "recipient_email": "alorfbiomed@gmail.com",
+  "push_notifications_enabled": true,
   "push_notification_interval_minutes": 60,
-  "email_send_time_hour": 3,
+  "email_send_time_hour": 7,
   "reminder_timing": {
     "60_days_before": false,
     "14_days_before": false,
@@ -12,13 +12,18 @@
   },
   "scheduler_interval_hours": 24,
   "enable_automatic_reminders": true,
-  "cc_emails": "prolifepharma2020@gmail.com",
+  "cc_emails": "lolotam@gmail.com",
   "automatic_backup_enabled": true,
-  "automatic_backup_interval_hours": 24,
+  "automatic_backup_interval_hours": 1,
   "users": [
     {
       "username": "admin",
       "password": "pbkdf2:sha256:600000$PRPn88H1ijaWaJ14$4f30ec776a03728db5c793ebba0e29149903c43e37b18e710ecf6dd0553ecb25",
+      "role": "Admin"
+    },
+    {
+      "username": "testuser",
+      "password": "scrypt:32768:8:1$81Env3h8t2d0j8on$3a9c4ad7bfb0650998f343b9b45e86024f114c3be41b2b12a9e04b59628c6872e88901b87212c2cdc233755f12a8ac1bb8bfe2df6ef9bc981ca1220e252b30ba",
       "role": "Admin"
     }
   ],
@@ -79,7 +84,7 @@
   "daily_send_time_enabled": true,
   "legacy_interval_enabled": false,
   "email_send_time_minute": 38,
-  "email_send_time": "23:33",
+  "email_send_time": "07:30",
   "use_daily_send_time": true,
   "use_legacy_interval": false
 }

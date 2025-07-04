@@ -34285,5 +34285,38 @@
     },
     "Status": "Upcoming",
     "has_history": false
+  },
+  {
+    "NO": 1,
+    "Department": "Test Department",
+    "Name": "Test Equipment with Problematic Serial",
+    "MODEL": "TEST-MODEL-001",
+    "SERIAL": "N-A 243",
+    "MANUFACTURER": "Test Manufacturer",
+    "LOG_Number": "LOG001",
+    "Installation_Date": "01/01/2024",
+    "Warranty_End": "01/01/2025",
+    "PPM_Q_I": {
+      "engineer": "TEST ENGINEER",
+      "quarter_date": "15/01/2024",
+      "status": "Maintained"
+    },
+    "PPM_Q_II": {
+      "engineer": "TEST ENGINEER",
+      "quarter_date": "15/04/2024",
+      "status": "Upcoming"
+    },
+    "PPM_Q_III": {
+      "engineer": "TEST ENGINEER",
+      "quarter_date": "15/07/2024",
+      "status": "Upcoming"
+    },
+    "PPM_Q_IV": {
+      "engineer": "TEST ENGINEER",
+      "quarter_date": "15/10/2024",
+      "status": "Upcoming"
+    },
+    "Status": "Maintained",
+    "has_history": false
   }
 ]

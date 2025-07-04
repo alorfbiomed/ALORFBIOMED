@@ -32,31 +32,19 @@ instance/
 flask_session/
 
 # Environment variables
-.env
-.env.*
+
 
 # Database
-*.db
-*.sqlite
+
 
 # Logs
 *.log
 logs/
 
 # Data files (keep structure but exclude sensitive data)
-data/settings.json
-data/audit_log.json
-data/equipment_history.json
-data/training.json
-data/ppm.json
-data/ocm.json
-data/push_subscriptions.json
-data/backups/
 data_before_restore_*/
 
 # Uploads
-app/static/uploads/
-static/uploads/
 
 # IDE
 .vscode/

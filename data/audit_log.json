@@ -4941,5 +4941,209 @@
     "description": "Accessed audit log page",
     "status": "Info",
     "details": {}
+  },
+  {
+    "id": 369,
+    "timestamp": "2025-07-03 21:55:03",
+    "event_type": "Setting Changed",
+    "performed_by": "User",
+    "description": "Backup settings updated via API",
+    "status": "Success",
+    "details": {
+      "automatic_backup_enabled": false,
+      "automatic_backup_interval_hours": 1
+    }
+  },
+  {
+    "id": 370,
+    "timestamp": "2025-07-03 23:28:27",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 2 equipment maintenance tasks (1-day threshold, URGENT priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 1,
+      "priority_level": "URGENT",
+      "equipment_count": 2,
+      "recipient": "dr.vet.waleedtam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 371,
+    "timestamp": "2025-07-03 23:28:28",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 37 equipment maintenance tasks (7-day threshold, HIGH priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 7,
+      "priority_level": "HIGH",
+      "equipment_count": 37,
+      "recipient": "dr.vet.waleedtam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 372,
+    "timestamp": "2025-07-03 23:28:29",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 113 equipment maintenance tasks (15-day threshold, MEDIUM priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 15,
+      "priority_level": "MEDIUM",
+      "equipment_count": 113,
+      "recipient": "dr.vet.waleedtam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 373,
+    "timestamp": "2025-07-03 23:28:30",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 105 equipment maintenance tasks (30-day threshold, LOW priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 30,
+      "priority_level": "LOW",
+      "equipment_count": 105,
+      "recipient": "dr.vet.waleedtam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 374,
+    "timestamp": "2025-07-03 23:31:46",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 2 equipment maintenance tasks (1-day threshold, URGENT priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 1,
+      "priority_level": "URGENT",
+      "equipment_count": 2,
+      "recipient": "dr.vet.waleedtam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 375,
+    "timestamp": "2025-07-03 23:31:47",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 37 equipment maintenance tasks (7-day threshold, HIGH priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 7,
+      "priority_level": "HIGH",
+      "equipment_count": 37,
+      "recipient": "dr.vet.waleedtam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 376,
+    "timestamp": "2025-07-03 23:31:48",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 113 equipment maintenance tasks (15-day threshold, MEDIUM priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 15,
+      "priority_level": "MEDIUM",
+      "equipment_count": 113,
+      "recipient": "dr.vet.waleedtam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 377,
+    "timestamp": "2025-07-03 23:31:49",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 105 equipment maintenance tasks (30-day threshold, LOW priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 30,
+      "priority_level": "LOW",
+      "equipment_count": 105,
+      "recipient": "dr.vet.waleedtam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 378,
+    "timestamp": "2025-07-04 02:38:22",
+    "event_type": "Setting Changed",
+    "performed_by": "User",
+    "description": "Backup settings updated via API",
+    "status": "Success",
+    "details": {
+      "automatic_backup_enabled": true,
+      "automatic_backup_interval_hours": 1
+    }
+  },
+  {
+    "id": 379,
+    "timestamp": "2025-07-04 04:14:01",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 9 equipment maintenance tasks (1-day threshold, URGENT priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 1,
+      "priority_level": "URGENT",
+      "equipment_count": 9,
+      "recipient": "alorfbiomed@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 380,
+    "timestamp": "2025-07-04 04:14:02",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 38 equipment maintenance tasks (7-day threshold, HIGH priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 7,
+      "priority_level": "HIGH",
+      "equipment_count": 38,
+      "recipient": "alorfbiomed@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 381,
+    "timestamp": "2025-07-04 04:14:03",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 127 equipment maintenance tasks (15-day threshold, MEDIUM priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 15,
+      "priority_level": "MEDIUM",
+      "equipment_count": 127,
+      "recipient": "alorfbiomed@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 382,
+    "timestamp": "2025-07-04 04:14:04",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 86 equipment maintenance tasks (30-day threshold, LOW priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 30,
+      "priority_level": "LOW",
+      "equipment_count": 86,
+      "recipient": "alorfbiomed@gmail.com",
+      "email_type": "threshold_reminder"
+    }
   }
 ]
