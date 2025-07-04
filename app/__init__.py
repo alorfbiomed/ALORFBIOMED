@@ -11,6 +11,16 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 import threading # Added import
 
+# Load environment variables from .env file
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+    print("✅ Loaded .env file successfully")
+except ImportError:
+    print("⚠️  python-dotenv not available, environment variables may not be loaded from .env file")
+except Exception as e:
+    print(f"⚠️  Error loading .env file: {str(e)}")
+
 from flask import Flask, render_template, request, current_app
 from flask_session import Session # Import Flask-Session
 from app.utils.logger_setup import setup_logger
@@ -109,16 +119,22 @@ def create_app():
     # Ensure data directory exists
     os.makedirs(Config.DATA_DIR, exist_ok=True)
     
+    # Initialize logging service
+    from app.services.logging_service import logging_service
+    logger.info('Enhanced logging service initialized')
+
     # Register blueprints
     from app.routes.views import views_bp
     from app.routes.api import api_bp
     from app.routes.auth import auth_bp
     from app.routes.admin import admin_bp
-    
+    from app.routes.logging_routes import logging_bp
+
     app.register_blueprint(views_bp)
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(admin_bp, url_prefix='/admin')
+    app.register_blueprint(logging_bp)
 
     # Register template filters for URL-safe serial handling
     from app.utils.url_utils import serial_to_url_safe, url_safe_to_serial

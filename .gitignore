@@ -90,6 +90,8 @@ tmp/
 debug_*.py
 test_*.py
 quick_test_*.py
+fix_push_notifications.py
+simple_push_test.py
 
 # Cookie files
 *.txt

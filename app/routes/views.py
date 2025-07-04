@@ -28,6 +28,7 @@ from app.constants import (
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 import functools # For wraps decorator
+from app.decorators import permission_required  # Import the proper permission decorator
 
 views_bp = Blueprint('views', __name__)
 logger = logging.getLogger('app')
@@ -35,32 +36,6 @@ logger = logging.getLogger('app')
 # Allowed file extensions
 ALLOWED_EXTENSIONS = {'csv'}
 SETTINGS_FILE = Path("data/settings.json")
-
-def permission_required(required_permissions):
-    """
-    Decorator to check if a user has the required permissions to access a view.
-    `required_permissions` is a list of permission names (strings).
-    """
-    def decorator(f):
-        @functools.wraps(f)
-        def decorated_function(*args, **kwargs):
-            if not current_user.is_authenticated:
-                flash('You need to be logged in to access this page.', 'warning')
-                return redirect(url_for('auth.login'))
-
-            # Allow if user has ANY of the required permissions
-            has_any_permission = False
-            for perm in required_permissions:
-                if current_user.has_permission(perm):
-                    has_any_permission = True
-                    break
-
-            if not has_any_permission:
-                flash(f'You do not have permission to access this page. Required: {", ".join(required_permissions)}.', 'danger')
-                return redirect(url_for('views.index'))
-            return f(*args, **kwargs)
-        return decorated_function
-    return decorator
 
 
 
@@ -204,23 +179,14 @@ def health_check():
 @views_bp.route('/equipment/<data_type>')
 @permission_required(['equipment_ppm_read', 'equipment_ocm_read'])
 def list_equipment(data_type):
-    """Display paginated list of equipment (either PPM or OCM)."""
+    """Display all equipment records on a single page (pagination removed for performance)."""
     if data_type not in ('ppm', 'ocm'):
         flash("Invalid equipment type specified.", "warning")
         return redirect(url_for('views.index'))
-    
-    # Get page and per_page parameters from URL
-    page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 100, type=int)
-    
-    # Validate per_page parameter
-    if per_page not in [50, 100, 200, 500]:
-        per_page = 100  # Default to 100 if invalid value
-    
+
     try:
-        # Get paginated data
-        pagination_info = DataService.get_entries_paginated(data_type, page=page, per_page=per_page)
-        equipment_data = pagination_info['entries']
+        # Get all data (no pagination)
+        equipment_data = DataService.get_all_entries(data_type)
         
         if isinstance(equipment_data, dict):
             equipment_data = [equipment_data]
@@ -263,29 +229,17 @@ def list_equipment(data_type):
                             quarter_info['status'] = 'N/A'
                             quarter_info['status_class'] = 'secondary'
         
-        return render_template('equipment/list.html', 
-                             equipment=equipment_data, 
+        return render_template('equipment/list.html',
+                             equipment=equipment_data,
                              data_type=data_type,
-                             pagination=pagination_info)
+                             total_records=len(equipment_data))
     except Exception as e:
         logger.error(f"Error loading {data_type} list: {str(e)}")
         flash(f"Error loading {data_type.upper()} equipment data.", "danger")
-        # Return empty pagination info on error
-        empty_pagination = {
-            'entries': [],
-            'total': 0,
-            'page': 1,
-            'per_page': per_page,
-            'total_pages': 1,
-            'has_prev': False,
-            'has_next': False,
-            'prev_page': None,
-            'next_page': None
-        }
-        return render_template('equipment/list.html', 
-                             equipment=[], 
+        return render_template('equipment/list.html',
+                             equipment=[],
                              data_type=data_type,
-                             pagination=empty_pagination)
+                             total_records=0)
 
 @views_bp.route('/equipment/ppm/add', methods=['GET', 'POST'])
 @permission_required(['equipment_ppm_write'])

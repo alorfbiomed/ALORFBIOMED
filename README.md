@@ -49,10 +49,46 @@ The ALORF BIOMED System is a professional healthcare equipment management platfo
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.8+
-- pip (Python package manager)
+- Python 3.11+
+- Poetry (recommended) or pip (Python package manager)
 
 ### Installation
+
+#### Option 1: Using Poetry (Recommended)
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/lolotam/ALORFBIOMED.git
+   cd ALORFBIOMED
+   ```
+
+2. **Install Poetry** (if not already installed)
+   ```bash
+   # Windows (PowerShell)
+   (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python -
+
+   # Linux/Mac
+   curl -sSL https://install.python-poetry.org | python3 -
+   ```
+
+3. **Install dependencies**
+   ```bash
+   poetry install
+   ```
+
+4. **Activate the virtual environment**
+   ```bash
+   poetry shell
+   ```
+
+5. **Run the application**
+   ```bash
+   poetry run start-app
+   # or
+   python app/main.py
+   ```
+
+#### Option 2: Using pip
 
 1. **Clone the repository**
    ```bash
@@ -63,10 +99,10 @@ The ALORF BIOMED System is a professional healthcare equipment management platfo
 2. **Create virtual environment**
    ```bash
    python -m venv venv
-   
+
    # Windows
    venv\Scripts\activate
-   
+
    # Linux/Mac
    source venv/bin/activate
    ```
@@ -76,25 +112,14 @@ The ALORF BIOMED System is a professional healthcare equipment management platfo
    pip install -r requirements.txt
    ```
 
-4. **Initialize the database**
+4. **Run the application**
    ```bash
-   python create_tables.py
-   python populate_initial_data.py
+   python app/main.py
    ```
 
-5. **Create admin user**
-   ```bash
-   python create_admin.py
-   ```
-
-6. **Run the application**
-   ```bash
-   python -m flask --app app.main run --debug --port 5001
-   ```
-
-7. **Access the application**
-   - Open your browser and navigate to `http://localhost:5001`
-   - Login with your admin credentials
+### Access the Application
+- Open your browser and navigate to `http://localhost:5001`
+- Login with test credentials: **Username:** `testuser` **Password:** `test123`
 
 ## 📱 Mobile Features
 
@@ -178,37 +203,302 @@ The system supports automated email notifications:
 3. Enable automatic maintenance reminders
 4. Customize notification schedules
 
-## 🔧 Configuration
+## � Authentication System
+
+### Default User Accounts
+
+The system comes with pre-configured test accounts:
+
+| Username | Password | Role | Permissions |
+|----------|----------|------|-------------|
+| `testuser` | `test123` | Admin | Full system access |
+| `admin` | *encrypted* | Admin | Full system access |
+| `editor1` | `editor` | Editor | Equipment management |
+| `viewer1` | `viewer` | Viewer | Read-only access |
+
+### User Roles & Permissions
+
+#### Admin Role
+- Full system access including user management
+- Equipment management (PPM, OCM, Training)
+- System configuration and settings
+- Data import/export operations
+- Audit log access
+
+#### Editor Role
+- Equipment management (create, read, update, delete)
+- Training record management
+- Data import/export (limited)
+- Cannot manage users or system settings
+
+#### Viewer Role
+- Read-only access to equipment data
+- View training records
+- Generate reports
+- Cannot modify any data
+
+### Password Security
+- Passwords are hashed using Werkzeug's secure hashing (scrypt/PBKDF2)
+- Session-based authentication with Flask-Login
+- Automatic session timeout for security
+
+## �🔧 Configuration
 
 ### Environment Variables
-Create a `.env` file with:
-```
+Create a `.env` file in the project root:
+```bash
+# Flask Configuration
 FLASK_ENV=development
-SECRET_KEY=your-secret-key
+SECRET_KEY=your-secret-key-here
+
+# Email Service Configuration
 MAILJET_API_KEY=your-mailjet-api-key
 MAILJET_SECRET_KEY=your-mailjet-secret-key
+
+# Scheduler Configuration
+SCHEDULER_ENABLED=true
+
+# Database Configuration (optional)
+DATABASE_URL=sqlite:///data/equipment.db
 ```
 
-### Application Settings
-- Configure through the web interface admin panel
-- Backup and restore settings
-- Email notification preferences
-- Maintenance reminder schedules
+### Application Settings File
+The system uses `data/settings.json` for configuration:
+
+```json
+{
+  "email_sender": "your-email@domain.com",
+  "email_recipients": "recipient1@domain.com, recipient2@domain.com",
+  "cc_emails": "cc1@domain.com, cc2@domain.com",
+  "scheduler_interval_hours": 24,
+  "enable_automatic_reminders": true,
+  "automatic_backup_enabled": true,
+  "automatic_backup_interval_hours": 8,
+  "use_daily_send_time": true,
+  "email_send_time": "07:35",
+  "users": [
+    {
+      "username": "testuser",
+      "password": "scrypt:32768:8:1$...",
+      "role": "Admin"
+    }
+  ],
+  "roles": {
+    "Admin": {
+      "permissions": ["all_permissions"]
+    }
+  }
+}
+```
+
+### Email Configuration
+1. **Mailjet Setup**: Register at [Mailjet](https://www.mailjet.com/) and get API credentials
+2. **SMTP Fallback**: Configure SMTP settings for backup email delivery
+3. **Notification Schedule**: Set daily email send times and intervals
+4. **Recipients**: Configure primary and CC email addresses
+
+### Data Storage
+- **Equipment Data**: Stored in JSON files (`data/ppm.json`, `data/ocm.json`, `data/training.json`)
+- **User Data**: Stored in `data/settings.json`
+- **Logs**: Application logs in `logs/` directory
+- **Backups**: Automatic backups in `backups/` directory
 
 ## 🧪 Testing
 
 Run the test suite:
 ```bash
+# Using Poetry
+poetry run pytest tests/
+
+# Using pip
 python -m pytest tests/
 ```
 
+## 🔧 Troubleshooting Guide
+
+### Common Issues and Solutions
+
+#### 1. Authentication Problems
+
+**Issue**: "Error loading PPM/OCM equipment data" or login failures
+**Solutions**:
+- Verify test user credentials: `testuser` / `test123`
+- Check if Flask server is running properly
+- Restart the Flask application: `python app/main.py`
+- Clear browser cache and cookies
+- Check `data/settings.json` for user configuration
+
+#### 2. Email Scheduler Not Working
+
+**Issue**: Scheduled emails not being sent
+**Solutions**:
+- Check email configuration in `data/settings.json`
+- Verify Mailjet API credentials in environment variables
+- Check scheduler logs in `logs/` directory
+- Ensure `SCHEDULER_ENABLED=true` in environment
+- Verify timezone settings and email send time format
+
+#### 3. CSV Import Failures
+
+**Issue**: "Encoding error" or "Invalid CSV format"
+**Solutions**:
+- Ensure CSV files are UTF-8 encoded
+- Check column headers match expected format
+- Use provided CSV templates for import
+- Verify file permissions and accessibility
+
+#### 4. Equipment Edit Errors
+
+**Issue**: "Equipment with serial X not found" when editing
+**Solutions**:
+- Check for special characters in serial numbers
+- Verify URL encoding for serial numbers with spaces/hyphens
+- Restart Flask server to clear any caching issues
+- Check equipment exists in the correct data file
+
+#### 5. Mobile Display Issues
+
+**Issue**: Poor mobile experience or layout problems
+**Solutions**:
+- Clear browser cache
+- Ensure viewport meta tag is present
+- Check CSS media queries are loading
+- Test on different mobile browsers
+
+#### 6. Performance Issues
+
+**Issue**: Slow loading or timeouts
+**Solutions**:
+- Check data file sizes in `data/` directory
+- Optimize large equipment lists with pagination
+- Clear old log files from `logs/` directory
+- Restart the Flask application
+
+#### 7. Permission Denied Errors
+
+**Issue**: Access denied to certain features
+**Solutions**:
+- Verify user role and permissions in `data/settings.json`
+- Login with appropriate user role (Admin for full access)
+- Check permission decorators in route handlers
+- Ensure session is valid and not expired
+
+### Log Files and Debugging
+
+#### Application Logs
+- **Location**: `logs/app.log`
+- **Content**: Application errors, warnings, and info messages
+- **Rotation**: Automatic log rotation to prevent large files
+
+#### Error Logs
+- **Location**: `logs/error.log`
+- **Content**: Critical errors and exceptions
+- **Format**: JSON structured logging with timestamps
+
+#### Debug Mode
+Enable debug mode for detailed error information:
+```bash
+# Set environment variable
+export FLASK_ENV=development
+
+# Or run with debug flag
+python app/main.py --debug
+```
+
+### System Requirements Check
+
+#### Python Version
+```bash
+python --version  # Should be 3.11+
+```
+
+#### Dependencies Check
+```bash
+# Using Poetry
+poetry check
+
+# Using pip
+pip check
+```
+
+#### Port Availability
+```bash
+# Check if port 5001 is available
+netstat -an | findstr :5001  # Windows
+netstat -an | grep :5001     # Linux/Mac
+```
+
+### Data Recovery
+
+#### Backup Restoration
+1. Locate backup files in `backups/` directory
+2. Copy backup files to `data/` directory
+3. Restart the application
+4. Verify data integrity
+
+#### Manual Data Recovery
+1. Check JSON file syntax in `data/` directory
+2. Validate JSON format using online validators
+3. Restore from version control if available
+4. Contact support for data recovery assistance
+
 ## 📚 API Documentation
 
-The application provides REST API endpoints for:
-- Equipment management
-- Training records
-- User management
-- Audit logs
+The application provides comprehensive REST API endpoints:
+
+### Equipment Management APIs
+
+#### PPM Equipment
+- `GET /api/equipment/ppm` - List all PPM equipment
+- `GET /api/equipment/ppm/{serial}` - Get specific PPM equipment
+- `POST /api/equipment/ppm` - Create new PPM equipment
+- `PUT /api/equipment/ppm/{serial}` - Update PPM equipment
+- `DELETE /api/equipment/ppm/{serial}` - Delete PPM equipment
+
+#### OCM Equipment
+- `GET /api/equipment/ocm` - List all OCM equipment
+- `GET /api/equipment/ocm/{serial}` - Get specific OCM equipment
+- `POST /api/equipment/ocm` - Create new OCM equipment
+- `PUT /api/equipment/ocm/{serial}` - Update OCM equipment
+- `DELETE /api/equipment/ocm/{serial}` - Delete OCM equipment
+
+#### Training Records
+- `GET /api/equipment/training` - List all training records
+- `GET /api/equipment/training/{id}` - Get specific training record
+- `POST /api/equipment/training` - Create new training record
+- `PUT /api/equipment/training/{id}` - Update training record
+- `DELETE /api/equipment/training/{id}` - Delete training record
+
+### Data Import/Export APIs
+- `POST /api/import/{data_type}` - Import CSV data (PPM, OCM, Training)
+- `GET /api/export/{data_type}` - Export data as CSV
+- `POST /api/backup` - Create system backup
+- `GET /api/backup/list` - List available backups
+
+### Authentication APIs
+- `POST /auth/login` - User login
+- `POST /auth/logout` - User logout
+- `GET /auth/user` - Get current user info
+
+### API Response Format
+```json
+{
+  "success": true,
+  "data": {...},
+  "message": "Operation completed successfully",
+  "timestamp": "2025-01-01T00:00:00Z"
+}
+```
+
+### Error Response Format
+```json
+{
+  "success": false,
+  "error": "Error description",
+  "code": "ERROR_CODE",
+  "timestamp": "2025-01-01T00:00:00Z"
+}
+```
 
 ## 🤝 Contributing
 

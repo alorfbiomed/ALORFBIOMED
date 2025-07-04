@@ -4845,5 +4845,101 @@
       "recipient": "lolotam@gmail.com",
       "email_type": "threshold_reminder"
     }
+  },
+  {
+    "id": 361,
+    "timestamp": "2025-07-02 23:34:59",
+    "event_type": "User Action",
+    "performed_by": "User",
+    "description": "Accessed audit log page",
+    "status": "Info",
+    "details": {}
+  },
+  {
+    "id": 362,
+    "timestamp": "2025-07-03 21:27:01",
+    "event_type": "User Action",
+    "performed_by": "User",
+    "description": "Accessed audit log page",
+    "status": "Info",
+    "details": {}
+  },
+  {
+    "id": 363,
+    "timestamp": "2025-07-03 21:27:31",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 2 equipment maintenance tasks (1-day threshold, URGENT priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 1,
+      "priority_level": "URGENT",
+      "equipment_count": 2,
+      "recipient": "dr.vet.waleedtam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 364,
+    "timestamp": "2025-07-03 21:27:32",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 37 equipment maintenance tasks (7-day threshold, HIGH priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 7,
+      "priority_level": "HIGH",
+      "equipment_count": 37,
+      "recipient": "dr.vet.waleedtam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 365,
+    "timestamp": "2025-07-03 21:27:33",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 113 equipment maintenance tasks (15-day threshold, MEDIUM priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 15,
+      "priority_level": "MEDIUM",
+      "equipment_count": 113,
+      "recipient": "dr.vet.waleedtam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 366,
+    "timestamp": "2025-07-03 21:27:34",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 105 equipment maintenance tasks (30-day threshold, LOW priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 30,
+      "priority_level": "LOW",
+      "equipment_count": 105,
+      "recipient": "dr.vet.waleedtam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 367,
+    "timestamp": "2025-07-03 21:35:04",
+    "event_type": "User Action",
+    "performed_by": "User",
+    "description": "Accessed audit log page",
+    "status": "Info",
+    "details": {}
+  },
+  {
+    "id": 368,
+    "timestamp": "2025-07-03 21:49:23",
+    "event_type": "User Action",
+    "performed_by": "User",
+    "description": "Accessed audit log page",
+    "status": "Info",
+    "details": {}
   }
 ]

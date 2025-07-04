@@ -19,6 +19,8 @@ from app.models.history import HistoryNoteCreate, HistoryNoteUpdate, HistorySear
 from app.config import Config # Added for VAPID public key
 from app.services import training_service # Import the module
 from flask_login import current_user
+from app.services.logging_service import LoggingService
+from app.utils.encoding_utils import EncodingDetector
 
 # ImportExportService and ValidationService removed
 
@@ -179,13 +181,53 @@ def import_data(data_type):
 
     if file and file.filename.endswith('.csv'):
         try:
-            # Wrap the file stream for text-mode processing
-            # file.stream is a SpooledTemporaryFile, which is binary.
-            # TextIOWrapper makes it behave like a text file.
-            file_stream = io.TextIOWrapper(file.stream, encoding='utf-8')
+            LoggingService.log_info(
+                f"Starting {data_type} import via API with encoding detection",
+                context={
+                    'data_type': data_type,
+                    'filename': file.filename,
+                    'operation': 'api_import_data'
+                },
+                logger_name='api'
+            )
 
-            # Call DataService.import_data directly with the stream
-            import_results = DataService.import_data(data_type, file_stream)
+            # Use encoding detection for the file stream
+            try:
+                text_stream, used_encoding = EncodingDetector.create_text_stream_with_encoding_detection(
+                    file.stream,
+                    fallback_encodings=['windows-1252', 'iso-8859-1', 'cp1252', 'latin1']
+                )
+
+                LoggingService.log_info(
+                    f"File stream created with encoding: {used_encoding}",
+                    context={
+                        'filename': file.filename,
+                        'used_encoding': used_encoding,
+                        'data_type': data_type
+                    },
+                    logger_name='api'
+                )
+
+            except Exception as encoding_error:
+                error_msg = (
+                    f"Unable to process the uploaded file due to encoding issues. "
+                    f"Please ensure your CSV file is saved in UTF-8, Windows-1252, or ISO-8859-1 encoding. "
+                    f"If you're using Excel, try 'Save As' and select 'CSV UTF-8' format. "
+                    f"Technical details: {str(encoding_error)}"
+                )
+                LoggingService.log_error(
+                    error_msg,
+                    exception=encoding_error,
+                    context={
+                        'filename': file.filename,
+                        'data_type': data_type
+                    },
+                    logger_name='api'
+                )
+                return jsonify({"error": error_msg}), 400
+
+            # Call DataService.import_data directly with the processed stream
+            import_results = DataService.import_data(data_type, text_stream)
 
             # Check for errors in import_results to determine status code
             if import_results.get("errors") and (import_results.get("added_count", 0) == 0 and import_results.get("updated_count", 0) == 0) :
@@ -208,7 +250,7 @@ def import_data(data_type):
 @api_bp.route("/bulk_delete/<data_type>", methods=["POST"])
 @permission_required(["equipment_ppm_delete", "equipment_ocm_delete"])
 def bulk_delete(data_type):
-    """Handle bulk deletion of equipment entries."""
+    """Handle bulk deletion of equipment entries with optimized performance."""
     if data_type not in ('ppm', 'ocm'):
         return jsonify({'success': False, 'message': 'Invalid data type'}), 400
 
@@ -216,20 +258,22 @@ def bulk_delete(data_type):
     if not serials:
         return jsonify({'success': False, 'message': 'No serials provided'}), 400
 
-    deleted_count = 0
-    not_found = 0
+    try:
+        # Use optimized bulk delete method
+        result = DataService.bulk_delete_entries(data_type, serials)
 
-    for serial in serials:
-        if DataService.delete_entry(data_type, serial):
-            deleted_count += 1
-        else:
-            not_found += 1
+        return jsonify({
+            'success': True,
+            'deleted_count': result['deleted_count'],
+            'not_found': result['not_found']
+        })
 
-    return jsonify({
-        'success': True,
-        'deleted_count': deleted_count,
-        'not_found': not_found
-    })
+    except Exception as e:
+        logger.error(f"Bulk delete API error: {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'message': f'Bulk delete operation failed: {str(e)}'
+        }), 500
 
 
 
@@ -708,9 +752,56 @@ def import_auto():
                 temp_file_path = temp_file.name
             
             try:
-                # First, detect the CSV type
+                # First, detect the CSV type with encoding detection
                 import pandas as pd
-                df = pd.read_csv(temp_file_path, dtype=str)
+
+                # Detect file encoding
+                detected_encoding, confidence = EncodingDetector.detect_file_encoding(temp_file_path)
+
+                LoggingService.log_info(
+                    f"Auto-import encoding detection: {detected_encoding} (confidence: {confidence:.2f})",
+                    context={
+                        'temp_file_path': temp_file_path,
+                        'detected_encoding': detected_encoding,
+                        'confidence': confidence
+                    },
+                    logger_name='api'
+                )
+
+                try:
+                    df = pd.read_csv(temp_file_path, dtype=str, encoding=detected_encoding)
+                except (UnicodeDecodeError, pd.errors.ParserError) as encoding_error:
+                    # Try fallback encodings
+                    LoggingService.log_warning(
+                        f"Primary encoding failed for auto-import, trying fallbacks: {str(encoding_error)}",
+                        context={'temp_file_path': temp_file_path, 'error': str(encoding_error)},
+                        logger_name='api'
+                    )
+
+                    fallback_encodings = ['windows-1252', 'iso-8859-1', 'cp1252', 'latin1']
+                    df = None
+
+                    for encoding in fallback_encodings:
+                        try:
+                            df = pd.read_csv(temp_file_path, dtype=str, encoding=encoding)
+                            LoggingService.log_info(
+                                f"Auto-import successful with fallback encoding: {encoding}",
+                                context={'temp_file_path': temp_file_path, 'used_encoding': encoding},
+                                logger_name='api'
+                            )
+                            break
+                        except (UnicodeDecodeError, pd.errors.ParserError):
+                            continue
+
+                    if df is None:
+                        # Last resort
+                        df = pd.read_csv(temp_file_path, dtype=str, encoding='utf-8', encoding_errors='replace')
+                        LoggingService.log_warning(
+                            "Auto-import using UTF-8 with error replacement",
+                            context={'temp_file_path': temp_file_path},
+                            logger_name='api'
+                        )
+
                 detected_type = ImportExportService.detect_csv_type(df.columns.tolist())
                 
                 if detected_type == 'unknown':

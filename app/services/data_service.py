@@ -16,6 +16,7 @@ from pydantic import ValidationError
 from app.config import Config
 from app.models.ppm import PPMEntry
 from app.models.ocm import OCMEntry
+from app.services.logging_service import LoggingService
 
 
 logger = logging.getLogger(__name__)
@@ -650,50 +651,132 @@ class DataService:
             True if entry was deleted, False if not found
         """
         logger.info(f"Attempting to delete {data_type} entry with serial: {SERIAL}")
-        
+
+        # Enhanced logging for delete operation
+        LoggingService.log_info(
+            f"Delete operation started: {data_type} entry",
+            context={
+                'data_type': data_type,
+                'serial': SERIAL,
+                'operation': 'delete_entry'
+            },
+            logger_name='database'
+        )
+
         try:
             data = DataService.load_data(data_type)
             initial_len = len(data)
             logger.debug(f"Loaded {initial_len} entries from {data_type} data")
-            
+
             # Handle different serial field names for PPM and OCM
             serial_field = 'SERIAL' if data_type == 'ppm' else 'Serial'
             logger.debug(f"Using serial field name: {serial_field}")
-            
-            # Find the entry to delete first
-            entry_to_delete = None
-            entry_index = -1
-            
-            for i, entry in enumerate(data):
-                entry_serial = entry.get(serial_field)
-                logger.debug(f"Comparing entry serial '{entry_serial}' with target serial '{SERIAL}'")
-                if entry_serial == SERIAL:
-                    entry_to_delete = entry
-                    entry_index = i
-                    break
-            
-            if entry_to_delete is None:
+
+            # Find and remove the entry in one pass (more efficient)
+            original_length = len(data)
+            data[:] = [entry for entry in data if entry.get(serial_field) != SERIAL]
+
+            if len(data) == original_length:
                 logger.warning(f"No {data_type} entry found with serial {SERIAL}")
+
+                LoggingService.log_warning(
+                    f"Delete operation failed - entry not found: {data_type}",
+                    context={
+                        'data_type': data_type,
+                        'serial': SERIAL,
+                        'operation': 'delete_entry',
+                        'result': 'not_found',
+                        'total_records': original_length
+                    },
+                    logger_name='database'
+                )
+
                 return False
-                
-            logger.info(f"Found {data_type} entry to delete: {entry_to_delete}")
-            
-            # Remove the entry
-            data.pop(entry_index)
-            logger.debug(f"Removed entry at index {entry_index}")
-            
-            # Reindex the remaining entries
-            reindexed_data = DataService.reindex(data)
-            logger.debug(f"Reindexed remaining {len(reindexed_data)} entries")
-            
+
+            logger.info(f"Successfully removed {data_type} entry with serial {SERIAL}")
+
+            # Skip reindexing - NO field is not used in display (template uses loop.index)
+            # This saves significant processing time for large datasets
+
             # Save the updated data
-            DataService.save_data(reindexed_data, data_type)
+            DataService.save_data(data, data_type)
             logger.info(f"Successfully deleted {data_type} entry with serial {SERIAL}")
+
+            # Enhanced logging for successful delete
+            LoggingService.log_info(
+                f"Delete operation completed successfully: {data_type} entry",
+                context={
+                    'data_type': data_type,
+                    'serial': SERIAL,
+                    'operation': 'delete_entry',
+                    'result': 'success',
+                    'records_before': original_length,
+                    'records_after': len(data),
+                    'records_deleted': 1
+                },
+                logger_name='database'
+            )
             
             return True
             
         except Exception as e:
             logger.error(f"Error deleting {data_type} entry with serial {SERIAL}: {str(e)}", exc_info=True)
+            raise
+
+    @staticmethod
+    def bulk_delete_entries(data_type: Literal['ppm', 'ocm'], serials: List[str]) -> Dict[str, int]:
+        """Optimized bulk delete operation.
+
+        Args:
+            data_type: Type of data ('ppm' or 'ocm')
+            serials: List of serial numbers to delete
+
+        Returns:
+            Dict with 'deleted_count' and 'not_found' counts
+        """
+        logger.info(f"Starting bulk delete of {len(serials)} {data_type} entries")
+
+        try:
+            # Load data once
+            data = DataService.load_data(data_type)
+            original_count = len(data)
+            logger.debug(f"Loaded {original_count} entries from {data_type} data")
+
+            # Handle different serial field names for PPM and OCM
+            serial_field = 'SERIAL' if data_type == 'ppm' else 'Serial'
+
+            # Convert serials to set for O(1) lookup instead of O(n)
+            serials_to_delete = set(serials)
+            logger.debug(f"Converting {len(serials)} serials to set for fast lookup")
+
+            # Filter out entries to delete in single pass
+            remaining_data = []
+            deleted_serials = set()
+
+            for entry in data:
+                entry_serial = entry.get(serial_field)
+                if entry_serial in serials_to_delete:
+                    deleted_serials.add(entry_serial)
+                    logger.debug(f"Marked for deletion: {entry_serial}")
+                else:
+                    remaining_data.append(entry)
+
+            deleted_count = len(deleted_serials)
+            not_found = len(serials_to_delete) - deleted_count
+
+            logger.info(f"Bulk delete results: {deleted_count} deleted, {not_found} not found")
+
+            # Save once at the end (no reindexing needed)
+            DataService.save_data(remaining_data, data_type)
+            logger.info(f"Successfully completed bulk delete operation")
+
+            return {
+                'deleted_count': deleted_count,
+                'not_found': not_found
+            }
+
+        except Exception as e:
+            logger.error(f"Error in bulk delete operation: {str(e)}", exc_info=True)
             raise
 
     @staticmethod
@@ -985,21 +1068,21 @@ class DataService:
                         "Warranty_End": entry_data.get("Warranty_End", "")
                     }
 
-                    # Process PPM quarters
+                    # Process PPM quarters - Fixed column name mapping to use underscores
                     transformed_entry["PPM_Q_I"] = {
-                        "engineer": entry_data.get("PPM_Q_I.engineer", ""),
+                        "engineer": entry_data.get("PPM_Q_I_engineer", ""),
                         "quarter_date": q_dates[0]
                     }
                     transformed_entry["PPM_Q_II"] = {
-                        "engineer": entry_data.get("PPM_Q_II.engineer", ""),
+                        "engineer": entry_data.get("PPM_Q_II_engineer", ""),
                         "quarter_date": q_dates[1]
                     }
                     transformed_entry["PPM_Q_III"] = {
-                        "engineer": entry_data.get("PPM_Q_III.engineer", ""),
+                        "engineer": entry_data.get("PPM_Q_III_engineer", ""),
                         "quarter_date": q_dates[2]
                     }
                     transformed_entry["PPM_Q_IV"] = {
-                        "engineer": entry_data.get("PPM_Q_IV.engineer", ""),
+                        "engineer": entry_data.get("PPM_Q_IV_engineer", ""),
                         "quarter_date": q_dates[3]
                     }
                     

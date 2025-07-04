@@ -10,13 +10,23 @@ from typing import List, Dict, Any, Tuple
 import os
 import threading
 
-from pywebpush import webpush, WebPushException
-
 from app.services.email_service import EmailService
 from app.config import Config
 from app.services.data_service import DataService # Added for loading subscriptions
 
 logger = logging.getLogger(__name__)
+
+# Optional import for push notifications
+try:
+    from pywebpush import webpush, WebPushException
+    PYWEBPUSH_AVAILABLE = True
+except ImportError:
+    logger.warning("pywebpush not available - push notifications will be disabled")
+    PYWEBPUSH_AVAILABLE = False
+
+    # Create dummy classes for compatibility
+    class WebPushException(Exception):
+        pass
 
 
 class PushNotificationService:
@@ -68,6 +78,11 @@ class PushNotificationService:
     async def run_scheduler_async_loop():
         """The actual asynchronous scheduler loop that runs periodically."""
         logger.info("Attempting to start Push Notification Scheduler async loop.")
+
+        if not PYWEBPUSH_AVAILABLE:
+            logger.warning("Push Notification Scheduler: pywebpush not available - scheduler disabled")
+            return
+
         from app.services.data_service import DataService # Avoid circular import
 
         if PushNotificationService._scheduler_running:
@@ -174,6 +189,10 @@ class PushNotificationService:
         Sends the push notification to all subscribed clients.
         """
         logger.info(f"Attempting to send push notification with summary: '{summary_message}'")
+
+        if not PYWEBPUSH_AVAILABLE:
+            logger.warning("Push notifications disabled - pywebpush not available")
+            return False
 
         if not Config.VAPID_PRIVATE_KEY or not Config.VAPID_SUBJECT:
             logger.error("VAPID_PRIVATE_KEY or VAPID_SUBJECT not configured. Cannot send push notifications.")
