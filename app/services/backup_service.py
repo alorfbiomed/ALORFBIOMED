@@ -7,6 +7,7 @@ import logging
 import os
 import shutil
 import threading
+import time
 import zipfile
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -20,16 +21,51 @@ logger = logging.getLogger(__name__)
 
 class BackupService:
     """Service for managing application backups."""
-    
+
     # Backup paths - use absolute paths to avoid confusion
     BACKUPS_DIR = os.path.abspath(os.path.join(Config.DATA_DIR, "backups"))
     FULL_BACKUPS_DIR = os.path.join(BACKUPS_DIR, "full")
     SETTINGS_BACKUPS_DIR = os.path.join(BACKUPS_DIR, "settings")
-    
+
     # Scheduler state
     _scheduler_thread = None
     _scheduler_running = False
+
+    # File deletion lock to prevent race conditions between user deletion and automatic cleanup
+    _deletion_locks = {}
+    _deletion_lock_mutex = threading.Lock()
     
+    @classmethod
+    def _acquire_deletion_lock(cls, filename: str) -> bool:
+        """
+        Acquire a deletion lock for a specific filename to prevent race conditions.
+
+        Args:
+            filename: Name of the backup file
+
+        Returns:
+            True if lock was acquired, False if already locked
+        """
+        with cls._deletion_lock_mutex:
+            if filename in cls._deletion_locks:
+                return False  # Already locked
+            cls._deletion_locks[filename] = threading.Lock()
+            cls._deletion_locks[filename].acquire()
+            return True
+
+    @classmethod
+    def _release_deletion_lock(cls, filename: str):
+        """
+        Release a deletion lock for a specific filename.
+
+        Args:
+            filename: Name of the backup file
+        """
+        with cls._deletion_lock_mutex:
+            if filename in cls._deletion_locks:
+                cls._deletion_locks[filename].release()
+                del cls._deletion_locks[filename]
+
     @classmethod
     def initialize_backup_directories(cls):
         """Initialize backup directories if they don't exist."""
@@ -53,7 +89,8 @@ class BackupService:
         try:
             cls.initialize_backup_directories()
             
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            # Use microseconds to prevent filename collisions in rapid succession
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
             backup_filename = f"full_backup_{timestamp}.zip"
             backup_path = os.path.join(cls.FULL_BACKUPS_DIR, backup_filename)
             
@@ -177,7 +214,8 @@ class BackupService:
         try:
             cls.initialize_backup_directories()
             
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            # Use microseconds to prevent filename collisions in rapid succession
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
             backup_filename = f"settings_backup_{timestamp}.json"
             backup_path = os.path.join(cls.SETTINGS_BACKUPS_DIR, backup_filename)
             
@@ -486,62 +524,125 @@ class BackupService:
     @classmethod
     def delete_backup(cls, filename: str) -> Dict[str, Any]:
         """
-        Delete a backup file.
-        
+        Delete a backup file with race condition protection.
+
         Args:
             filename: Name of the backup file to delete
-            
+
         Returns:
             Dict containing deletion result information
         """
         try:
-            # Find the backup file
-            full_path = os.path.join(cls.FULL_BACKUPS_DIR, filename)
-            settings_path = os.path.join(cls.SETTINGS_BACKUPS_DIR, filename)
-            
-            backup_path = None
-            backup_type = None
-            
-            if os.path.exists(full_path):
-                backup_path = full_path
-                backup_type = "full"
-            elif os.path.exists(settings_path):
-                backup_path = settings_path
-                backup_type = "settings"
-            
-            if not backup_path:
+            # Input validation
+            if not filename or not filename.strip():
+                logger.warning("Empty filename provided for backup deletion")
                 return {
                     "success": False,
-                    "error": "Backup file not found",
-                    "message": f"Backup file '{filename}' not found"
+                    "error": "Invalid filename",
+                    "message": "Backup filename cannot be empty"
                 }
-            
-            # Delete the file
-            os.remove(backup_path)
-            
-            # Log audit event
-            AuditService.log_event(
-                event_type=AuditService.EVENT_TYPES['BACKUP_DELETED'],
-                performed_by="User",
-                description=f"Backup deleted: {filename}",
-                status=AuditService.STATUS_SUCCESS,
-                details={
+
+            # Sanitize filename to prevent path traversal
+            filename = filename.strip()
+            if '..' in filename or '/' in filename or '\\' in filename:
+                logger.warning(f"Invalid filename provided for backup deletion: {filename}")
+                return {
+                    "success": False,
+                    "error": "Invalid filename",
+                    "message": "Invalid backup filename provided"
+                }
+
+            # Acquire deletion lock to prevent race conditions with automatic cleanup
+            if not cls._acquire_deletion_lock(filename):
+                logger.warning(f"Backup file {filename} is already being deleted by another process")
+                return {
+                    "success": False,
+                    "error": "File being deleted",
+                    "message": f"Backup file '{filename}' is currently being deleted by another process. Please try again."
+                }
+
+            try:
+                cls.initialize_backup_directories()
+
+                # Find the backup file
+                full_path = os.path.join(cls.FULL_BACKUPS_DIR, filename)
+                settings_path = os.path.join(cls.SETTINGS_BACKUPS_DIR, filename)
+
+                backup_path = None
+                backup_type = None
+
+                # Check both locations for the backup file
+                if os.path.exists(full_path):
+                    backup_path = full_path
+                    backup_type = "full"
+                elif os.path.exists(settings_path):
+                    backup_path = settings_path
+                    backup_type = "settings"
+
+                if not backup_path:
+                    # Enhanced error message with more context
+                    logger.warning(f"Backup file not found for deletion: {filename}")
+                    logger.debug(f"Checked paths: {full_path}, {settings_path}")
+
+                    return {
+                        "success": False,
+                        "error": "Backup file not found",
+                        "message": f"Backup file '{filename}' not found. It may have already been deleted or moved."
+                    }
+
+                # Verify file still exists just before deletion (race condition protection)
+                if not os.path.exists(backup_path):
+                    logger.warning(f"Backup file disappeared between check and deletion: {filename}")
+                    return {
+                        "success": False,
+                        "error": "Backup file not found",
+                        "message": f"Backup file '{filename}' was not found at deletion time. It may have been deleted by another process."
+                    }
+
+                # Delete the file
+                os.remove(backup_path)
+
+                # Verify deletion was successful
+                if os.path.exists(backup_path):
+                    logger.error(f"Failed to delete backup file: {filename} - file still exists after deletion attempt")
+                    return {
+                        "success": False,
+                        "error": "Deletion failed",
+                        "message": f"Failed to delete backup '{filename}' - file still exists after deletion attempt"
+                    }
+
+                # Log audit event
+                AuditService.log_event(
+                    event_type=AuditService.EVENT_TYPES['BACKUP_DELETED'],
+                    performed_by="User",
+                    description=f"Backup deleted: {filename}",
+                    status=AuditService.STATUS_SUCCESS,
+                    details={
+                        "backup_type": backup_type,
+                        "filename": filename,
+                        "file_path": backup_path
+                    }
+                )
+
+                logger.info(f"Backup deleted successfully: {filename} (type: {backup_type})")
+
+                return {
+                    "success": True,
+                    "filename": filename,
                     "backup_type": backup_type,
-                    "filename": filename
+                    "message": f"Backup '{filename}' deleted successfully"
                 }
-            )
-            
-            logger.info(f"Backup deleted successfully: {filename}")
-            
-            return {
-                "success": True,
-                "filename": filename,
-                "message": f"Backup '{filename}' deleted successfully"
-            }
+
+            finally:
+                # Always release the deletion lock
+                cls._release_deletion_lock(filename)
             
         except Exception as e:
             logger.error(f"Error deleting backup {filename}: {str(e)}")
-            
+
+            # Release the deletion lock in case of exception
+            cls._release_deletion_lock(filename)
+
             # Log audit event for failure
             AuditService.log_event(
                 event_type=AuditService.EVENT_TYPES['BACKUP_DELETED'],
@@ -553,7 +654,7 @@ class BackupService:
                     "error": str(e)
                 }
             )
-            
+
             return {
                 "success": False,
                 "error": str(e),
@@ -631,50 +732,65 @@ class BackupService:
     def _run_backup_scheduler(cls):
         """Run the automatic backup scheduler loop."""
         logger.info("Backup scheduler loop started")
-        
+
         while cls._scheduler_running:
             try:
                 # Load settings to check if automatic backups are enabled
                 from app.services.data_service import DataService
                 settings = DataService.load_settings()
-                
+
                 automatic_backup_enabled = settings.get('automatic_backup_enabled', False)
                 backup_interval_hours = settings.get('automatic_backup_interval_hours', 24)
-                
+
                 if automatic_backup_enabled:
-                    logger.info("Automatic backup is enabled, creating daily backup")
-                    
-                    # Create settings backup (smaller, more frequent)
-                    result = cls.create_settings_backup()
+                    logger.info(f"Automatic backup is enabled, creating backup every {backup_interval_hours} hours")
+
+                    # Create full backup including PPM, OCM, and Training data
+                    result = cls.create_full_backup()
                     if result['success']:
-                        logger.info(f"Automatic settings backup created: {result['filename']}")
+                        logger.info(f"Automatic full backup created: {result['filename']} ({result['size_mb']} MB)")
+
+                        # Log audit event for successful backup
+                        AuditService.log_event(
+                            event_type=AuditService.EVENT_TYPES['BACKUP_CREATED'],
+                            performed_by="System",
+                            description=f"Automatic full backup created successfully (interval: {backup_interval_hours}h)",
+                            status=AuditService.STATUS_SUCCESS,
+                            details={
+                                "backup_type": "full",
+                                "filename": result['filename'],
+                                "size_mb": result['size_mb'],
+                                "interval_hours": backup_interval_hours,
+                                "automatic": True
+                            }
+                        )
                     else:
-                        logger.error(f"Automatic settings backup failed: {result['message']}")
-                    
-                    # Clean up old backups
+                        logger.error(f"Automatic full backup failed: {result['message']}")
+
+                    # Clean up old backups (keep backups for 30 days)
                     cleanup_result = cls.cleanup_old_backups(max_age_days=30)
                     if cleanup_result['success'] and cleanup_result['deleted_count'] > 0:
                         logger.info(f"Cleaned up {cleanup_result['deleted_count']} old backups")
-                
+
                 else:
                     logger.debug("Automatic backup is disabled")
-                
+
                 # Sleep for the specified interval
                 sleep_seconds = backup_interval_hours * 3600
                 logger.info(f"Backup scheduler sleeping for {backup_interval_hours} hours ({sleep_seconds} seconds)")
-                
+
                 # Use smaller sleep intervals to allow for graceful shutdown
                 for _ in range(int(sleep_seconds / 60)):  # Sleep in 1-minute intervals
                     if not cls._scheduler_running:
                         break
-                    asyncio.sleep(60)
-                
+                    time.sleep(60)  # Fixed: Use time.sleep instead of asyncio.sleep
+
             except Exception as e:
                 logger.error(f"Error in backup scheduler loop: {str(e)}")
                 # Sleep for 1 hour on error to avoid rapid retries
                 for _ in range(60):
                     if not cls._scheduler_running:
                         break
-                    asyncio.sleep(60)
-        
-        logger.info("Backup scheduler loop ended") 
+                    time.sleep(60)  # Fixed: Use time.sleep instead of asyncio.sleep
+
+        logger.info("Backup scheduler loop ended")

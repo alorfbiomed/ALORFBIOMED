@@ -21,6 +21,7 @@ from app.services.barcode_service import BarcodeService
 from app.services.backup_service import BackupService
 from app.services.import_export import ImportExportService
 from app.services.history_service import HistoryService
+from app.services.quarter_service import QuarterService
 from app.models.history import HistoryNoteCreate, HistoryNoteUpdate
 from app.constants import (
     DEPARTMENTS, TRAINING_MODULES, QUARTER_STATUS_OPTIONS, GENERAL_STATUS_OPTIONS,
@@ -74,26 +75,9 @@ def index():
 
     for item in all_equipment:
         if item['data_type'] == 'ppm':
-            q2_info = item.get('PPM_Q_II', {})
-            if isinstance(q2_info, dict):
-                q2_date = q2_info.get('quarter_date')
-                q2_engineer = q2_info.get('engineer', '')
-                item['display_next_maintenance'] = q2_date if q2_date else 'N/A'
-                
-                if q2_date:
-                    try:
-                        q2_date_obj = EmailService.parse_date_flexible(q2_date).date()
-                        if q2_date_obj < today:
-                            q2_status = 'maintained' if q2_engineer and (q2_engineer.strip() if q2_engineer else '') else 'overdue'
-                        elif q2_date_obj == today:
-                            q2_status = 'maintained'
-                        else:
-                            q2_status = 'upcoming'
-                        item['Status'] = q2_status.capitalize()
-                    except ValueError:
-                        item['display_next_maintenance'] = 'N/A'
-            else:
-                item['display_next_maintenance'] = 'N/A'
+            # Use Quarter Service to determine which quarter data to display
+            display_data = QuarterService.get_display_data_for_equipment(item, today)
+            item.update(display_data)
         else:
             item['display_next_maintenance'] = item.get('Next_Maintenance', 'N/A')
         
@@ -144,6 +128,21 @@ def index():
         else:
             item['status_class'] = 'secondary'
 
+    # Get quarter summary information with error handling
+    try:
+        quarter_summary = QuarterService.get_dashboard_summary(today)
+        logger.info(f"Quarter summary generated successfully: {quarter_summary}")
+    except Exception as e:
+        logger.error(f"Error generating quarter summary: {str(e)}", exc_info=True)
+        # Provide fallback quarter info
+        quarter_summary = {
+            'current_date': today.strftime('%Y-%m-%d'),
+            'current_calendar_quarter': 3,  # Default fallback
+            'current_quarter_name': 'Q3',   # Default fallback
+            'quarter_keys': ['PPM_Q_I', 'PPM_Q_II', 'PPM_Q_III', 'PPM_Q_IV'],
+            'quarter_names': ['Q1', 'Q2', 'Q3', 'Q4']
+        }
+
     return render_template('index.html',
                            current_date=current_date_str,
                            total_machines=total_machines,
@@ -158,7 +157,8 @@ def index():
                            upcoming_30_days=upcoming_30_days,
                            upcoming_60_days=upcoming_60_days,
                            upcoming_90_days=upcoming_90_days,
-                           equipment=all_equipment)
+                           equipment=all_equipment,
+                           quarter_info=quarter_summary)
 
 @views_bp.route('/logout')
 @login_required
@@ -968,11 +968,15 @@ def refresh_dashboard():
         ppm_data = DataService.get_all_entries(data_type='ppm')
         if isinstance(ppm_data, dict):
             ppm_data = [ppm_data]
-        
+        for item in ppm_data:
+            item['data_type'] = 'ppm'
+
         ocm_data = DataService.get_all_entries(data_type='ocm')
         if isinstance(ocm_data, dict):
             ocm_data = [ocm_data]
-        
+        for item in ocm_data:
+            item['data_type'] = 'ocm'
+
         all_equipment = ppm_data + ocm_data
         today = datetime.now().date()
         
@@ -981,7 +985,13 @@ def refresh_dashboard():
         upcoming_7_days = upcoming_14_days = upcoming_21_days = 0
         upcoming_30_days = upcoming_60_days = upcoming_90_days = 0
         
+        # Process PPM equipment with Quarter Service
         for item in all_equipment:
+            if item.get('data_type') == 'ppm':
+                # Use Quarter Service to determine current quarter data
+                display_data = QuarterService.get_display_data_for_equipment(item, today)
+                item.update(display_data)
+
             status = item.get('Status', 'N/A').lower()
             if status == 'overdue':
                 overdue_count += 1
@@ -1004,6 +1014,20 @@ def refresh_dashboard():
             elif status == 'maintained':
                 maintained_count += 1
         
+        # Get quarter summary information with error handling
+        try:
+            quarter_summary = QuarterService.get_dashboard_summary(today)
+        except Exception as e:
+            logger.error(f"Error generating quarter summary in refresh endpoint: {str(e)}", exc_info=True)
+            # Provide fallback quarter info
+            quarter_summary = {
+                'current_date': today.strftime('%Y-%m-%d'),
+                'current_calendar_quarter': 3,  # Default fallback
+                'current_quarter_name': 'Q3',   # Default fallback
+                'quarter_keys': ['PPM_Q_I', 'PPM_Q_II', 'PPM_Q_III', 'PPM_Q_IV'],
+                'quarter_names': ['Q1', 'Q2', 'Q3', 'Q4']
+            }
+
         return jsonify({
             'success': True,
             'data': {
@@ -1019,7 +1043,8 @@ def refresh_dashboard():
                 'upcoming_30_days': upcoming_30_days,
                 'upcoming_60_days': upcoming_60_days,
                 'upcoming_90_days': upcoming_90_days,
-                'current_time': datetime.now().strftime("%A, %d %B %Y — %H:%M:%S")
+                'current_time': datetime.now().strftime("%A, %d %B %Y — %H:%M:%S"),
+                'quarter_info': quarter_summary
             }
         })
     except Exception as e:

@@ -173,10 +173,15 @@
             <div class="card border-0 shadow-lg">
                 <div class="card-header bg-gradient text-white">
                     <div class="d-flex justify-content-between align-items-center mobile-stack mobile-gap">
-                        <h5 class="mb-0 mobile-full-width">
-                            <i class="fas fa-list me-2"></i>
-                            Equipment Overview
-                        </h5>
+                        <div class="mobile-full-width">
+                            <h5 class="mb-0">
+                                <i class="fas fa-list me-2"></i>
+                                Equipment Overview
+                            </h5>
+                            <small class="text-light opacity-75" id="quarter-display">
+                                PPM showing: <span id="current-quarter">{{ quarter_info.current_quarter_name if quarter_info and quarter_info.current_quarter_name else 'Q3' }}</span> data
+                            </small>
+                        </div>
                         <div class="d-flex gap-2 mobile-stack mobile-full-width mobile-gap">
                             <input type="text" id="searchInput" class="form-control form-control-sm mobile-full-width" placeholder="Search equipment...">
                             <div class="d-flex gap-2 mobile-stack mobile-full-width mobile-gap">
@@ -409,7 +414,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     document.getElementById('upcoming-30-days').textContent = data.data.upcoming_30_days;
                     document.getElementById('upcoming-60-days').textContent = data.data.upcoming_60_days;
                     document.getElementById('upcoming-90-days').textContent = data.data.upcoming_90_days;
-                    
+
+                    // Update quarter information
+                    if (data.data.quarter_info) {
+                        document.getElementById('current-quarter').textContent = data.data.quarter_info.current_quarter_name;
+                    }
+
                     // Show success feedback
                     const toast = document.createElement('div');
                     toast.className = 'toast position-fixed top-0 end-0 m-3';

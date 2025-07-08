@@ -167,8 +167,13 @@ def create_app():
         push_scheduler_thread = threading.Thread(target=start_push_notification_scheduler, daemon=True)
         push_scheduler_thread.start()
         logger.info("Push Notification scheduler thread initiated from create_app.")
+
+        # Start Automatic Backup Scheduler
+        from app.services.backup_service import BackupService
+        BackupService.start_automatic_backup_scheduler()
+        logger.info("Automatic backup scheduler initiated from create_app.")
     else:
-        logger.info("Schedulers are disabled in config (SCHEDULER_ENABLED=False). Email and Push Notification schedulers will not start.")
+        logger.info("Schedulers are disabled in config (SCHEDULER_ENABLED=False). Email, Push Notification, and Backup schedulers will not start.")
 
     logger.info('Application initialization complete')
     

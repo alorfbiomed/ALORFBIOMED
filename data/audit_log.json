@@ -5145,5 +5145,1933 @@
       "recipient": "alorfbiomed@gmail.com",
       "email_type": "threshold_reminder"
     }
+  },
+  {
+    "id": 383,
+    "timestamp": "2025-07-04 05:59:17",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_055916.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_055916.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 384,
+    "timestamp": "2025-07-04 05:59:17",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_055917.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_055917.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 385,
+    "timestamp": "2025-07-04 05:59:17",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 0.016666666666666666h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_055917.zip",
+      "size_mb": 0.23,
+      "interval_hours": 0.016666666666666666,
+      "automatic": true
+    }
+  },
+  {
+    "id": 386,
+    "timestamp": "2025-07-04 06:00:17",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_060017.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_060017.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 387,
+    "timestamp": "2025-07-04 06:00:17",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 0.016666666666666666h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_060017.zip",
+      "size_mb": 0.23,
+      "interval_hours": 0.016666666666666666,
+      "automatic": true
+    }
+  },
+  {
+    "id": 388,
+    "timestamp": "2025-07-04 06:05:17",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_060517.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_060517.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 389,
+    "timestamp": "2025-07-04 06:05:17",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_060517.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 390,
+    "timestamp": "2025-07-04 06:08:40",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_055916.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_055916.zip"
+    }
+  },
+  {
+    "id": 391,
+    "timestamp": "2025-07-04 06:08:49",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_055917.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_055917.zip"
+    }
+  },
+  {
+    "id": 392,
+    "timestamp": "2025-07-04 06:08:54",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_060017.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_060017.zip"
+    }
+  },
+  {
+    "id": 393,
+    "timestamp": "2025-07-04 06:09:05",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_060517.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_060517.zip"
+    }
+  },
+  {
+    "id": 394,
+    "timestamp": "2025-07-04 06:09:11",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_060601.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_060601.zip"
+    }
+  },
+  {
+    "id": 395,
+    "timestamp": "2025-07-04 07:29:01",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 9 equipment maintenance tasks (1-day threshold, URGENT priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 1,
+      "priority_level": "URGENT",
+      "equipment_count": 9,
+      "recipient": "alorfbiomed@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 396,
+    "timestamp": "2025-07-04 07:29:02",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 38 equipment maintenance tasks (7-day threshold, HIGH priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 7,
+      "priority_level": "HIGH",
+      "equipment_count": 38,
+      "recipient": "alorfbiomed@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 397,
+    "timestamp": "2025-07-04 07:29:03",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 127 equipment maintenance tasks (15-day threshold, MEDIUM priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 15,
+      "priority_level": "MEDIUM",
+      "equipment_count": 127,
+      "recipient": "alorfbiomed@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 398,
+    "timestamp": "2025-07-04 07:29:04",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 86 equipment maintenance tasks (30-day threshold, LOW priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 30,
+      "priority_level": "LOW",
+      "equipment_count": 86,
+      "recipient": "alorfbiomed@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 399,
+    "timestamp": "2025-07-04 13:52:31",
+    "event_type": "Setting Changed",
+    "performed_by": "User",
+    "description": "Backup settings updated via API",
+    "status": "Success",
+    "details": {
+      "automatic_backup_enabled": true,
+      "automatic_backup_interval_hours": 1
+    }
+  },
+  {
+    "id": 400,
+    "timestamp": "2025-07-04 13:59:34",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_135933.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_135933.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 401,
+    "timestamp": "2025-07-04 13:59:34",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_135933.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_135933.zip"
+    }
+  },
+  {
+    "id": 402,
+    "timestamp": "2025-07-04 13:59:35",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_135934.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_135934.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 403,
+    "timestamp": "2025-07-04 13:59:35",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_135935.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_135935.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 404,
+    "timestamp": "2025-07-04 13:59:36",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_135935.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_135935.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 405,
+    "timestamp": "2025-07-04 13:59:36",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_135934.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_135934.zip"
+    }
+  },
+  {
+    "id": 406,
+    "timestamp": "2025-07-04 13:59:36",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_135935.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_135935.zip"
+    }
+  },
+  {
+    "id": 407,
+    "timestamp": "2025-07-04 14:01:06",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_140105_719172.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140105_719172.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 408,
+    "timestamp": "2025-07-04 14:01:06",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_140105_719172.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140105_719172.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250704_140105_719172.zip"
+    }
+  },
+  {
+    "id": 409,
+    "timestamp": "2025-07-04 14:01:06",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_140106_172112.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140106_172112.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 410,
+    "timestamp": "2025-07-04 14:01:07",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_140106_596442.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140106_596442.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 411,
+    "timestamp": "2025-07-04 14:01:07",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_140107_301642.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140107_301642.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 412,
+    "timestamp": "2025-07-04 14:01:07",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_140106_172112.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140106_172112.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250704_140106_172112.zip"
+    }
+  },
+  {
+    "id": 413,
+    "timestamp": "2025-07-04 14:01:07",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_140106_596442.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140106_596442.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250704_140106_596442.zip"
+    }
+  },
+  {
+    "id": 414,
+    "timestamp": "2025-07-04 14:01:07",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_140107_301642.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140107_301642.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250704_140107_301642.zip"
+    }
+  },
+  {
+    "id": 415,
+    "timestamp": "2025-07-04 14:02:05",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_140204_774146.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140204_774146.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 416,
+    "timestamp": "2025-07-04 14:02:05",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_140204_774146.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140204_774146.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250704_140204_774146.zip"
+    }
+  },
+  {
+    "id": 417,
+    "timestamp": "2025-07-04 14:02:05",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_140205_122404.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140205_122404.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 418,
+    "timestamp": "2025-07-04 14:02:05",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_140205_122404.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140205_122404.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250704_140205_122404.zip"
+    }
+  },
+  {
+    "id": 419,
+    "timestamp": "2025-07-04 14:02:05",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_140205_456604.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140205_456604.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 420,
+    "timestamp": "2025-07-04 14:02:06",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_140205_743405.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140205_743405.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 421,
+    "timestamp": "2025-07-04 14:02:06",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_140206_071546.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140206_071546.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 422,
+    "timestamp": "2025-07-04 14:02:06",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_140205_456604.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140205_456604.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250704_140205_456604.zip"
+    }
+  },
+  {
+    "id": 423,
+    "timestamp": "2025-07-04 14:02:06",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_140205_743405.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140205_743405.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250704_140205_743405.zip"
+    }
+  },
+  {
+    "id": 424,
+    "timestamp": "2025-07-04 14:02:06",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_140206_071546.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140206_071546.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250704_140206_071546.zip"
+    }
+  },
+  {
+    "id": 425,
+    "timestamp": "2025-07-04 14:02:06",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_140206_473393.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140206_473393.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 426,
+    "timestamp": "2025-07-04 14:02:06",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_140206_473393.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140206_473393.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250704_140206_473393.zip"
+    }
+  },
+  {
+    "id": 427,
+    "timestamp": "2025-07-04 14:02:24",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_140223.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140223.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 428,
+    "timestamp": "2025-07-04 14:02:29",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Settings backup created: settings_backup_20250704_140229.json",
+    "status": "Success",
+    "details": {
+      "backup_type": "settings",
+      "filename": "settings_backup_20250704_140229.json",
+      "size_kb": 2.86,
+      "settings_count": 20
+    }
+  },
+  {
+    "id": 429,
+    "timestamp": "2025-07-04 14:02:34",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: settings_backup_20250704_140229.json",
+    "status": "Success",
+    "details": {
+      "backup_type": "settings",
+      "filename": "settings_backup_20250704_140229.json"
+    }
+  },
+  {
+    "id": 430,
+    "timestamp": "2025-07-04 14:02:40",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_140223.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140223.zip"
+    }
+  },
+  {
+    "id": 431,
+    "timestamp": "2025-07-04 14:03:22",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_140321_812585.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140321_812585.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 432,
+    "timestamp": "2025-07-04 14:03:22",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140321_812585.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 433,
+    "timestamp": "2025-07-04 14:03:22",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_140321_972215.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140321_972215.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 434,
+    "timestamp": "2025-07-04 14:03:22",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Failed to delete backup: ",
+    "status": "Failed",
+    "details": {
+      "filename": "",
+      "error": "[WinError 5] Access is denied: 'C:\\\\ALORFBIOMED\\\\data\\\\backups\\\\full\\\\'"
+    }
+  },
+  {
+    "id": 435,
+    "timestamp": "2025-07-04 14:05:32",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_140321_972215.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140321_972215.zip"
+    }
+  },
+  {
+    "id": 436,
+    "timestamp": "2025-07-04 14:05:39",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_140321_812585.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140321_812585.zip"
+    }
+  },
+  {
+    "id": 437,
+    "timestamp": "2025-07-04 14:06:10",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_140609.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140609.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 438,
+    "timestamp": "2025-07-04 14:06:15",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_140609.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140609.zip"
+    }
+  },
+  {
+    "id": 439,
+    "timestamp": "2025-07-04 14:07:13",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_140712_760985.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140712_760985.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 440,
+    "timestamp": "2025-07-04 14:07:13",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_140713_165364.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140713_165364.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 441,
+    "timestamp": "2025-07-04 14:07:13",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_140713_508717.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140713_508717.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 442,
+    "timestamp": "2025-07-04 14:07:14",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_140713_838793.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140713_838793.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 443,
+    "timestamp": "2025-07-04 14:07:14",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_140714_225300.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140714_225300.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 444,
+    "timestamp": "2025-07-04 14:07:14",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_140712_760985.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140712_760985.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250704_140712_760985.zip"
+    }
+  },
+  {
+    "id": 445,
+    "timestamp": "2025-07-04 14:07:14",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_140713_165364.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140713_165364.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250704_140713_165364.zip"
+    }
+  },
+  {
+    "id": 446,
+    "timestamp": "2025-07-04 14:07:14",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_140713_508717.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140713_508717.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250704_140713_508717.zip"
+    }
+  },
+  {
+    "id": 447,
+    "timestamp": "2025-07-04 14:07:14",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_140713_838793.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140713_838793.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250704_140713_838793.zip"
+    }
+  },
+  {
+    "id": 448,
+    "timestamp": "2025-07-04 14:07:14",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_140714_225300.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140714_225300.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250704_140714_225300.zip"
+    }
+  },
+  {
+    "id": 449,
+    "timestamp": "2025-07-04 14:08:30",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_140830.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140830.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 450,
+    "timestamp": "2025-07-04 14:08:35",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_140830.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140830.zip"
+    }
+  },
+  {
+    "id": 451,
+    "timestamp": "2025-07-04 14:08:41",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Settings backup created: settings_backup_20250704_140841.json",
+    "status": "Success",
+    "details": {
+      "backup_type": "settings",
+      "filename": "settings_backup_20250704_140841.json",
+      "size_kb": 2.86,
+      "settings_count": 20
+    }
+  },
+  {
+    "id": 452,
+    "timestamp": "2025-07-04 14:08:46",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: settings_backup_20250704_140841.json",
+    "status": "Success",
+    "details": {
+      "backup_type": "settings",
+      "filename": "settings_backup_20250704_140841.json"
+    }
+  },
+  {
+    "id": 453,
+    "timestamp": "2025-07-04 14:08:52",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_140851.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140851.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 454,
+    "timestamp": "2025-07-04 14:08:56",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_140851.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_140851.zip"
+    }
+  },
+  {
+    "id": 455,
+    "timestamp": "2025-07-04 14:13:13",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_141312.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_141312.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 456,
+    "timestamp": "2025-07-04 14:13:15",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Settings backup created: settings_backup_20250704_141315.json",
+    "status": "Success",
+    "details": {
+      "backup_type": "settings",
+      "filename": "settings_backup_20250704_141315.json",
+      "size_kb": 2.86,
+      "settings_count": 20
+    }
+  },
+  {
+    "id": 457,
+    "timestamp": "2025-07-04 14:13:24",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: settings_backup_20250704_141315.json",
+    "status": "Success",
+    "details": {
+      "backup_type": "settings",
+      "filename": "settings_backup_20250704_141315.json"
+    }
+  },
+  {
+    "id": 458,
+    "timestamp": "2025-07-04 14:14:01",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_141312.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_141312.zip"
+    }
+  },
+  {
+    "id": 459,
+    "timestamp": "2025-07-04 14:16:55",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_141655_445956.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_141655_445956.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 460,
+    "timestamp": "2025-07-04 14:16:55",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_141655_445956.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_141655_445956.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250704_141655_445956.zip"
+    }
+  },
+  {
+    "id": 461,
+    "timestamp": "2025-07-04 14:16:56",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Settings backup created: settings_backup_20250704_141655_803870.json",
+    "status": "Success",
+    "details": {
+      "backup_type": "settings",
+      "filename": "settings_backup_20250704_141655_803870.json",
+      "size_kb": 2.86,
+      "settings_count": 20
+    }
+  },
+  {
+    "id": 462,
+    "timestamp": "2025-07-04 14:16:56",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: settings_backup_20250704_141655_803870.json",
+    "status": "Success",
+    "details": {
+      "backup_type": "settings",
+      "filename": "settings_backup_20250704_141655_803870.json",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\settings\\settings_backup_20250704_141655_803870.json"
+    }
+  },
+  {
+    "id": 463,
+    "timestamp": "2025-07-04 14:16:56",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_141656_441399.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_141656_441399.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 464,
+    "timestamp": "2025-07-04 14:16:56",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Settings backup created: settings_backup_20250704_141656_752549.json",
+    "status": "Success",
+    "details": {
+      "backup_type": "settings",
+      "filename": "settings_backup_20250704_141656_752549.json",
+      "size_kb": 2.86,
+      "settings_count": 20
+    }
+  },
+  {
+    "id": 465,
+    "timestamp": "2025-07-04 14:16:56",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_141656_441399.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_141656_441399.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250704_141656_441399.zip"
+    }
+  },
+  {
+    "id": 466,
+    "timestamp": "2025-07-04 14:16:56",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: settings_backup_20250704_141656_752549.json",
+    "status": "Success",
+    "details": {
+      "backup_type": "settings",
+      "filename": "settings_backup_20250704_141656_752549.json",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\settings\\settings_backup_20250704_141656_752549.json"
+    }
+  },
+  {
+    "id": 467,
+    "timestamp": "2025-07-04 14:21:45",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_142145_414836.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_142145_414836.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 468,
+    "timestamp": "2025-07-04 14:21:45",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_142145_414836.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_142145_414836.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250704_142145_414836.zip"
+    }
+  },
+  {
+    "id": 469,
+    "timestamp": "2025-07-04 14:21:46",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Settings backup created: settings_backup_20250704_142145_695662.json",
+    "status": "Success",
+    "details": {
+      "backup_type": "settings",
+      "filename": "settings_backup_20250704_142145_695662.json",
+      "size_kb": 2.86,
+      "settings_count": 20
+    }
+  },
+  {
+    "id": 470,
+    "timestamp": "2025-07-04 14:21:46",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: settings_backup_20250704_142145_695662.json",
+    "status": "Success",
+    "details": {
+      "backup_type": "settings",
+      "filename": "settings_backup_20250704_142145_695662.json",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\settings\\settings_backup_20250704_142145_695662.json"
+    }
+  },
+  {
+    "id": 471,
+    "timestamp": "2025-07-04 14:22:54",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_142254_522205.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_142254_522205.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 472,
+    "timestamp": "2025-07-04 14:22:55",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_142255_096932.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_142255_096932.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 473,
+    "timestamp": "2025-07-04 14:22:56",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_142255_778587.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_142255_778587.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 474,
+    "timestamp": "2025-07-04 14:22:56",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_142254_522205.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_142254_522205.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250704_142254_522205.zip"
+    }
+  },
+  {
+    "id": 475,
+    "timestamp": "2025-07-04 14:22:56",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_142255_096932.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_142255_096932.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250704_142255_096932.zip"
+    }
+  },
+  {
+    "id": 476,
+    "timestamp": "2025-07-04 14:22:56",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_142255_778587.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_142255_778587.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250704_142255_778587.zip"
+    }
+  },
+  {
+    "id": 477,
+    "timestamp": "2025-07-04 14:22:57",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Settings backup created: settings_backup_20250704_142256_593208.json",
+    "status": "Success",
+    "details": {
+      "backup_type": "settings",
+      "filename": "settings_backup_20250704_142256_593208.json",
+      "size_kb": 2.84,
+      "settings_count": 20
+    }
+  },
+  {
+    "id": 478,
+    "timestamp": "2025-07-04 14:22:57",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: settings_backup_20250704_142256_593208.json",
+    "status": "Success",
+    "details": {
+      "backup_type": "settings",
+      "filename": "settings_backup_20250704_142256_593208.json",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\settings\\settings_backup_20250704_142256_593208.json"
+    }
+  },
+  {
+    "id": 479,
+    "timestamp": "2025-07-04 14:23:43",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_142343.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_142343.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 480,
+    "timestamp": "2025-07-04 14:23:46",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Settings backup created: settings_backup_20250704_142346.json",
+    "status": "Success",
+    "details": {
+      "backup_type": "settings",
+      "filename": "settings_backup_20250704_142346.json",
+      "size_kb": 2.84,
+      "settings_count": 20
+    }
+  },
+  {
+    "id": 481,
+    "timestamp": "2025-07-04 14:23:51",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: settings_backup_20250704_142346.json",
+    "status": "Success",
+    "details": {
+      "backup_type": "settings",
+      "filename": "settings_backup_20250704_142346.json"
+    }
+  },
+  {
+    "id": 482,
+    "timestamp": "2025-07-04 14:23:57",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_142343.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_142343.zip"
+    }
+  },
+  {
+    "id": 483,
+    "timestamp": "2025-07-04 15:04:51",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_150449_945658.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_150449_945658.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 484,
+    "timestamp": "2025-07-04 15:04:51",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_150449_945658.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 485,
+    "timestamp": "2025-07-04 15:16:53",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_151652_857168.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_151652_857168.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 486,
+    "timestamp": "2025-07-04 15:16:53",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_151652_857168.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 487,
+    "timestamp": "2025-07-04 15:39:10",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250704_153909_976135.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_153909_976135.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 488,
+    "timestamp": "2025-07-04 15:39:10",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_153909_976135.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 489,
+    "timestamp": "2025-07-05 07:29:00",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 18 equipment maintenance tasks (1-day threshold, URGENT priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 1,
+      "priority_level": "URGENT",
+      "equipment_count": 18,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 490,
+    "timestamp": "2025-07-05 07:29:01",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 45 equipment maintenance tasks (7-day threshold, HIGH priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 7,
+      "priority_level": "HIGH",
+      "equipment_count": 45,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 491,
+    "timestamp": "2025-07-05 07:29:02",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 135 equipment maintenance tasks (15-day threshold, MEDIUM priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 15,
+      "priority_level": "MEDIUM",
+      "equipment_count": 135,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 492,
+    "timestamp": "2025-07-05 07:29:03",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 84 equipment maintenance tasks (30-day threshold, LOW priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 30,
+      "priority_level": "LOW",
+      "equipment_count": 84,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 493,
+    "timestamp": "2025-07-07 07:29:00",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 14 equipment maintenance tasks (1-day threshold, URGENT priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 1,
+      "priority_level": "URGENT",
+      "equipment_count": 14,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 494,
+    "timestamp": "2025-07-07 07:29:02",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 93 equipment maintenance tasks (7-day threshold, HIGH priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 7,
+      "priority_level": "HIGH",
+      "equipment_count": 93,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 495,
+    "timestamp": "2025-07-07 07:29:03",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 87 equipment maintenance tasks (15-day threshold, MEDIUM priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 15,
+      "priority_level": "MEDIUM",
+      "equipment_count": 87,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 496,
+    "timestamp": "2025-07-07 07:29:03",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 70 equipment maintenance tasks (30-day threshold, LOW priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 30,
+      "priority_level": "LOW",
+      "equipment_count": 70,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 497,
+    "timestamp": "2025-07-08 04:36:09",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250708_043608_711939.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_043608_711939.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 25,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 498,
+    "timestamp": "2025-07-08 04:36:09",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_043608_711939.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 499,
+    "timestamp": "2025-07-08 04:38:04",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_150449_945658.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_150449_945658.zip"
+    }
+  },
+  {
+    "id": 500,
+    "timestamp": "2025-07-08 04:38:08",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_151554_177344.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_151554_177344.zip"
+    }
+  },
+  {
+    "id": 501,
+    "timestamp": "2025-07-08 04:38:12",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_151652_857168.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_151652_857168.zip"
+    }
+  },
+  {
+    "id": 502,
+    "timestamp": "2025-07-08 04:38:17",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_151856_022876.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_151856_022876.zip"
+    }
+  },
+  {
+    "id": 503,
+    "timestamp": "2025-07-08 04:38:22",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250704_153909_976135.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250704_153909_976135.zip"
+    }
+  },
+  {
+    "id": 504,
+    "timestamp": "2025-07-08 04:38:29",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250708_043608_711939.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_043608_711939.zip"
+    }
+  },
+  {
+    "id": 505,
+    "timestamp": "2025-07-08 04:42:08",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 19 equipment maintenance tasks (1-day threshold, URGENT priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 1,
+      "priority_level": "URGENT",
+      "equipment_count": 19,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 506,
+    "timestamp": "2025-07-08 04:42:10",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 88 equipment maintenance tasks (7-day threshold, HIGH priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 7,
+      "priority_level": "HIGH",
+      "equipment_count": 88,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 507,
+    "timestamp": "2025-07-08 04:42:11",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 89 equipment maintenance tasks (15-day threshold, MEDIUM priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 15,
+      "priority_level": "MEDIUM",
+      "equipment_count": 89,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 508,
+    "timestamp": "2025-07-08 04:42:12",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 68 equipment maintenance tasks (30-day threshold, LOW priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 30,
+      "priority_level": "LOW",
+      "equipment_count": 68,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 509,
+    "timestamp": "2025-07-08 07:29:00",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 19 equipment maintenance tasks (1-day threshold, URGENT priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 1,
+      "priority_level": "URGENT",
+      "equipment_count": 19,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 510,
+    "timestamp": "2025-07-08 07:29:01",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 88 equipment maintenance tasks (7-day threshold, HIGH priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 7,
+      "priority_level": "HIGH",
+      "equipment_count": 88,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 511,
+    "timestamp": "2025-07-08 07:29:02",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 89 equipment maintenance tasks (15-day threshold, MEDIUM priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 15,
+      "priority_level": "MEDIUM",
+      "equipment_count": 89,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 512,
+    "timestamp": "2025-07-08 07:29:03",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 68 equipment maintenance tasks (30-day threshold, LOW priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 30,
+      "priority_level": "LOW",
+      "equipment_count": 68,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 513,
+    "timestamp": "2025-07-08 20:06:38",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 19 equipment maintenance tasks (1-day threshold, URGENT priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 1,
+      "priority_level": "URGENT",
+      "equipment_count": 19,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 514,
+    "timestamp": "2025-07-08 20:06:39",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 88 equipment maintenance tasks (7-day threshold, HIGH priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 7,
+      "priority_level": "HIGH",
+      "equipment_count": 88,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 515,
+    "timestamp": "2025-07-08 20:06:40",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 89 equipment maintenance tasks (15-day threshold, MEDIUM priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 15,
+      "priority_level": "MEDIUM",
+      "equipment_count": 89,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 516,
+    "timestamp": "2025-07-08 20:06:41",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 68 equipment maintenance tasks (30-day threshold, LOW priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 30,
+      "priority_level": "LOW",
+      "equipment_count": 68,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 517,
+    "timestamp": "2025-07-08 20:07:07",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 19 equipment maintenance tasks (1-day threshold, URGENT priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 1,
+      "priority_level": "URGENT",
+      "equipment_count": 19,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 518,
+    "timestamp": "2025-07-08 20:07:08",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 88 equipment maintenance tasks (7-day threshold, HIGH priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 7,
+      "priority_level": "HIGH",
+      "equipment_count": 88,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 519,
+    "timestamp": "2025-07-08 20:07:09",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 89 equipment maintenance tasks (15-day threshold, MEDIUM priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 15,
+      "priority_level": "MEDIUM",
+      "equipment_count": 89,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
+  },
+  {
+    "id": 520,
+    "timestamp": "2025-07-08 20:07:10",
+    "event_type": "Reminder Sent",
+    "performed_by": "System",
+    "description": "Email reminder sent for 68 equipment maintenance tasks (30-day threshold, LOW priority)",
+    "status": "Success",
+    "details": {
+      "threshold_days": 30,
+      "priority_level": "LOW",
+      "equipment_count": 68,
+      "recipient": "lolotam@gmail.com",
+      "email_type": "threshold_reminder"
+    }
   }
 ]
