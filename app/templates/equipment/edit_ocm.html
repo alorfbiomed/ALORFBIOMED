@@ -133,6 +133,20 @@
         </div>
     </form>
 </div>
+{% endblock %}
 
-
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Register department dropdown for real-time synchronization
+    const departmentSelect = document.getElementById('Department');
+    if (departmentSelect && window.registerDepartmentDropdown) {
+        window.registerDepartmentDropdown(departmentSelect, {
+            defaultOption: '<option value="">Select Department</option>',
+            useId: false // Use department name as value
+        });
+        console.log('OCM Edit Page: Department dropdown registered for synchronization');
+    }
+});
+</script>
 {% endblock %}

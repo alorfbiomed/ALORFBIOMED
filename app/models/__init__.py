@@ -21,6 +21,16 @@ from app.models.history import (
     HistoryAttachment,
     HistorySearchFilter
 )
+from app.models.department import (
+    Department,
+    DepartmentCreate,
+    DepartmentUpdate
+)
+from app.models.trainer import (
+    Trainer,
+    TrainerCreate,
+    TrainerUpdate
+)
 
 # Export the models
 __all__ = [
@@ -37,5 +47,11 @@ __all__ = [
     'HistoryNoteCreate',
     'HistoryNoteUpdate',
     'HistoryAttachment',
-    'HistorySearchFilter'
+    'HistorySearchFilter',
+    'Department',
+    'DepartmentCreate',
+    'DepartmentUpdate',
+    'Trainer',
+    'TrainerCreate',
+    'TrainerUpdate'
 ]

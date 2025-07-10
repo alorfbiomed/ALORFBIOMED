@@ -7073,5 +7073,966 @@
       "recipient": "lolotam@gmail.com",
       "email_type": "threshold_reminder"
     }
+  },
+  {
+    "id": 521,
+    "timestamp": "2025-07-08 22:45:51",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250708_224550_881116.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_224550_881116.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 522,
+    "timestamp": "2025-07-08 22:45:51",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_224550_881116.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 523,
+    "timestamp": "2025-07-08 22:48:32",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250708_224831_832895.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_224831_832895.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 524,
+    "timestamp": "2025-07-08 22:48:32",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_224831_832895.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 525,
+    "timestamp": "2025-07-08 22:49:17",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250708_224916_720132.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_224916_720132.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 526,
+    "timestamp": "2025-07-08 22:49:17",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_224916_720132.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 527,
+    "timestamp": "2025-07-08 22:49:54",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250708_224953_811579.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_224953_811579.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 528,
+    "timestamp": "2025-07-08 22:49:54",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_224953_811579.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 529,
+    "timestamp": "2025-07-08 23:02:49",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250708_230249_095789.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_230249_095789.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 530,
+    "timestamp": "2025-07-08 23:02:49",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_230249_095789.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 531,
+    "timestamp": "2025-07-08 23:45:52",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250708_234551_779168.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_234551_779168.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 532,
+    "timestamp": "2025-07-08 23:45:52",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_234551_779168.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 533,
+    "timestamp": "2025-07-08 23:48:32",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250708_234832_576367.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_234832_576367.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 534,
+    "timestamp": "2025-07-08 23:48:32",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_234832_576367.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 535,
+    "timestamp": "2025-07-08 23:49:17",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250708_234917_417777.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_234917_417777.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 536,
+    "timestamp": "2025-07-08 23:49:17",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_234917_417777.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 537,
+    "timestamp": "2025-07-08 23:49:55",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250708_234954_773369.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_234954_773369.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 538,
+    "timestamp": "2025-07-08 23:49:55",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_234954_773369.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 539,
+    "timestamp": "2025-07-08 23:59:47",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250708_235947_146870.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_235947_146870.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 540,
+    "timestamp": "2025-07-08 23:59:47",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_235947_146870.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 541,
+    "timestamp": "2025-07-09 00:02:50",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250709_000250_449834.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_000250_449834.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 542,
+    "timestamp": "2025-07-09 00:02:51",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_000250_449834.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 543,
+    "timestamp": "2025-07-09 00:45:52",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250709_004552_482003.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_004552_482003.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 544,
+    "timestamp": "2025-07-09 00:45:52",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_004552_482003.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 545,
+    "timestamp": "2025-07-09 00:48:33",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250709_004833_168250.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_004833_168250.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 546,
+    "timestamp": "2025-07-09 00:48:33",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_004833_168250.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 547,
+    "timestamp": "2025-07-09 00:48:36",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250709_004836_554542.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_004836_554542.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 548,
+    "timestamp": "2025-07-09 00:48:37",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_004836_554542.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 549,
+    "timestamp": "2025-07-09 00:49:18",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250709_004917_921946.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_004917_921946.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 550,
+    "timestamp": "2025-07-09 00:49:18",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_004917_921946.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 551,
+    "timestamp": "2025-07-09 00:49:55",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250709_004955_481919.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_004955_481919.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 552,
+    "timestamp": "2025-07-09 00:49:55",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_004955_481919.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 553,
+    "timestamp": "2025-07-09 00:59:48",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250709_005948_249685.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_005948_249685.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 554,
+    "timestamp": "2025-07-09 00:59:48",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_005948_249685.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 555,
+    "timestamp": "2025-07-09 01:02:56",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250709_010256_262469.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_010256_262469.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 556,
+    "timestamp": "2025-07-09 01:02:57",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_010256_262469.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 557,
+    "timestamp": "2025-07-10 03:46:43",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250710_034642_768648.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250710_034642_768648.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 558,
+    "timestamp": "2025-07-10 03:46:43",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 1h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250710_034642_768648.zip",
+      "size_mb": 0.23,
+      "interval_hours": 1,
+      "automatic": true
+    }
+  },
+  {
+    "id": 559,
+    "timestamp": "2025-07-10 04:00:50",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250710_034642_768648.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250710_034642_768648.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250710_034642_768648.zip"
+    }
+  },
+  {
+    "id": 560,
+    "timestamp": "2025-07-10 04:01:06",
+    "event_type": "Setting Changed",
+    "performed_by": "User",
+    "description": "Backup settings updated via API",
+    "status": "Success",
+    "details": {
+      "automatic_backup_enabled": true,
+      "automatic_backup_interval_hours": 24
+    }
+  },
+  {
+    "id": 561,
+    "timestamp": "2025-07-10 04:01:31",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250709_010256_262469.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_010256_262469.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250709_010256_262469.zip"
+    }
+  },
+  {
+    "id": 562,
+    "timestamp": "2025-07-10 04:01:42",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250708_044934_516478.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_044934_516478.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250708_044934_516478.zip"
+    }
+  },
+  {
+    "id": 563,
+    "timestamp": "2025-07-10 04:01:47",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250708_103009_534314.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_103009_534314.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250708_103009_534314.zip"
+    }
+  },
+  {
+    "id": 564,
+    "timestamp": "2025-07-10 04:01:53",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250708_224427_650394.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_224427_650394.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250708_224427_650394.zip"
+    }
+  },
+  {
+    "id": 565,
+    "timestamp": "2025-07-10 04:01:57",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250708_224550_881116.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_224550_881116.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250708_224550_881116.zip"
+    }
+  },
+  {
+    "id": 566,
+    "timestamp": "2025-07-10 04:02:03",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250708_224831_832895.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_224831_832895.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250708_224831_832895.zip"
+    }
+  },
+  {
+    "id": 567,
+    "timestamp": "2025-07-10 04:02:09",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250708_224916_720132.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_224916_720132.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250708_224916_720132.zip"
+    }
+  },
+  {
+    "id": 568,
+    "timestamp": "2025-07-10 04:02:14",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250708_224953_811579.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_224953_811579.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250708_224953_811579.zip"
+    }
+  },
+  {
+    "id": 569,
+    "timestamp": "2025-07-10 04:02:19",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250708_230249_095789.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_230249_095789.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250708_230249_095789.zip"
+    }
+  },
+  {
+    "id": 570,
+    "timestamp": "2025-07-10 04:02:23",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250708_234551_779168.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_234551_779168.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250708_234551_779168.zip"
+    }
+  },
+  {
+    "id": 571,
+    "timestamp": "2025-07-10 04:02:27",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250708_234832_576367.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_234832_576367.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250708_234832_576367.zip"
+    }
+  },
+  {
+    "id": 572,
+    "timestamp": "2025-07-10 04:02:32",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250708_234917_417777.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_234917_417777.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250708_234917_417777.zip"
+    }
+  },
+  {
+    "id": 573,
+    "timestamp": "2025-07-10 04:02:37",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250709_005948_249685.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_005948_249685.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250709_005948_249685.zip"
+    }
+  },
+  {
+    "id": 574,
+    "timestamp": "2025-07-10 04:02:42",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250708_234954_773369.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_234954_773369.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250708_234954_773369.zip"
+    }
+  },
+  {
+    "id": 575,
+    "timestamp": "2025-07-10 04:02:47",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250709_000250_449834.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_000250_449834.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250709_000250_449834.zip"
+    }
+  },
+  {
+    "id": 576,
+    "timestamp": "2025-07-10 04:02:57",
+    "event_type": "Data Export",
+    "performed_by": "User",
+    "description": "Downloaded backup file: full_backup_20250709_004955_481919.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_004955_481919.zip"
+    }
+  },
+  {
+    "id": 577,
+    "timestamp": "2025-07-10 04:02:57",
+    "event_type": "Data Export",
+    "performed_by": "User",
+    "description": "Downloaded backup file: full_backup_20250709_004955_481919.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_004955_481919.zip"
+    }
+  },
+  {
+    "id": 578,
+    "timestamp": "2025-07-10 04:02:59",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250709_004955_481919.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_004955_481919.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250709_004955_481919.zip"
+    }
+  },
+  {
+    "id": 579,
+    "timestamp": "2025-07-10 04:03:06",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250709_004917_921946.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_004917_921946.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250709_004917_921946.zip"
+    }
+  },
+  {
+    "id": 580,
+    "timestamp": "2025-07-10 04:03:11",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250709_004836_554542.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_004836_554542.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250709_004836_554542.zip"
+    }
+  },
+  {
+    "id": 581,
+    "timestamp": "2025-07-10 04:03:16",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250709_004833_168250.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_004833_168250.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250709_004833_168250.zip"
+    }
+  },
+  {
+    "id": 582,
+    "timestamp": "2025-07-10 04:03:21",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250709_004552_482003.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250709_004552_482003.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250709_004552_482003.zip"
+    }
+  },
+  {
+    "id": 583,
+    "timestamp": "2025-07-10 04:03:26",
+    "event_type": "Backup Deleted",
+    "performed_by": "User",
+    "description": "Backup deleted: full_backup_20250708_235947_146870.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250708_235947_146870.zip",
+      "file_path": "C:\\ALORFBIOMED\\data\\backups\\full\\full_backup_20250708_235947_146870.zip"
+    }
+  },
+  {
+    "id": 584,
+    "timestamp": "2025-07-10 04:09:41",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250710_040940_531377.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250710_040940_531377.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 585,
+    "timestamp": "2025-07-10 04:09:41",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 24h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250710_040940_531377.zip",
+      "size_mb": 0.23,
+      "interval_hours": 24,
+      "automatic": true
+    }
+  },
+  {
+    "id": 586,
+    "timestamp": "2025-07-10 04:09:43",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250710_040943_218221.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250710_040943_218221.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 587,
+    "timestamp": "2025-07-10 04:09:44",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 24h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250710_040943_218221.zip",
+      "size_mb": 0.23,
+      "interval_hours": 24,
+      "automatic": true
+    }
+  },
+  {
+    "id": 588,
+    "timestamp": "2025-07-10 04:13:12",
+    "event_type": "User Action",
+    "performed_by": "User",
+    "description": "Accessed audit log page",
+    "status": "Info",
+    "details": {}
   }
 ]

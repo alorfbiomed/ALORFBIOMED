@@ -14,7 +14,7 @@
   "enable_automatic_reminders": true,
   "cc_emails": "lolotam@gmail.com",
   "automatic_backup_enabled": true,
-  "automatic_backup_interval_hours": 1,
+  "automatic_backup_interval_hours": 24,
   "users": [
     {
       "username": "admin",

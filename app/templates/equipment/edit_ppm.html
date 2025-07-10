@@ -195,6 +195,15 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Register department dropdown for real-time synchronization
+    const departmentSelect = document.getElementById('Department');
+    if (departmentSelect && window.registerDepartmentDropdown) {
+        window.registerDepartmentDropdown(departmentSelect, {
+            defaultOption: '<option value="">Select Department</option>',
+            useId: false // Use department name as value
+        });
+    }
+
     // Form validation can be added here if needed
     console.log('PPM Edit form loaded with individual quarter status fields');
 });

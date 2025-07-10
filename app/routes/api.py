@@ -21,6 +21,10 @@ from app.services import training_service # Import the module
 from flask_login import current_user
 from app.services.logging_service import LoggingService
 from app.utils.encoding_utils import EncodingDetector
+from app.services.department_service import DepartmentService
+from app.services.trainer_service import TrainerService
+from app.models.department import DepartmentCreate, DepartmentUpdate
+from app.models.trainer import TrainerCreate, TrainerUpdate
 
 # ImportExportService and ValidationService removed
 
@@ -1419,6 +1423,229 @@ def delete_history_note(note_id):
             'success': True,
             'message': 'History note deleted successfully'
         })
+
+    except Exception as e:
+        logger.error(f"Error deleting history note: {e}")
+        return jsonify({'error': 'Failed to delete history note'}), 500
+
+
+# --- Department Management API Routes ---
+
+@api_bp.route("/departments", methods=["GET"])
+@permission_required(["settings_manage"])
+def get_departments():
+    """Get all departments."""
+    try:
+        departments = DepartmentService.get_all_departments()
+        return jsonify([dept.to_dict() for dept in departments]), 200
+    except Exception as e:
+        logger.error(f"Error getting departments: {str(e)}")
+        return jsonify({"error": "Failed to retrieve departments"}), 500
+
+@api_bp.route("/departments", methods=["POST"])
+@permission_required(["settings_manage"])
+def create_department():
+    """Create a new department."""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+
+        # Validate data
+        department_data = DepartmentCreate(**data)
+
+        # Create department
+        new_department = DepartmentService.create_department(department_data)
+
+        return jsonify(new_department.to_dict()), 201
+    except ValueError as e:
+        logger.warning(f"Validation error creating department: {str(e)}")
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error creating department: {str(e)}")
+        return jsonify({"error": "Failed to create department"}), 500
+
+@api_bp.route("/departments/<int:department_id>", methods=["GET"])
+@permission_required(["settings_manage"])
+def get_department(department_id):
+    """Get department by ID."""
+    try:
+        department = DepartmentService.get_department_by_id(department_id)
+        if not department:
+            return jsonify({"error": "Department not found"}), 404
+
+        return jsonify(department.to_dict()), 200
+    except Exception as e:
+        logger.error(f"Error getting department {department_id}: {str(e)}")
+        return jsonify({"error": "Failed to retrieve department"}), 500
+
+@api_bp.route("/departments/<int:department_id>", methods=["PUT"])
+@permission_required(["settings_manage"])
+def update_department(department_id):
+    """Update department by ID."""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+
+        # Validate data
+        update_data = DepartmentUpdate(**data)
+
+        # Update department
+        updated_department = DepartmentService.update_department(department_id, update_data)
+        if not updated_department:
+            return jsonify({"error": "Department not found"}), 404
+
+        return jsonify(updated_department.to_dict()), 200
+    except ValueError as e:
+        logger.warning(f"Validation error updating department {department_id}: {str(e)}")
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error updating department {department_id}: {str(e)}")
+        return jsonify({"error": "Failed to update department"}), 500
+
+@api_bp.route("/departments/<int:department_id>", methods=["DELETE"])
+@permission_required(["settings_manage"])
+def delete_department(department_id):
+    """Delete department by ID."""
+    try:
+        success = DepartmentService.delete_department(department_id)
+        if not success:
+            return jsonify({"error": "Department not found"}), 404
+
+        return jsonify({"message": "Department deleted successfully"}), 200
+    except ValueError as e:
+        logger.warning(f"Error deleting department {department_id}: {str(e)}")
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error deleting department {department_id}: {str(e)}")
+        return jsonify({"error": "Failed to delete department"}), 500
+
+@api_bp.route("/departments/dropdown", methods=["GET"])
+@permission_required(["dashboard_view"])
+def get_departments_dropdown():
+    """Get departments formatted for dropdown use."""
+    try:
+        departments = DepartmentService.get_departments_for_dropdown()
+        return jsonify(departments), 200
+    except Exception as e:
+        logger.error(f"Error getting departments for dropdown: {str(e)}")
+        return jsonify({"error": "Failed to retrieve departments"}), 500
+
+
+# --- Trainer Management API Routes ---
+
+@api_bp.route("/trainers", methods=["GET"])
+@permission_required(["settings_manage"])
+def get_trainers():
+    """Get all trainers with department information."""
+    try:
+        trainers = TrainerService.get_trainers_with_department_info()
+        return jsonify(trainers), 200
+    except Exception as e:
+        logger.error(f"Error getting trainers: {str(e)}")
+        return jsonify({"error": "Failed to retrieve trainers"}), 500
+
+@api_bp.route("/trainers", methods=["POST"])
+@permission_required(["settings_manage"])
+def create_trainer():
+    """Create a new trainer."""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+
+        # Validate data
+        trainer_data = TrainerCreate(**data)
+
+        # Create trainer
+        new_trainer = TrainerService.create_trainer(trainer_data)
+
+        return jsonify(new_trainer.to_dict()), 201
+    except ValueError as e:
+        logger.warning(f"Validation error creating trainer: {str(e)}")
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error creating trainer: {str(e)}")
+        return jsonify({"error": "Failed to create trainer"}), 500
+
+@api_bp.route("/trainers/<int:trainer_id>", methods=["GET"])
+@permission_required(["settings_manage"])
+def get_trainer(trainer_id):
+    """Get trainer by ID."""
+    try:
+        trainer = TrainerService.get_trainer_by_id(trainer_id)
+        if not trainer:
+            return jsonify({"error": "Trainer not found"}), 404
+
+        return jsonify(trainer.to_dict()), 200
+    except Exception as e:
+        logger.error(f"Error getting trainer {trainer_id}: {str(e)}")
+        return jsonify({"error": "Failed to retrieve trainer"}), 500
+
+@api_bp.route("/trainers/<int:trainer_id>", methods=["PUT"])
+@permission_required(["settings_manage"])
+def update_trainer(trainer_id):
+    """Update trainer by ID."""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+
+        # Validate data
+        update_data = TrainerUpdate(**data)
+
+        # Update trainer
+        updated_trainer = TrainerService.update_trainer(trainer_id, update_data)
+        if not updated_trainer:
+            return jsonify({"error": "Trainer not found"}), 404
+
+        return jsonify(updated_trainer.to_dict()), 200
+    except ValueError as e:
+        logger.warning(f"Validation error updating trainer {trainer_id}: {str(e)}")
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error updating trainer {trainer_id}: {str(e)}")
+        return jsonify({"error": "Failed to update trainer"}), 500
+
+@api_bp.route("/trainers/<int:trainer_id>", methods=["DELETE"])
+@permission_required(["settings_manage"])
+def delete_trainer(trainer_id):
+    """Delete trainer by ID."""
+    try:
+        success = TrainerService.delete_trainer(trainer_id)
+        if not success:
+            return jsonify({"error": "Trainer not found"}), 404
+
+        return jsonify({"message": "Trainer deleted successfully"}), 200
+    except ValueError as e:
+        logger.warning(f"Error deleting trainer {trainer_id}: {str(e)}")
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error deleting trainer {trainer_id}: {str(e)}")
+        return jsonify({"error": "Failed to delete trainer"}), 500
+
+@api_bp.route("/trainers/dropdown", methods=["GET"])
+@permission_required(["dashboard_view"])
+def get_trainers_dropdown():
+    """Get trainers formatted for dropdown use."""
+    try:
+        trainers = TrainerService.get_trainers_for_dropdown()
+        return jsonify(trainers), 200
+    except Exception as e:
+        logger.error(f"Error getting trainers for dropdown: {str(e)}")
+        return jsonify({"error": "Failed to retrieve trainers"}), 500
+
+@api_bp.route("/trainers/department/<int:department_id>", methods=["GET"])
+@permission_required(["dashboard_view"])
+def get_trainers_by_department(department_id):
+    """Get trainers by department ID."""
+    try:
+        trainers = TrainerService.get_trainers_by_department(department_id)
+        return jsonify([trainer.to_dict() for trainer in trainers]), 200
+    except Exception as e:
+        logger.error(f"Error getting trainers by department {department_id}: {str(e)}")
+        return jsonify({"error": "Failed to retrieve trainers"}), 500
 
     except Exception as e:
         logger.error(f"Error deleting history note: {e}")

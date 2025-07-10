@@ -260,6 +260,14 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Register department dropdown for real-time synchronization
+    const departmentSelect = document.getElementById('Department');
+    if (departmentSelect && window.registerDepartmentDropdown) {
+        window.registerDepartmentDropdown(departmentSelect, {
+            defaultOption: '<option value="">Select Department</option>',
+            useId: false // Use department name as value
+        });
+    }
     const q1DateInput = document.getElementById('PPM_Q_I_date');
     const q2DateInput = document.getElementById('PPM_Q_II_date');
     const q3DateInput = document.getElementById('PPM_Q_III_date');

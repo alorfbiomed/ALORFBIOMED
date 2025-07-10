@@ -22,6 +22,8 @@ from app.services.backup_service import BackupService
 from app.services.import_export import ImportExportService
 from app.services.history_service import HistoryService
 from app.services.quarter_service import QuarterService
+from app.services.department_service import DepartmentService
+from app.services.trainer_service import TrainerService
 from app.models.history import HistoryNoteCreate, HistoryNoteUpdate
 from app.constants import (
     DEPARTMENTS, TRAINING_MODULES, QUARTER_STATUS_OPTIONS, GENERAL_STATUS_OPTIONS,
@@ -925,15 +927,29 @@ def download_bulk_barcodes(data_type):
 @views_bp.route('/equipment/machine-assignment')
 @permission_required(['equipment_ppm_write', 'equipment_ocm_write'])
 def machine_assignment():
-    """Display the machine assignment page."""
-    # if not session.get('is_admin'): # Replaced by decorator
-    #     return redirect(url_for('views.login'))
-    
-    return render_template('equipment/machine_assignment.html',
-                         departments=DEPARTMENTS,
-                         training_modules=TRAINING_MODULES,
-                         devices_by_department=DEVICES_BY_DEPARTMENT,
-                         trainers=TRAINERS)
+    """Display the machine assignment page with master data management."""
+    try:
+        # Get departments from new service (fallback to constants if empty)
+        departments_data = DepartmentService.get_departments_for_dropdown()
+        departments_list = [dept['name'] for dept in departments_data] if departments_data else DEPARTMENTS
+
+        # Get trainers from new service (fallback to constants if empty)
+        trainers_data = TrainerService.get_trainers_for_dropdown()
+        trainers_list = [trainer['name'] for trainer in trainers_data] if trainers_data else TRAINERS
+
+        return render_template('equipment/machine_assignment.html',
+                             departments=departments_list,
+                             training_modules=TRAINING_MODULES,
+                             devices_by_department=DEVICES_BY_DEPARTMENT,
+                             trainers=trainers_list)
+    except Exception as e:
+        logger.error(f"Error loading machine assignment page: {str(e)}")
+        # Fallback to constants if services fail
+        return render_template('equipment/machine_assignment.html',
+                             departments=DEPARTMENTS,
+                             training_modules=TRAINING_MODULES,
+                             devices_by_department=DEVICES_BY_DEPARTMENT,
+                             trainers=TRAINERS)
 
 @views_bp.route('/equipment/machine-assignment', methods=['POST'])
 @permission_required(['equipment_ppm_write', 'equipment_ocm_write'])

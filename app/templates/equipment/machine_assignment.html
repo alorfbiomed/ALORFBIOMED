@@ -1,17 +1,66 @@
 {% extends 'base.html' %}
 
-{% block title %}Machine Assignment{% endblock %}
+{% block title %}Machine Assignment & Master Data{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">Machine Assignment</h4>
-                    <p class="text-muted mb-0">Assign trainers to machines by department</p>
+<div class="container-fluid px-4">
+    <!-- Modern Header Section -->
+    <div class="hero-header mb-5">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="modern-title mb-2">
+                    <i class="fas fa-cogs text-gradient me-3"></i>
+                    Machine Assignment & Master Data
+                </h1>
+                <p class="hero-subtitle mb-0">Manage machine assignments, departments, and trainers</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert container -->
+    <div id="alertContainer" class="mb-4"></div>
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs modern-tabs mb-4" id="managementTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="machine-assignment-tab" data-bs-toggle="tab"
+                    data-bs-target="#machine-assignment" type="button" role="tab"
+                    aria-controls="machine-assignment" aria-selected="true">
+                <i class="fas fa-tasks me-2"></i>Machine Assignment
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="departments-tab" data-bs-toggle="tab"
+                    data-bs-target="#departments" type="button" role="tab"
+                    aria-controls="departments" aria-selected="false">
+                <i class="fas fa-building me-2"></i>Department Management
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="trainers-tab" data-bs-toggle="tab"
+                    data-bs-target="#trainers" type="button" role="tab"
+                    aria-controls="trainers" aria-selected="false">
+                <i class="fas fa-chalkboard-teacher me-2"></i>Trainer Management
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="managementTabsContent">
+        <!-- Machine Assignment Tab -->
+        <div class="tab-pane fade show active" id="machine-assignment" role="tabpanel"
+             aria-labelledby="machine-assignment-tab">
+            <div class="modern-card">
+                <div class="modern-card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title mb-1">Machine Assignment</h5>
+                        <small class="card-subtitle">Assign trainers to machines by department</small>
+                    </div>
                 </div>
-                <div class="card-body">
+                <div class="modern-card-body">
                     <form id="machineAssignmentForm">
                         <!-- Department Selection -->
                         <div class="row mb-4">
@@ -45,6 +94,157 @@
                 </div>
             </div>
         </div>
+
+        <!-- Department Management Tab -->
+        <div class="tab-pane fade" id="departments" role="tabpanel" aria-labelledby="departments-tab">
+            <div class="modern-card">
+                <div class="modern-card-header department-header">
+                    <div class="card-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title mb-1">Department Management</h5>
+                        <small class="card-subtitle">Manage hospital departments</small>
+                    </div>
+                    <div class="ms-auto">
+                        <button type="button" class="btn btn-modern btn-primary" id="addDepartmentBtn">
+                            <i class="fas fa-plus me-2"></i>Add Department
+                        </button>
+                    </div>
+                </div>
+                <div class="modern-card-body">
+                    <!-- Department Table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="departmentsTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Department Name</th>
+                                    <th>Information</th>
+                                    <th>Created Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Department data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trainer Management Tab -->
+        <div class="tab-pane fade" id="trainers" role="tabpanel" aria-labelledby="trainers-tab">
+            <div class="modern-card">
+                <div class="modern-card-header trainer-header">
+                    <div class="card-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title mb-1">Trainer Management</h5>
+                        <small class="card-subtitle">Manage training staff</small>
+                    </div>
+                    <div class="ms-auto">
+                        <button type="button" class="btn btn-modern btn-primary" id="addTrainerBtn">
+                            <i class="fas fa-plus me-2"></i>Add Trainer
+                        </button>
+                    </div>
+                </div>
+                <div class="modern-card-body">
+                    <!-- Trainer Table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="trainersTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Department</th>
+                                    <th>Telephone</th>
+                                    <th>Information</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Trainer data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Department Modal -->
+<div class="modal fade" id="departmentModal" tabindex="-1" aria-labelledby="departmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="departmentModalLabel">Add Department</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="departmentForm">
+                <div class="modal-body">
+                    <input type="hidden" id="departmentId" name="id">
+                    <div class="mb-3">
+                        <label for="departmentName" class="form-label">Department Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="departmentName" name="department_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="departmentInformation" class="form-label">Information</label>
+                        <textarea class="form-control" id="departmentInformation" name="information" rows="3"
+                                  placeholder="Optional description or notes about the department"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Department</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Trainer Modal -->
+<div class="modal fade" id="trainerModal" tabindex="-1" aria-labelledby="trainerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="trainerModalLabel">Add Trainer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="trainerForm">
+                <div class="modal-body">
+                    <input type="hidden" id="trainerId" name="id">
+                    <div class="mb-3">
+                        <label for="trainerName" class="form-label">Trainer Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="trainerName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="trainerDepartment" class="form-label">Department</label>
+                        <select class="form-select" id="trainerDepartment" name="department_id">
+                            <option value="">Select Department</option>
+                            <!-- Department options will be populated dynamically -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="trainerTelephone" class="form-label">Telephone</label>
+                        <input type="tel" class="form-control" id="trainerTelephone" name="telephone"
+                               placeholder="e.g., +1-234-567-8900">
+                    </div>
+                    <div class="mb-3">
+                        <label for="trainerInformation" class="form-label">Information</label>
+                        <textarea class="form-control" id="trainerInformation" name="information" rows="3"
+                                  placeholder="Optional description or notes about the trainer"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Trainer</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -76,6 +276,204 @@
 </template>
 
 <style>
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --department-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    --trainer-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+
+    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    --card-shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.15);
+    --border-radius: 20px;
+    --border-radius-small: 12px;
+
+    --text-primary: #2d3748;
+    --text-secondary: #718096;
+    --text-muted: #a0aec0;
+
+    --bg-light: #f8fafc;
+    --bg-white: #ffffff;
+}
+
+/* Hero Header */
+.hero-header {
+    background: var(--primary-gradient);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    color: white;
+    margin-bottom: 2rem;
+    box-shadow: var(--card-shadow);
+}
+
+.modern-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.text-gradient {
+    background: linear-gradient(45deg, #fff, #e2e8f0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Modern Tabs */
+.modern-tabs {
+    border: none;
+    background: var(--bg-light);
+    border-radius: var(--border-radius-small);
+    padding: 0.5rem;
+}
+
+.modern-tabs .nav-link {
+    border: none;
+    border-radius: var(--border-radius-small);
+    color: var(--text-secondary);
+    font-weight: 500;
+    padding: 1rem 1.5rem;
+    margin: 0 0.25rem;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+}
+
+.modern-tabs .nav-link:hover {
+    background: rgba(255, 255, 255, 0.8);
+    color: var(--text-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.modern-tabs .nav-link.active {
+    background: var(--primary-gradient);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Modern Cards */
+.modern-card {
+    background: var(--bg-white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    border: none;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.modern-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow-hover);
+}
+
+.modern-card-header {
+    padding: 1.5rem;
+    background: var(--bg-light);
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+}
+
+.modern-card-header.department-header {
+    background: var(--department-gradient);
+    color: white;
+}
+
+.modern-card-header.trainer-header {
+    background: var(--trainer-gradient);
+    color: var(--text-primary);
+}
+
+.modern-card-body {
+    padding: 2rem;
+}
+
+.card-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1.2rem;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.card-subtitle {
+    opacity: 0.8;
+}
+
+/* Modern Buttons */
+.btn-modern {
+    border-radius: var(--border-radius-small);
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    border: none;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-modern.btn-primary {
+    background: var(--primary-gradient);
+    color: white;
+}
+
+.btn-modern.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    color: white;
+}
+
+.btn-modern.btn-success {
+    background: var(--success-gradient);
+    color: white;
+}
+
+.btn-modern.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(17, 153, 142, 0.3);
+    color: white;
+}
+
+.btn-modern.btn-warning {
+    background: var(--warning-gradient);
+    color: white;
+}
+
+.btn-modern.btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(240, 147, 251, 0.3);
+    color: white;
+}
+
+/* Table Styling */
+.table-hover tbody tr:hover {
+    background-color: rgba(102, 126, 234, 0.05);
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Machine Assignment Specific */
 .machine-assignment-row .card {
     transition: all 0.3s ease;
 }
@@ -91,6 +489,76 @@
 .trainer-select:disabled {
     background-color: #f8f9fa;
 }
+
+/* Alert Styling */
+.alert {
+    border-radius: var(--border-radius-small);
+    border: none;
+    padding: 1rem 1.5rem;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, rgba(17, 153, 142, 0.1) 0%, rgba(56, 239, 125, 0.1) 100%);
+    color: #0f5132;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, rgba(240, 147, 251, 0.1) 0%, rgba(245, 87, 108, 0.1) 100%);
+    color: #842029;
+}
+
+/* Modal Styling */
+.modal-content {
+    border-radius: var(--border-radius);
+    border: none;
+    box-shadow: var(--card-shadow-hover);
+}
+
+.modal-header {
+    background: var(--bg-light);
+    border-bottom: 1px solid #e2e8f0;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.modal-footer {
+    background: var(--bg-light);
+    border-top: 1px solid #e2e8f0;
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+}
+
+/* Form Controls */
+.form-control, .form-select {
+    border-radius: var(--border-radius-small);
+    border: 2px solid #e2e8f0;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .modern-title {
+        font-size: 2rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+
+    .modern-card-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .card-icon {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+}
 </style>
 {% endblock %}
 
@@ -99,6 +567,12 @@
 <script>
 const devicesByDepartment = {{ devices_by_department|tojson }};
 const trainers = {{ trainers|tojson }};
+
+// Global variables for department and trainer management
+let departments = [];
+let trainersData = [];
+let currentEditingDepartment = null;
+let currentEditingTrainer = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     const departmentSelect = document.getElementById('departmentSelect');
@@ -194,16 +668,430 @@ document.addEventListener('DOMContentLoaded', function() {
 function clearAssignments() {
     const checkboxes = document.querySelectorAll('.machine-checkbox');
     const trainerSelects = document.querySelectorAll('.trainer-select');
-    
+
     checkboxes.forEach(checkbox => {
         checkbox.checked = false;
     });
-    
+
     trainerSelects.forEach(select => {
         select.disabled = true;
         select.value = '';
     });
 }
+
+// Department Management Functions
+function loadDepartments() {
+    fetch('/api/departments')
+        .then(response => response.json())
+        .then(data => {
+            departments = data;
+            renderDepartmentsTable();
+            updateDepartmentDropdowns();
+        })
+        .catch(error => {
+            console.error('Error loading departments:', error);
+            showAlert('Error loading departments', 'danger');
+        });
+}
+
+function renderDepartmentsTable() {
+    const tbody = document.querySelector('#departmentsTable tbody');
+    tbody.innerHTML = '';
+
+    departments.forEach(dept => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${dept.id}</td>
+            <td>${dept.department_name}</td>
+            <td>${dept.information || '-'}</td>
+            <td>${new Date(dept.created_date).toLocaleDateString()}</td>
+            <td>
+                <button class="btn btn-sm btn-modern btn-warning me-2" onclick="editDepartment(${dept.id})">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-modern btn-danger" onclick="deleteDepartment(${dept.id})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function showDepartmentModal(department = null) {
+    const modal = new bootstrap.Modal(document.getElementById('departmentModal'));
+    const form = document.getElementById('departmentForm');
+    const title = document.getElementById('departmentModalLabel');
+
+    if (department) {
+        title.textContent = 'Edit Department';
+        document.getElementById('departmentId').value = department.id;
+        document.getElementById('departmentName').value = department.department_name;
+        document.getElementById('departmentInformation').value = department.information || '';
+        currentEditingDepartment = department;
+    } else {
+        title.textContent = 'Add Department';
+        form.reset();
+        currentEditingDepartment = null;
+    }
+
+    modal.show();
+}
+
+function editDepartment(departmentId) {
+    const department = departments.find(d => d.id === departmentId);
+    if (department) {
+        showDepartmentModal(department);
+    }
+}
+
+function deleteDepartment(departmentId) {
+    if (confirm('Are you sure you want to delete this department?')) {
+        fetch(`/api/departments/${departmentId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json().then(data => ({ success: true, data }));
+            } else {
+                return response.json().then(data => ({ success: false, data }));
+            }
+        })
+        .then(result => {
+            if (result.success) {
+                showAlert('Department deleted successfully', 'success');
+                loadDepartments();
+            } else {
+                showAlert(result.data.error || 'Error deleting department', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting department:', error);
+            showAlert('Error deleting department', 'danger');
+        });
+    }
+}
+
+// Trainer Management Functions
+function loadTrainers() {
+    fetch('/api/trainers')
+        .then(response => response.json())
+        .then(data => {
+            trainersData = data;
+            renderTrainersTable();
+        })
+        .catch(error => {
+            console.error('Error loading trainers:', error);
+            showAlert('Error loading trainers', 'danger');
+        });
+}
+
+function renderTrainersTable() {
+    const tbody = document.querySelector('#trainersTable tbody');
+    tbody.innerHTML = '';
+
+    trainersData.forEach(trainer => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${trainer.id}</td>
+            <td>${trainer.name}</td>
+            <td>${trainer.department_name || '-'}</td>
+            <td>${trainer.telephone || '-'}</td>
+            <td>${trainer.information || '-'}</td>
+            <td>
+                <button class="btn btn-sm btn-modern btn-warning me-2" onclick="editTrainer(${trainer.id})">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-modern btn-danger" onclick="deleteTrainer(${trainer.id})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function showTrainerModal(trainer = null) {
+    const modal = new bootstrap.Modal(document.getElementById('trainerModal'));
+    const form = document.getElementById('trainerForm');
+    const title = document.getElementById('trainerModalLabel');
+
+    if (trainer) {
+        title.textContent = 'Edit Trainer';
+        document.getElementById('trainerId').value = trainer.id;
+        document.getElementById('trainerName').value = trainer.name;
+        document.getElementById('trainerDepartment').value = trainer.department_id || '';
+        document.getElementById('trainerTelephone').value = trainer.telephone || '';
+        document.getElementById('trainerInformation').value = trainer.information || '';
+        currentEditingTrainer = trainer;
+    } else {
+        title.textContent = 'Add Trainer';
+        form.reset();
+        currentEditingTrainer = null;
+    }
+
+    modal.show();
+}
+
+function editTrainer(trainerId) {
+    const trainer = trainersData.find(t => t.id === trainerId);
+    if (trainer) {
+        showTrainerModal(trainer);
+    }
+}
+
+function deleteTrainer(trainerId) {
+    if (confirm('Are you sure you want to delete this trainer?')) {
+        fetch(`/api/trainers/${trainerId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json().then(data => ({ success: true, data }));
+            } else {
+                return response.json().then(data => ({ success: false, data }));
+            }
+        })
+        .then(result => {
+            if (result.success) {
+                showAlert('Trainer deleted successfully', 'success');
+                loadTrainers();
+            } else {
+                showAlert(result.data.error || 'Error deleting trainer', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting trainer:', error);
+            showAlert('Error deleting trainer', 'danger');
+        });
+    }
+}
+
+function updateDepartmentDropdowns() {
+    // Update trainer department dropdown (existing functionality)
+    const trainerDepartmentSelect = document.getElementById('trainerDepartment');
+    if (trainerDepartmentSelect) {
+        trainerDepartmentSelect.innerHTML = '<option value="">Select Department</option>';
+        departments.forEach(dept => {
+            const option = document.createElement('option');
+            option.value = dept.id;
+            option.textContent = dept.department_name;
+            trainerDepartmentSelect.appendChild(option);
+        });
+    }
+
+    // Update main machine assignment department dropdown
+    const mainDepartmentSelect = document.getElementById('departmentSelect');
+    if (mainDepartmentSelect) {
+        const currentValue = mainDepartmentSelect.value;
+        mainDepartmentSelect.innerHTML = '<option value="">Choose a department...</option>';
+        departments.forEach(dept => {
+            const option = document.createElement('option');
+            option.value = dept.department_name;
+            option.textContent = dept.department_name;
+            mainDepartmentSelect.appendChild(option);
+        });
+        // Restore previous selection if it still exists
+        if (currentValue) {
+            mainDepartmentSelect.value = currentValue;
+        }
+    }
+
+    // Broadcast department update event to other pages/forms
+    broadcastDepartmentUpdate();
+}
+
+// Global Department Synchronization System
+function broadcastDepartmentUpdate() {
+    // Create a custom event with department data
+    const departmentUpdateEvent = new CustomEvent('departmentsUpdated', {
+        detail: {
+            departments: departments,
+            timestamp: Date.now()
+        }
+    });
+
+    // Dispatch to document for global listening
+    document.dispatchEvent(departmentUpdateEvent);
+
+    // Also store in localStorage for cross-tab synchronization
+    localStorage.setItem('departmentsData', JSON.stringify({
+        departments: departments,
+        timestamp: Date.now()
+    }));
+
+    console.log('Department update broadcasted to all forms');
+}
+
+// Global function to get current departments (for other pages to use)
+window.getCurrentDepartments = function() {
+    return departments || [];
+};
+
+// Global function to update a specific dropdown (for other pages to use)
+window.updateSpecificDepartmentDropdown = function(selectElement, options = {}) {
+    if (!selectElement) return;
+
+    const currentValue = selectElement.value;
+    const defaultOption = options.defaultOption || '<option value="">Select Department</option>';
+    const useId = options.useId || false; // Whether to use dept.id or dept.department_name as value
+
+    selectElement.innerHTML = defaultOption;
+
+    const currentDepartments = window.getCurrentDepartments();
+    currentDepartments.forEach(dept => {
+        const option = document.createElement('option');
+        option.value = useId ? dept.id : dept.department_name;
+        option.textContent = dept.department_name;
+        selectElement.appendChild(option);
+    });
+
+    // Restore previous selection if it still exists
+    if (currentValue) {
+        selectElement.value = currentValue;
+    }
+};
+
+function showAlert(message, type) {
+    const alertContainer = document.getElementById('alertContainer');
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type} alert-dismissible fade show`;
+    alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    alertContainer.appendChild(alert);
+
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.remove();
+        }
+    }, 5000);
+}
+
+// Cross-tab synchronization listener
+window.addEventListener('storage', function(e) {
+    if (e.key === 'departmentsData' && e.newValue) {
+        try {
+            const data = JSON.parse(e.newValue);
+            if (data.departments && Array.isArray(data.departments)) {
+                departments = data.departments;
+                updateDepartmentDropdowns();
+                console.log('Departments synchronized from another tab');
+            }
+        } catch (error) {
+            console.error('Error parsing departments data from localStorage:', error);
+        }
+    }
+});
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Load initial data
+    loadDepartments();
+    loadTrainers();
+
+    // Department form submission
+    document.getElementById('departmentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const data = {
+            department_name: formData.get('department_name'),
+            information: formData.get('information')
+        };
+
+        const url = currentEditingDepartment ?
+            `/api/departments/${currentEditingDepartment.id}` :
+            '/api/departments';
+        const method = currentEditingDepartment ? 'PUT' : 'POST';
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json().then(data => ({ success: true, data }));
+            } else {
+                return response.json().then(data => ({ success: false, data }));
+            }
+        })
+        .then(result => {
+            if (result.success) {
+                showAlert(`Department ${currentEditingDepartment ? 'updated' : 'created'} successfully`, 'success');
+                bootstrap.Modal.getInstance(document.getElementById('departmentModal')).hide();
+                loadDepartments();
+            } else {
+                showAlert(result.data.error || 'Error saving department', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error saving department:', error);
+            showAlert('Error saving department', 'danger');
+        });
+    });
+
+    // Trainer form submission
+    document.getElementById('trainerForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const data = {
+            name: formData.get('name'),
+            department_id: formData.get('department_id') ? parseInt(formData.get('department_id')) : null,
+            telephone: formData.get('telephone'),
+            information: formData.get('information')
+        };
+
+        const url = currentEditingTrainer ?
+            `/api/trainers/${currentEditingTrainer.id}` :
+            '/api/trainers';
+        const method = currentEditingTrainer ? 'PUT' : 'POST';
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json().then(data => ({ success: true, data }));
+            } else {
+                return response.json().then(data => ({ success: false, data }));
+            }
+        })
+        .then(result => {
+            if (result.success) {
+                showAlert(`Trainer ${currentEditingTrainer ? 'updated' : 'created'} successfully`, 'success');
+                bootstrap.Modal.getInstance(document.getElementById('trainerModal')).hide();
+                loadTrainers();
+            } else {
+                showAlert(result.data.error || 'Error saving trainer', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error saving trainer:', error);
+            showAlert('Error saving trainer', 'danger');
+        });
+    });
+
+    // Button event listeners
+    document.getElementById('addDepartmentBtn').addEventListener('click', () => showDepartmentModal());
+    document.getElementById('addTrainerBtn').addEventListener('click', () => showTrainerModal());
+});
 </script>
 {% endblock %}
 
