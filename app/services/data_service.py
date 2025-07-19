@@ -16,6 +16,7 @@ from pydantic import ValidationError
 from app.config import Config
 from app.models.ppm import PPMEntry
 from app.models.ocm import OCMEntry
+from app.services.logging_service import LoggingService
 
 
 logger = logging.getLogger(__name__)
@@ -546,9 +547,9 @@ class DataService:
             # Ensure serial is unique
             DataService._ensure_unique_serial(all_data, validated_entry, data_type)
 
-            # Add to data
-            all_data.append(validated_entry)
-            logger.debug(f"Added entry to data. New total: {len(all_data)}")
+            # Add to data at the beginning (new records appear at top)
+            all_data.insert(0, validated_entry)
+            logger.debug(f"Added entry to beginning of data. New total: {len(all_data)}")
 
             # Save updated data
             DataService.save_data(all_data, data_type)
@@ -650,45 +651,71 @@ class DataService:
             True if entry was deleted, False if not found
         """
         logger.info(f"Attempting to delete {data_type} entry with serial: {SERIAL}")
-        
+
+        # Enhanced logging for delete operation
+        LoggingService.log_info(
+            f"Delete operation started: {data_type} entry",
+            context={
+                'data_type': data_type,
+                'serial': SERIAL,
+                'operation': 'delete_entry'
+            },
+            logger_name='database'
+        )
+
         try:
             data = DataService.load_data(data_type)
             initial_len = len(data)
             logger.debug(f"Loaded {initial_len} entries from {data_type} data")
-            
+
             # Handle different serial field names for PPM and OCM
             serial_field = 'SERIAL' if data_type == 'ppm' else 'Serial'
             logger.debug(f"Using serial field name: {serial_field}")
-            
-            # Find the entry to delete first
-            entry_to_delete = None
-            entry_index = -1
-            
-            for i, entry in enumerate(data):
-                entry_serial = entry.get(serial_field)
-                logger.debug(f"Comparing entry serial '{entry_serial}' with target serial '{SERIAL}'")
-                if entry_serial == SERIAL:
-                    entry_to_delete = entry
-                    entry_index = i
-                    break
-            
-            if entry_to_delete is None:
+
+            # Find and remove the entry in one pass (more efficient)
+            original_length = len(data)
+            data[:] = [entry for entry in data if entry.get(serial_field) != SERIAL]
+
+            if len(data) == original_length:
                 logger.warning(f"No {data_type} entry found with serial {SERIAL}")
+
+                LoggingService.log_warning(
+                    f"Delete operation failed - entry not found: {data_type}",
+                    context={
+                        'data_type': data_type,
+                        'serial': SERIAL,
+                        'operation': 'delete_entry',
+                        'result': 'not_found',
+                        'total_records': original_length
+                    },
+                    logger_name='database'
+                )
+
                 return False
-                
-            logger.info(f"Found {data_type} entry to delete: {entry_to_delete}")
-            
-            # Remove the entry
-            data.pop(entry_index)
-            logger.debug(f"Removed entry at index {entry_index}")
-            
-            # Reindex the remaining entries
-            reindexed_data = DataService.reindex(data)
-            logger.debug(f"Reindexed remaining {len(reindexed_data)} entries")
-            
+
+            logger.info(f"Successfully removed {data_type} entry with serial {SERIAL}")
+
+            # Skip reindexing - NO field is not used in display (template uses loop.index)
+            # This saves significant processing time for large datasets
+
             # Save the updated data
-            DataService.save_data(reindexed_data, data_type)
+            DataService.save_data(data, data_type)
             logger.info(f"Successfully deleted {data_type} entry with serial {SERIAL}")
+
+            # Enhanced logging for successful delete
+            LoggingService.log_info(
+                f"Delete operation completed successfully: {data_type} entry",
+                context={
+                    'data_type': data_type,
+                    'serial': SERIAL,
+                    'operation': 'delete_entry',
+                    'result': 'success',
+                    'records_before': original_length,
+                    'records_after': len(data),
+                    'records_deleted': 1
+                },
+                logger_name='database'
+            )
             
             return True
             
@@ -697,12 +724,68 @@ class DataService:
             raise
 
     @staticmethod
+    def bulk_delete_entries(data_type: Literal['ppm', 'ocm'], serials: List[str]) -> Dict[str, int]:
+        """Optimized bulk delete operation.
+
+        Args:
+            data_type: Type of data ('ppm' or 'ocm')
+            serials: List of serial numbers to delete
+
+        Returns:
+            Dict with 'deleted_count' and 'not_found' counts
+        """
+        logger.info(f"Starting bulk delete of {len(serials)} {data_type} entries")
+
+        try:
+            # Load data once
+            data = DataService.load_data(data_type)
+            original_count = len(data)
+            logger.debug(f"Loaded {original_count} entries from {data_type} data")
+
+            # Handle different serial field names for PPM and OCM
+            serial_field = 'SERIAL' if data_type == 'ppm' else 'Serial'
+
+            # Convert serials to set for O(1) lookup instead of O(n)
+            serials_to_delete = set(serials)
+            logger.debug(f"Converting {len(serials)} serials to set for fast lookup")
+
+            # Filter out entries to delete in single pass
+            remaining_data = []
+            deleted_serials = set()
+
+            for entry in data:
+                entry_serial = entry.get(serial_field)
+                if entry_serial in serials_to_delete:
+                    deleted_serials.add(entry_serial)
+                    logger.debug(f"Marked for deletion: {entry_serial}")
+                else:
+                    remaining_data.append(entry)
+
+            deleted_count = len(deleted_serials)
+            not_found = len(serials_to_delete) - deleted_count
+
+            logger.info(f"Bulk delete results: {deleted_count} deleted, {not_found} not found")
+
+            # Save once at the end (no reindexing needed)
+            DataService.save_data(remaining_data, data_type)
+            logger.info(f"Successfully completed bulk delete operation")
+
+            return {
+                'deleted_count': deleted_count,
+                'not_found': not_found
+            }
+
+        except Exception as e:
+            logger.error(f"Error in bulk delete operation: {str(e)}", exc_info=True)
+            raise
+
+    @staticmethod
     def get_entry(data_type: Literal['ppm', 'ocm'], serial: str) -> Optional[Dict[str, Any]]:
         """Get a single entry by serial number.
 
         Args:
             data_type: Type of data to search ('ppm' or 'ocm')
-            serial: Serial number to search for
+            serial: Serial number to search for (can be URL-safe or original format)
 
         Returns:
             Entry if found, None otherwise
@@ -712,17 +795,28 @@ class DataService:
             # Load all data
             logger.debug(f"Loading all {data_type} data to search for serial {serial}")
             data = DataService.load_data(data_type)
-            
-            # Find entry with matching serial
-            logger.debug(f"Searching for entry with serial {serial} in {len(data)} {data_type} entries")
+
+            # Try URL-safe serial lookup first
+            from app.utils.url_utils import find_equipment_by_url_safe_serial
+
+            logger.debug(f"Searching for entry with serial {serial} in {len(data)} {data_type} entries using URL-safe lookup")
+            found_entry = find_equipment_by_url_safe_serial(serial, data)
+
+            if found_entry:
+                logger.info(f"Found matching {data_type} entry for serial {serial} using URL-safe lookup")
+                logger.debug(f"Entry data: {found_entry}")
+                return found_entry
+
+            # Fallback to original direct matching for backward compatibility
+            logger.debug(f"URL-safe lookup failed, trying direct serial matching")
             for entry in data:
                 entry_serial = entry.get('Serial', entry.get('SERIAL'))  # Handle both field names
                 logger.debug(f"Comparing entry serial '{entry_serial}' with search serial '{serial}'")
                 if entry_serial == serial:
-                    logger.info(f"Found matching {data_type} entry for serial {serial}")
+                    logger.info(f"Found matching {data_type} entry for serial {serial} using direct match")
                     logger.debug(f"Entry data: {entry}")
                     return entry
-            
+
             logger.warning(f"No {data_type} entry found with serial {serial}")
             return None
 
@@ -732,15 +826,138 @@ class DataService:
 
     @staticmethod
     def get_all_entries(data_type: Literal['ppm', 'ocm']) -> List[Dict[str, Any]]:
-        """Get all entries.
+        """Get all entries with history flags and sorted by history status.
 
         Args:
             data_type: Type of data to get entries from ('ppm' or 'ocm')
 
         Returns:
-            List of all entries
+            List of all entries, sorted with equipment having history first
         """
-        return DataService.load_data(data_type)
+        entries = DataService.load_data(data_type)
+
+        # Update history flags for all entries
+        DataService._update_all_history_flags(entries, data_type)
+
+        # Sort entries: equipment with history first, then by NO (newest first)
+        entries.sort(key=lambda x: (not x.get('has_history', False), -(x.get('NO', 0))))
+
+        return entries
+
+    @staticmethod
+    def _update_all_history_flags(entries: List[Dict[str, Any]], data_type: str):
+        """Update has_history flags for all entries by checking history data.
+
+        Args:
+            entries: List of equipment entries to update
+            data_type: Type of data ('ppm' or 'ocm')
+        """
+        try:
+            # Import here to avoid circular imports
+            from app.services.history_service import HistoryService
+
+            # Load all history data once
+            history_data = HistoryService._load_history_data()
+
+            # Create a set of equipment IDs that have history
+            equipment_with_history = set()
+            for note in history_data:
+                if note.get('equipment_type') == data_type.lower():
+                    equipment_with_history.add(note.get('equipment_id'))
+
+            # Update has_history flag for each entry
+            serial_field = 'SERIAL' if data_type == 'ppm' else 'Serial'
+            for entry in entries:
+                equipment_id = entry.get(serial_field)
+                entry['has_history'] = equipment_id in equipment_with_history
+
+        except Exception as e:
+            logger.error(f"Error updating history flags: {e}")
+            # Set all to False if there's an error
+            for entry in entries:
+                entry['has_history'] = False
+
+    @staticmethod
+    def get_entries_paginated(data_type: Literal['ppm', 'ocm'], page: int = 1, per_page: int = 100) -> Dict[str, Any]:
+        """Get paginated entries for the specified data type.
+
+        Args:
+            data_type: Type of data to retrieve ('ppm' or 'ocm')
+            page: Page number (1-based)
+            per_page: Number of entries per page
+
+        Returns:
+            Dictionary containing:
+            - 'entries': List of entries for the current page
+            - 'total': Total number of entries
+            - 'page': Current page number
+            - 'per_page': Entries per page
+            - 'total_pages': Total number of pages
+            - 'has_prev': Whether there's a previous page
+            - 'has_next': Whether there's a next page
+            - 'prev_page': Previous page number (None if no previous)
+            - 'next_page': Next page number (None if no next)
+        """
+        logger.debug(f"Getting paginated {data_type} entries - page {page}, per_page {per_page}")
+        
+        try:
+            # Get all data using the same logic as get_all_entries
+            entries = DataService.load_data(data_type)
+            
+            # Update history flags for all entries
+            DataService._update_all_history_flags(entries, data_type)
+            
+            # Sort entries: equipment with history first, then by NO (newest first)
+            entries.sort(key=lambda x: (not x.get('has_history', False), -(x.get('NO', 0))))
+            
+            total_entries = len(entries)
+            total_pages = max(1, (total_entries + per_page - 1) // per_page)  # Ceiling division
+            
+            # Ensure page is within valid range
+            page = max(1, min(page, total_pages))
+            
+            # Calculate start and end indices
+            start_idx = (page - 1) * per_page
+            end_idx = start_idx + per_page
+            
+            # Get entries for current page
+            page_entries = entries[start_idx:end_idx]
+            
+            # Calculate pagination info
+            has_prev = page > 1
+            has_next = page < total_pages
+            prev_page = page - 1 if has_prev else None
+            next_page = page + 1 if has_next else None
+            
+            pagination_info = {
+                'entries': page_entries,
+                'total': total_entries,
+                'page': page,
+                'per_page': per_page,
+                'total_pages': total_pages,
+                'has_prev': has_prev,
+                'has_next': has_next,
+                'prev_page': prev_page,
+                'next_page': next_page
+            }
+            
+            logger.debug(f"Successfully retrieved page {page}/{total_pages} with {len(page_entries)} {data_type} entries")
+            return pagination_info
+            
+        except Exception as e:
+            logger.error(f"Error getting paginated {data_type} entries: {str(e)}")
+            # Return empty pagination info on error
+            return {
+                'entries': [],
+                'total': 0,
+                'page': 1,
+                'per_page': per_page,
+                'total_pages': 1,
+                'has_prev': False,
+                'has_next': False,
+                'prev_page': None,
+                'next_page': None
+            }
 
     @staticmethod
     def import_data(data_type: Literal['ppm', 'ocm'], file_stream: TextIO) -> Dict[str, Any]:
@@ -851,21 +1068,21 @@ class DataService:
                         "Warranty_End": entry_data.get("Warranty_End", "")
                     }
 
-                    # Process PPM quarters
+                    # Process PPM quarters - Fixed column name mapping to use underscores
                     transformed_entry["PPM_Q_I"] = {
-                        "engineer": entry_data.get("PPM_Q_I.engineer", ""),
+                        "engineer": entry_data.get("PPM_Q_I_engineer", ""),
                         "quarter_date": q_dates[0]
                     }
                     transformed_entry["PPM_Q_II"] = {
-                        "engineer": entry_data.get("PPM_Q_II.engineer", ""),
+                        "engineer": entry_data.get("PPM_Q_II_engineer", ""),
                         "quarter_date": q_dates[1]
                     }
                     transformed_entry["PPM_Q_III"] = {
-                        "engineer": entry_data.get("PPM_Q_III.engineer", ""),
+                        "engineer": entry_data.get("PPM_Q_III_engineer", ""),
                         "quarter_date": q_dates[2]
                     }
                     transformed_entry["PPM_Q_IV"] = {
-                        "engineer": entry_data.get("PPM_Q_IV.engineer", ""),
+                        "engineer": entry_data.get("PPM_Q_IV_engineer", ""),
                         "quarter_date": q_dates[3]
                     }
                     

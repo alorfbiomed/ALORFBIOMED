@@ -159,6 +159,16 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== OCM ADD PAGE INITIALIZATION ===');
     console.log('OCM Add Page: DOM loaded, starting initialization...');
+
+    // Register department dropdown for real-time synchronization
+    const departmentSelect = document.getElementById('Department');
+    if (departmentSelect && window.registerDepartmentDropdown) {
+        window.registerDepartmentDropdown(departmentSelect, {
+            defaultOption: '<option value="">Select Department</option>',
+            useId: false // Use department name as value
+        });
+        console.log('OCM Add Page: Department dropdown registered for synchronization');
+    }
     
     // Enhanced library checking
     const checkLibraries = () => {

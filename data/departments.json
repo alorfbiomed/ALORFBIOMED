@@ -1,0 +1,184 @@
+[
+  {
+    "id": 1,
+    "department_name": "4A",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:55.689757",
+    "updated_date": "2025-07-08T21:32:55.689757"
+  },
+  {
+    "id": 2,
+    "department_name": "4B",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:55.703964",
+    "updated_date": "2025-07-08T21:32:55.703964"
+  },
+  {
+    "id": 3,
+    "department_name": "5A",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:55.719589",
+    "updated_date": "2025-07-08T21:32:55.719589"
+  },
+  {
+    "id": 4,
+    "department_name": "5B",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:55.743980",
+    "updated_date": "2025-07-08T21:32:55.743980"
+  },
+  {
+    "id": 5,
+    "department_name": "6A",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:55.762525",
+    "updated_date": "2025-07-08T21:32:55.762525"
+  },
+  {
+    "id": 6,
+    "department_name": "6B",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:55.792787",
+    "updated_date": "2025-07-08T21:32:55.792787"
+  },
+  {
+    "id": 8,
+    "department_name": "DENTAL",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:55.857745",
+    "updated_date": "2025-07-08T21:32:55.857745"
+  },
+  {
+    "id": 9,
+    "department_name": "DERMA",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:55.884095",
+    "updated_date": "2025-07-08T21:32:55.884095"
+  },
+  {
+    "id": 10,
+    "department_name": "ENDOSCOPY",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:55.904171",
+    "updated_date": "2025-07-08T21:32:55.904171"
+  },
+  {
+    "id": 11,
+    "department_name": "ENT",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:55.928569",
+    "updated_date": "2025-07-08T21:32:55.928569"
+  },
+  {
+    "id": 12,
+    "department_name": "ER",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:55.957850",
+    "updated_date": "2025-07-08T21:32:55.957850"
+  },
+  {
+    "id": 13,
+    "department_name": "IM",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:55.986180",
+    "updated_date": "2025-07-08T21:32:55.986180"
+  },
+  {
+    "id": 14,
+    "department_name": "IVF",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:56.008208",
+    "updated_date": "2025-07-08T21:32:56.008208"
+  },
+  {
+    "id": 15,
+    "department_name": "LAB",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:56.027728",
+    "updated_date": "2025-07-08T21:32:56.028713"
+  },
+  {
+    "id": 16,
+    "department_name": "LAUNDRY",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:56.060912",
+    "updated_date": "2025-07-08T21:32:56.060912"
+  },
+  {
+    "id": 17,
+    "department_name": "LDR",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:56.089223",
+    "updated_date": "2025-07-08T21:32:56.089223"
+  },
+  {
+    "id": 18,
+    "department_name": "NICU",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:56.117114",
+    "updated_date": "2025-07-08T21:32:56.117114"
+  },
+  {
+    "id": 19,
+    "department_name": "OB",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:56.138584",
+    "updated_date": "2025-07-08T21:32:56.138584"
+  },
+  {
+    "id": 20,
+    "department_name": "OPTHA",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:56.159079",
+    "updated_date": "2025-07-08T21:32:56.159079"
+  },
+  {
+    "id": 21,
+    "department_name": "OR",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:56.186412",
+    "updated_date": "2025-07-08T21:32:56.186412"
+  },
+  {
+    "id": 22,
+    "department_name": "PEDIA",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:56.210395",
+    "updated_date": "2025-07-08T21:32:56.210395"
+  },
+  {
+    "id": 23,
+    "department_name": "PLASTIC",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:56.241622",
+    "updated_date": "2025-07-08T21:32:56.241622"
+  },
+  {
+    "id": 24,
+    "department_name": "PT",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:56.262117",
+    "updated_date": "2025-07-08T21:32:56.262117"
+  },
+  {
+    "id": 25,
+    "department_name": "RADIOLOGY",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:56.287538",
+    "updated_date": "2025-07-08T21:32:56.287538"
+  },
+  {
+    "id": 26,
+    "department_name": "SURGERY",
+    "information": "Migrated from constants on 2025-07-08",
+    "created_date": "2025-07-08T21:32:56.309569",
+    "updated_date": "2025-07-08T21:32:56.309569"
+  },
+  {
+    "id": 27,
+    "department_name": "Ortho",
+    "information": null,
+    "created_date": "2025-07-10T03:59:31.115930",
+    "updated_date": "2025-07-10T03:59:31.115930"
+  }
+]

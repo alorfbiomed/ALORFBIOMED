@@ -1,8 +1,8 @@
 {
-  "email_notifications_enabled": false,
-  "email_reminder_interval_minutes": 1440,
-  "recipient_email": "Alorfbiomed@gmail.com",
-  "push_notifications_enabled": false,
+  "email_notifications_enabled": true,
+  "email_reminder_interval_minutes": 60,
+  "recipient_email": "alorfbiomed@gmail.com",
+  "push_notifications_enabled": true,
   "push_notification_interval_minutes": 60,
   "email_send_time_hour": 7,
   "reminder_timing": {
@@ -11,30 +11,20 @@
     "1_day_before": false
   },
   "scheduler_interval_hours": 24,
-  "enable_automatic_reminders": false,
-  "cc_emails": "",
-  "automatic_backup_enabled": false,
+  "enable_automatic_reminders": true,
+  "cc_emails": "lolotam@gmail.com",
+  "automatic_backup_enabled": true,
   "automatic_backup_interval_hours": 24,
   "users": [
     {
-      "username": "editor1",
-      "password": "editor",
-      "role": "Editor"
-    },
-    {
       "username": "admin",
-      "password": "$2b$12$Lx4X1W4T3X5Z6Y7A8B9C0u1v2w3x4y5z6A7B8C9D0E1F2G3H4I5J6K7L8",
+      "password": "pbkdf2:sha256:600000$PRPn88H1ijaWaJ14$4f30ec776a03728db5c793ebba0e29149903c43e37b18e710ecf6dd0553ecb25",
       "role": "Admin"
     },
     {
-      "username": "viewer1",
-      "password": "viewer",
-      "role": "Viewer"
-    },
-    {
-      "username": "editor2",
-      "password": "scrypt:32768:8:1$Hwf4db4X4tage9XT$ddacdd3484463d3b32f1b9eda19ce46a322c86056c53b23279dd8fd787c276aad26e8143f547206195c771ce708429bac3bb64b5ae272720d86b49afcf247ff7",
-      "role": "Editor"
+      "username": "testuser",
+      "password": "scrypt:32768:8:1$81Env3h8t2d0j8on$3a9c4ad7bfb0650998f343b9b45e86024f114c3be41b2b12a9e04b59628c6872e88901b87212c2cdc233755f12a8ac1bb8bfe2df6ef9bc981ca1220e252b30ba",
+      "role": "Admin"
     }
   ],
   "roles": {
@@ -93,5 +83,8 @@
   },
   "daily_send_time_enabled": true,
   "legacy_interval_enabled": false,
-  "email_send_time_minute": 0
+  "email_send_time_minute": 38,
+  "email_send_time": "07:30",
+  "use_daily_send_time": true,
+  "use_legacy_interval": false
 }

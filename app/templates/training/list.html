@@ -640,10 +640,35 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Available data:');
     console.log('- devicesByDepartment:', devicesByDepartment);
     console.log('- trainers:', trainers);
-    
-    // Simple event listeners like in machine_assignment.html
+
+    // Register department dropdowns for real-time synchronization
+    const filterDepartmentSelect = document.getElementById('filterDepartment');
     const addDepartmentSelect = document.getElementById('addDepartment');
     const editDepartmentSelect = document.getElementById('editDepartment');
+
+    if (filterDepartmentSelect && window.registerDepartmentDropdown) {
+        window.registerDepartmentDropdown(filterDepartmentSelect, {
+            defaultOption: '<option value="">All Departments</option>',
+            useId: false // Use department name as value
+        });
+        console.log('Training Page: Filter department dropdown registered for synchronization');
+    }
+
+    if (addDepartmentSelect && window.registerDepartmentDropdown) {
+        window.registerDepartmentDropdown(addDepartmentSelect, {
+            defaultOption: '<option value="">Select Department</option>',
+            useId: false // Use department name as value
+        });
+        console.log('Training Page: Add department dropdown registered for synchronization');
+    }
+
+    if (editDepartmentSelect && window.registerDepartmentDropdown) {
+        window.registerDepartmentDropdown(editDepartmentSelect, {
+            defaultOption: '<option value="">Select Department</option>',
+            useId: false // Use department name as value
+        });
+        console.log('Training Page: Edit department dropdown registered for synchronization');
+    }
 
     // Add department change handler (same as working implementation)
     if (addDepartmentSelect) {

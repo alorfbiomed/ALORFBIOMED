@@ -176,8 +176,18 @@
         <hr>
         {# PPM Engineer Work Done (Actual) section removed #}
 
-        <button type="submit" class="btn btn-primary mt-3">Update PPM Equipment</button>
-        <a href="{{ url_for('views.list_equipment', data_type='ppm') }}" class="btn btn-secondary mt-3">Cancel</a>
+        <div class="d-flex gap-2 mt-3">
+            <button type="submit" class="btn btn-primary">Update PPM Equipment</button>
+            <a href="{{ url_for('views.equipment_history', equipment_type='ppm', equipment_id=entry.SERIAL) }}"
+               class="btn btn-info">
+                <i class="fas fa-history"></i> View History
+            </a>
+            <a href="{{ url_for('views.add_equipment_history', equipment_type='ppm', equipment_id=entry.SERIAL) }}"
+               class="btn btn-success">
+                <i class="fas fa-plus"></i> Add History
+            </a>
+            <a href="{{ url_for('views.list_equipment', data_type='ppm') }}" class="btn btn-secondary">Cancel</a>
+        </div>
     </form>
 </div>
 {% endblock %}
@@ -185,6 +195,15 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Register department dropdown for real-time synchronization
+    const departmentSelect = document.getElementById('Department');
+    if (departmentSelect && window.registerDepartmentDropdown) {
+        window.registerDepartmentDropdown(departmentSelect, {
+            defaultOption: '<option value="">Select Department</option>',
+            useId: false // Use department name as value
+        });
+    }
+
     // Form validation can be added here if needed
     console.log('PPM Edit form loaded with individual quarter status fields');
 });

@@ -15,6 +15,8 @@ from app.models.ppm import PPMImportEntry, PPMEntry
 from app.models.ocm import OCMEntry
 from app.models.training import Training
 from app.services.data_service import DataService
+from app.services.logging_service import LoggingService
+from app.utils.encoding_utils import EncodingDetector
 
 
 logger = logging.getLogger('app')
@@ -248,12 +250,12 @@ class ImportExportService:
 
     @staticmethod
     def import_from_csv(data_type: Literal['ppm', 'ocm', 'training'], file_path: str) -> Tuple[bool, str, Dict[str, Any]]:
-        """Import data from CSV file.
-        
+        """Import data from CSV file with robust encoding detection.
+
         Args:
             data_type: Type of data to import ('ppm', 'ocm', or 'training')
             file_path: Path to CSV file
-            
+
         Returns:
             Tuple of (success, message, import_stats)
         """
@@ -261,8 +263,87 @@ class ImportExportService:
             if not os.path.exists(file_path):
                 return False, f"File not found: {file_path}", {}
 
-            # Read CSV with dtype=str to prevent automatic type conversion that adds .0 to employee IDs
-            df = pd.read_csv(file_path, dtype=str)
+            # Detect and handle file encoding
+            LoggingService.log_info(
+                f"Starting {data_type} import with encoding detection",
+                context={
+                    'data_type': data_type,
+                    'file_path': file_path,
+                    'operation': 'import_from_csv'
+                },
+                logger_name='import_export'
+            )
+
+            try:
+                # Detect file encoding
+                detected_encoding, confidence = EncodingDetector.detect_file_encoding(file_path)
+
+                LoggingService.log_info(
+                    f"File encoding detected: {detected_encoding} (confidence: {confidence:.2f})",
+                    context={
+                        'file_path': file_path,
+                        'detected_encoding': detected_encoding,
+                        'confidence': confidence
+                    },
+                    logger_name='import_export'
+                )
+
+                # Read CSV with detected encoding and dtype=str to prevent automatic type conversion
+                df = pd.read_csv(file_path, dtype=str, encoding=detected_encoding)
+
+            except (UnicodeDecodeError, pd.errors.ParserError) as encoding_error:
+                # Fallback: try common encodings
+                LoggingService.log_warning(
+                    f"Primary encoding failed, trying fallback encodings: {str(encoding_error)}",
+                    context={
+                        'file_path': file_path,
+                        'primary_encoding': detected_encoding,
+                        'error': str(encoding_error)
+                    },
+                    logger_name='import_export'
+                )
+
+                fallback_encodings = ['windows-1252', 'iso-8859-1', 'cp1252', 'latin1']
+                df = None
+                used_encoding = None
+
+                for encoding in fallback_encodings:
+                    try:
+                        df = pd.read_csv(file_path, dtype=str, encoding=encoding)
+                        used_encoding = encoding
+                        LoggingService.log_info(
+                            f"Successfully read file with fallback encoding: {encoding}",
+                            context={'file_path': file_path, 'used_encoding': encoding},
+                            logger_name='import_export'
+                        )
+                        break
+                    except (UnicodeDecodeError, pd.errors.ParserError):
+                        continue
+
+                if df is None:
+                    # Last resort: read with utf-8 and replace errors
+                    try:
+                        df = pd.read_csv(file_path, dtype=str, encoding='utf-8', encoding_errors='replace')
+                        used_encoding = 'utf-8 (with error replacement)'
+                        LoggingService.log_warning(
+                            "File read with UTF-8 and error replacement",
+                            context={'file_path': file_path, 'used_encoding': used_encoding},
+                            logger_name='import_export'
+                        )
+                    except Exception as final_error:
+                        error_msg = (
+                            f"Unable to read CSV file due to encoding issues. "
+                            f"Please ensure your file is saved in UTF-8, Windows-1252, or ISO-8859-1 encoding. "
+                            f"Technical details: {str(final_error)}"
+                        )
+                        LoggingService.log_error(
+                            error_msg,
+                            exception=final_error,
+                            context={'file_path': file_path},
+                            logger_name='import_export'
+                        )
+                        return False, error_msg, {}
+
             # Handle N/A values properly - replace NaN with empty string, but keep 'N/A' strings as 'N/A'
             df = df.fillna('')
             # Convert empty strings back to N/A for consistency

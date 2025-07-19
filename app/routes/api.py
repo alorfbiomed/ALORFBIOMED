@@ -1,20 +1,30 @@
 """API routes for managing equipment maintenance data."""
 import logging
+import os
 from pathlib import Path
 
 import io # Added for TextIOWrapper
 import logging
 from pathlib import Path
 
-from flask import Blueprint, jsonify, request, Response, current_app, session # Added session
+from flask import Blueprint, jsonify, request, Response, current_app, session, send_file # Added session and send_file
 from app.decorators import permission_required # Updated import location
 from datetime import datetime
 
 from app.services.data_service import DataService
+from app.services.history_service import HistoryService
+from app.models.history import HistoryNoteCreate, HistoryNoteUpdate, HistorySearchFilter
 # training_service is imported directly in the route functions now
 # from app.services.training_service import TrainingService
 from app.config import Config # Added for VAPID public key
 from app.services import training_service # Import the module
+from flask_login import current_user
+from app.services.logging_service import LoggingService
+from app.utils.encoding_utils import EncodingDetector
+from app.services.department_service import DepartmentService
+from app.services.trainer_service import TrainerService
+from app.models.department import DepartmentCreate, DepartmentUpdate
+from app.models.trainer import TrainerCreate, TrainerUpdate
 
 # ImportExportService and ValidationService removed
 
@@ -175,13 +185,53 @@ def import_data(data_type):
 
     if file and file.filename.endswith('.csv'):
         try:
-            # Wrap the file stream for text-mode processing
-            # file.stream is a SpooledTemporaryFile, which is binary.
-            # TextIOWrapper makes it behave like a text file.
-            file_stream = io.TextIOWrapper(file.stream, encoding='utf-8')
+            LoggingService.log_info(
+                f"Starting {data_type} import via API with encoding detection",
+                context={
+                    'data_type': data_type,
+                    'filename': file.filename,
+                    'operation': 'api_import_data'
+                },
+                logger_name='api'
+            )
 
-            # Call DataService.import_data directly with the stream
-            import_results = DataService.import_data(data_type, file_stream)
+            # Use encoding detection for the file stream
+            try:
+                text_stream, used_encoding = EncodingDetector.create_text_stream_with_encoding_detection(
+                    file.stream,
+                    fallback_encodings=['windows-1252', 'iso-8859-1', 'cp1252', 'latin1']
+                )
+
+                LoggingService.log_info(
+                    f"File stream created with encoding: {used_encoding}",
+                    context={
+                        'filename': file.filename,
+                        'used_encoding': used_encoding,
+                        'data_type': data_type
+                    },
+                    logger_name='api'
+                )
+
+            except Exception as encoding_error:
+                error_msg = (
+                    f"Unable to process the uploaded file due to encoding issues. "
+                    f"Please ensure your CSV file is saved in UTF-8, Windows-1252, or ISO-8859-1 encoding. "
+                    f"If you're using Excel, try 'Save As' and select 'CSV UTF-8' format. "
+                    f"Technical details: {str(encoding_error)}"
+                )
+                LoggingService.log_error(
+                    error_msg,
+                    exception=encoding_error,
+                    context={
+                        'filename': file.filename,
+                        'data_type': data_type
+                    },
+                    logger_name='api'
+                )
+                return jsonify({"error": error_msg}), 400
+
+            # Call DataService.import_data directly with the processed stream
+            import_results = DataService.import_data(data_type, text_stream)
 
             # Check for errors in import_results to determine status code
             if import_results.get("errors") and (import_results.get("added_count", 0) == 0 and import_results.get("updated_count", 0) == 0) :
@@ -204,7 +254,7 @@ def import_data(data_type):
 @api_bp.route("/bulk_delete/<data_type>", methods=["POST"])
 @permission_required(["equipment_ppm_delete", "equipment_ocm_delete"])
 def bulk_delete(data_type):
-    """Handle bulk deletion of equipment entries."""
+    """Handle bulk deletion of equipment entries with optimized performance."""
     if data_type not in ('ppm', 'ocm'):
         return jsonify({'success': False, 'message': 'Invalid data type'}), 400
 
@@ -212,20 +262,22 @@ def bulk_delete(data_type):
     if not serials:
         return jsonify({'success': False, 'message': 'No serials provided'}), 400
 
-    deleted_count = 0
-    not_found = 0
+    try:
+        # Use optimized bulk delete method
+        result = DataService.bulk_delete_entries(data_type, serials)
 
-    for serial in serials:
-        if DataService.delete_entry(data_type, serial):
-            deleted_count += 1
-        else:
-            not_found += 1
+        return jsonify({
+            'success': True,
+            'deleted_count': result['deleted_count'],
+            'not_found': result['not_found']
+        })
 
-    return jsonify({
-        'success': True,
-        'deleted_count': deleted_count,
-        'not_found': not_found
-    })
+    except Exception as e:
+        logger.error(f"Bulk delete API error: {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'message': f'Bulk delete operation failed: {str(e)}'
+        }), 500
 
 
 
@@ -365,7 +417,7 @@ def get_settings():
         return jsonify({"error": "Failed to load settings"}), 500
 
 @api_bp.route("/settings", methods=["POST"])
-@permission_required(["settings_write"])
+@permission_required(["settings_manage"])
 def save_settings():
     """Save application settings."""
     # Added detailed logging for headers and raw body
@@ -386,7 +438,7 @@ def save_settings():
 
     logger.info(f"Successfully parsed settings data: {data}")
 
-    # Basic validation for expected keys and types
+    # Basic validation for expected keys and types (more flexible now)
     email_notifications_enabled = data.get("email_notifications_enabled")
     email_reminder_interval_minutes = data.get("email_reminder_interval_minutes")
     recipient_email = data.get("recipient_email", "") # Default to empty string if not provided
@@ -394,37 +446,98 @@ def save_settings():
     push_notifications_enabled = data.get("push_notifications_enabled")
     push_notification_interval_minutes = data.get("push_notification_interval_minutes")
 
-    if not isinstance(email_notifications_enabled, bool):
+    # Only validate if the fields are provided
+    if email_notifications_enabled is not None and not isinstance(email_notifications_enabled, bool):
         return jsonify({"error": "Invalid type for email_notifications_enabled, boolean expected."}), 400
-    if not isinstance(email_reminder_interval_minutes, int) or email_reminder_interval_minutes <= 0:
+    if email_reminder_interval_minutes is not None and (not isinstance(email_reminder_interval_minutes, int) or email_reminder_interval_minutes <= 0):
         err_msg = "Invalid value for email_reminder_interval_minutes, positive integer expected."
         return jsonify({"error": err_msg}), 400
-    if not isinstance(recipient_email, str):
+    if recipient_email is not None and not isinstance(recipient_email, str):
         return jsonify({"error": "Invalid type for recipient_email, string expected."}), 400
 
-    if not isinstance(push_notifications_enabled, bool):
+    if push_notifications_enabled is not None and not isinstance(push_notifications_enabled, bool):
         return jsonify({"error": "Invalid type for push_notifications_enabled, boolean expected."}), 400
-    if not isinstance(push_notification_interval_minutes, int) or push_notification_interval_minutes <= 0:
+    if push_notification_interval_minutes is not None and (not isinstance(push_notification_interval_minutes, int) or push_notification_interval_minutes <= 0):
         err_msg = "Invalid value for push_notification_interval_minutes, positive integer expected."
         return jsonify({"error": err_msg}), 400
 
+    # Extract new scheduling fields
+    use_daily_send_time = data.get("use_daily_send_time")
+    use_legacy_interval = data.get("use_legacy_interval")
+    email_send_time = data.get("email_send_time", "")
+    enable_automatic_reminders = data.get("enable_automatic_reminders")
+    scheduler_interval_hours = data.get("scheduler_interval_hours")
+
+    # Extract reminder timing fields
+    reminder_timing_60_days = data.get("reminder_timing_60_days")
+    reminder_timing_14_days = data.get("reminder_timing_14_days")
+    reminder_timing_1_day = data.get("reminder_timing_1_day")
+
+    # Extract CC emails field
+    cc_emails = data.get("cc_emails")
+    
     # Construct settings object to save all known settings
-    # It's important that DataService.save_settings either overwrites the entire file
-    # or can merge settings. Assuming it overwrites with settings_to_save.
-    settings_to_save = {
-        "email_notifications_enabled": email_notifications_enabled,
-        "email_reminder_interval_minutes": email_reminder_interval_minutes,
-        "recipient_email": recipient_email.strip(),
-        "push_notifications_enabled": push_notifications_enabled,
-        "push_notification_interval_minutes": push_notification_interval_minutes,
-    }
+    settings_to_save = {}
+    
+    # Only add fields that are provided
+    if email_notifications_enabled is not None:
+        settings_to_save["email_notifications_enabled"] = email_notifications_enabled
+    if email_reminder_interval_minutes is not None:
+        settings_to_save["email_reminder_interval_minutes"] = email_reminder_interval_minutes
+    if recipient_email is not None:
+        settings_to_save["recipient_email"] = recipient_email.strip()
+    if push_notifications_enabled is not None:
+        settings_to_save["push_notifications_enabled"] = push_notifications_enabled
+    if push_notification_interval_minutes is not None:
+        settings_to_save["push_notification_interval_minutes"] = push_notification_interval_minutes
+    
+    # Add new fields if provided
+    if use_daily_send_time is not None:
+        settings_to_save["use_daily_send_time"] = use_daily_send_time
+    if use_legacy_interval is not None:
+        settings_to_save["use_legacy_interval"] = use_legacy_interval
+    if email_send_time:
+        settings_to_save["email_send_time"] = email_send_time
+    if enable_automatic_reminders is not None:
+        settings_to_save["enable_automatic_reminders"] = enable_automatic_reminders
+    if scheduler_interval_hours is not None:
+        settings_to_save["scheduler_interval_hours"] = scheduler_interval_hours
+
+    # Add reminder timing fields if provided
+    if reminder_timing_60_days is not None:
+        # Update the reminder_timing nested structure
+        if "reminder_timing" not in settings_to_save:
+            settings_to_save["reminder_timing"] = {}
+        settings_to_save["reminder_timing"]["60_days_before"] = reminder_timing_60_days
+    if reminder_timing_14_days is not None:
+        if "reminder_timing" not in settings_to_save:
+            settings_to_save["reminder_timing"] = {}
+        settings_to_save["reminder_timing"]["14_days_before"] = reminder_timing_14_days
+    if reminder_timing_1_day is not None:
+        if "reminder_timing" not in settings_to_save:
+            settings_to_save["reminder_timing"] = {}
+        settings_to_save["reminder_timing"]["1_day_before"] = reminder_timing_1_day
+
+    # Add CC emails field if provided
+    if cc_emails is not None:
+        settings_to_save["cc_emails"] = cc_emails.strip()
 
     # Preserve any other settings that might be in data/settings.json but not managed through this API call
     # This requires loading current settings first.
     try:
         current_settings = DataService.load_settings()
+
+        # Handle reminder_timing structure properly - merge nested dict
+        if "reminder_timing" in settings_to_save:
+            if "reminder_timing" not in current_settings:
+                current_settings["reminder_timing"] = {}
+            current_settings["reminder_timing"].update(settings_to_save["reminder_timing"])
+            # Remove from settings_to_save to avoid overwriting the whole structure
+            reminder_timing_update = settings_to_save.pop("reminder_timing")
+
         # Update current_settings with validated values from the request
         current_settings.update(settings_to_save)
+
         # Now save the merged settings
         DataService.save_settings(current_settings)
         logger.info(f"Settings saved successfully: {current_settings}")
@@ -643,9 +756,56 @@ def import_auto():
                 temp_file_path = temp_file.name
             
             try:
-                # First, detect the CSV type
+                # First, detect the CSV type with encoding detection
                 import pandas as pd
-                df = pd.read_csv(temp_file_path, dtype=str)
+
+                # Detect file encoding
+                detected_encoding, confidence = EncodingDetector.detect_file_encoding(temp_file_path)
+
+                LoggingService.log_info(
+                    f"Auto-import encoding detection: {detected_encoding} (confidence: {confidence:.2f})",
+                    context={
+                        'temp_file_path': temp_file_path,
+                        'detected_encoding': detected_encoding,
+                        'confidence': confidence
+                    },
+                    logger_name='api'
+                )
+
+                try:
+                    df = pd.read_csv(temp_file_path, dtype=str, encoding=detected_encoding)
+                except (UnicodeDecodeError, pd.errors.ParserError) as encoding_error:
+                    # Try fallback encodings
+                    LoggingService.log_warning(
+                        f"Primary encoding failed for auto-import, trying fallbacks: {str(encoding_error)}",
+                        context={'temp_file_path': temp_file_path, 'error': str(encoding_error)},
+                        logger_name='api'
+                    )
+
+                    fallback_encodings = ['windows-1252', 'iso-8859-1', 'cp1252', 'latin1']
+                    df = None
+
+                    for encoding in fallback_encodings:
+                        try:
+                            df = pd.read_csv(temp_file_path, dtype=str, encoding=encoding)
+                            LoggingService.log_info(
+                                f"Auto-import successful with fallback encoding: {encoding}",
+                                context={'temp_file_path': temp_file_path, 'used_encoding': encoding},
+                                logger_name='api'
+                            )
+                            break
+                        except (UnicodeDecodeError, pd.errors.ParserError):
+                            continue
+
+                    if df is None:
+                        # Last resort
+                        df = pd.read_csv(temp_file_path, dtype=str, encoding='utf-8', encoding_errors='replace')
+                        LoggingService.log_warning(
+                            "Auto-import using UTF-8 with error replacement",
+                            context={'temp_file_path': temp_file_path},
+                            logger_name='api'
+                        )
+
                 detected_type = ImportExportService.detect_csv_type(df.columns.tolist())
                 
                 if detected_type == 'unknown':
@@ -686,21 +846,251 @@ def import_auto():
     else:
         return jsonify({"error": "Invalid file type, only CSV allowed"}), 400
 
+@api_bp.route('/send-immediate-reminders', methods=['POST'])
+@permission_required(["settings_manage"])
+def send_immediate_reminders():
+    """Send immediate maintenance reminder emails for all priority levels."""
+    logger.info("Received request to send immediate reminder emails.")
+    try:
+        from app.services.email_service import EmailService
+        
+        # Process reminders immediately without waiting for scheduler
+        import asyncio
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        try:
+            # Get the coroutine result
+            emails_sent = loop.run_until_complete(EmailService.process_reminders())
+            logger.info(f"Immediate reminders processed. Emails sent: {emails_sent}")
+            
+            return jsonify({
+                'success': True,
+                'message': 'Immediate reminder emails sent successfully',
+                'emails_sent': emails_sent
+            }), 200
+            
+        finally:
+            loop.close()
+            
+    except Exception as e:
+        logger.error(f"Error sending immediate reminders: {str(e)}", exc_info=True)
+        return jsonify({
+            'error': f'Failed to send immediate reminders: {str(e)}'
+        }), 500
+
+@api_bp.route('/restore-backup', methods=['POST'])
+@permission_required(["backup_manage"])
+def restore_backup():
+    """Restore from backup file."""
+    logger.info("Received backup restore request.")
+    try:
+        if 'backup_file' not in request.files:
+            return jsonify({'error': 'No backup file provided'}), 400
+        
+        file = request.files['backup_file']
+        backup_type = request.form.get('backup_type', 'unknown')
+        
+        if file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+        
+        from app.services.backup_service import BackupService
+        
+        # Determine backup type from file extension if not specified
+        if backup_type == 'unknown':
+            if file.filename.lower().endswith('.zip'):
+                backup_type = 'full'
+            elif file.filename.lower().endswith('.json'):
+                backup_type = 'settings'
+            else:
+                return jsonify({'error': 'Unsupported file type. Please upload .zip or .json files only.'}), 400
+        
+        # Save uploaded file temporarily
+        import tempfile
+        import os
+        
+        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as temp_file:
+            file.save(temp_file.name)
+            temp_file_path = temp_file.name
+        
+        try:
+            if backup_type == 'settings':
+                result = BackupService.restore_settings_backup(temp_file_path)
+            else:
+                result = BackupService.restore_full_backup(temp_file_path)
+            
+            if result['success']:
+                return jsonify({
+                    'success': True,
+                    'message': result.get('message', 'Backup restored successfully'),
+                    'restored_items': result.get('restored_items', 0)
+                }), 200
+            else:
+                return jsonify({
+                    'error': result.get('error', 'Failed to restore backup')
+                }), 500
+                
+        finally:
+            # Clean up temporary file
+            try:
+                os.unlink(temp_file_path)
+            except OSError:
+                pass
+                
+    except Exception as e:
+        logger.error(f"Error restoring backup: {str(e)}", exc_info=True)
+        return jsonify({
+            'error': f'Failed to restore backup: {str(e)}'
+        }), 500
+
+@api_bp.route('/backup-settings', methods=['POST'])
+@permission_required(['backup_manage'])
+def save_backup_settings():
+    """Save backup settings via API."""
+    logger.info("Received request to save backup settings via API.")
+
+    try:
+        # Get JSON data from request
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+
+        # Load current settings
+        current_settings = DataService.load_settings()
+
+        # Update backup-related settings
+        backup_settings = {
+            'automatic_backup_enabled': data.get('automatic_backup_enabled', False),
+            'automatic_backup_interval_hours': int(data.get('automatic_backup_interval_hours', 24))
+        }
+
+        # Validate interval
+        if backup_settings['automatic_backup_interval_hours'] < 1:
+            return jsonify({'error': 'Backup interval must be at least 1 hour'}), 400
+
+        # Update current settings with backup settings
+        current_settings.update(backup_settings)
+
+        # Save updated settings
+        DataService.save_settings(current_settings)
+
+        logger.info(f"Backup settings saved successfully: {backup_settings}")
+
+        # Log audit event
+        from app.services.audit_service import AuditService
+        AuditService.log_event(
+            event_type=AuditService.EVENT_TYPES['SETTING_CHANGED'],
+            performed_by="User",
+            description="Backup settings updated via API",
+            status=AuditService.STATUS_SUCCESS,
+            details=backup_settings
+        )
+
+        return jsonify({
+            'success': True,
+            'message': 'Backup settings saved successfully',
+            'settings': backup_settings
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Error saving backup settings: {str(e)}")
+        return jsonify({'error': f'Failed to save backup settings: {str(e)}'}), 500
+
+@api_bp.route('/backup', methods=['POST'])
+@permission_required(['backup_manage'])
+def create_backup():
+    """Create a backup via API."""
+    logger.info("Received request to create backup via API.")
+
+    try:
+        # Get backup type from request (default to settings)
+        data = request.get_json() or {}
+        backup_type = data.get('backup_type', 'settings')
+
+        if backup_type not in ['full', 'settings']:
+            return jsonify({'error': 'Invalid backup type. Must be "full" or "settings"'}), 400
+
+        # Create backup based on type
+        from app.services.backup_service import BackupService
+
+        if backup_type == 'full':
+            result = BackupService.create_full_backup()
+        else:
+            result = BackupService.create_settings_backup()
+
+        if result['success']:
+            logger.info(f"Backup created successfully: {result['filename']}")
+            return jsonify({
+                'success': True,
+                'message': result['message'],
+                'filename': result['filename'],
+                'backup_type': backup_type
+            }), 200
+        else:
+            logger.error(f"Backup creation failed: {result.get('error', 'Unknown error')}")
+            return jsonify({'error': result.get('error', 'Failed to create backup')}), 500
+
+    except Exception as e:
+        logger.error(f"Error creating backup: {str(e)}")
+        return jsonify({'error': f'Failed to create backup: {str(e)}'}), 500
+
+@api_bp.route('/backup/download/<backup_type>/<filename>', methods=['GET'])
+@permission_required(['backup_manage'])
+def download_backup_api(backup_type, filename):
+    """Download a backup file via API."""
+    logger.info(f"Received request to download backup: {backup_type}/{filename}")
+
+    try:
+        if backup_type not in ['full', 'settings']:
+            return jsonify({'error': 'Invalid backup type'}), 400
+
+        from app.services.backup_service import BackupService
+
+        # Determine backup directory
+        if backup_type == 'full':
+            backup_path = os.path.join(BackupService.FULL_BACKUPS_DIR, filename)
+        else:
+            backup_path = os.path.join(BackupService.SETTINGS_BACKUPS_DIR, filename)
+
+        if not os.path.exists(backup_path):
+            return jsonify({'error': 'Backup file not found'}), 404
+
+        # Log audit event
+        from app.services.audit_service import AuditService
+        AuditService.log_event(
+            event_type=AuditService.EVENT_TYPES['DATA_EXPORT'],
+            performed_by="User",
+            description=f"Downloaded backup file via API: {filename}",
+            status=AuditService.STATUS_SUCCESS,
+            details={"backup_type": backup_type, "filename": filename}
+        )
+
+        return send_file(
+            backup_path,
+            as_attachment=True,
+            download_name=filename,
+            mimetype='application/octet-stream'
+        )
+
+    except Exception as e:
+        logger.error(f"Error downloading backup: {str(e)}")
+        return jsonify({'error': f'Failed to download backup: {str(e)}'}), 500
+
 @api_bp.route('/test-email', methods=['POST'])
 def send_test_email():
     """Send a test email to verify email configuration."""
     logger.info("Received request to send test email via API.")
-    
+
     try:
         # Check email configuration first
         from app.config import Config
-        
+
         if not Config.MAILJET_API_KEY or not Config.MAILJET_SECRET_KEY:
             logger.error("Mailjet API credentials not configured")
             return jsonify({
                 'error': 'Email service not configured. Please set MAILJET_API_KEY and MAILJET_SECRET_KEY in your environment variables or .env file.'
             }), 400
-        
+
         if not Config.EMAIL_SENDER:
             logger.error("Email sender not configured")
             return jsonify({
@@ -787,3 +1177,476 @@ def send_test_email():
     except Exception as e:
         logger.error(f"Error sending test email: {str(e)}")
         return jsonify({'error': f'Error sending test email: {str(e)}'}), 500
+
+
+# Equipment History API Routes
+
+@api_bp.route('/equipment/<equipment_type>/<equipment_id>/history', methods=['GET'])
+@permission_required(['equipment_ppm_read', 'equipment_ocm_read'])
+def get_equipment_history(equipment_type, equipment_id):
+    """Get history notes for a specific equipment."""
+    try:
+        if equipment_type not in ['ppm', 'ocm']:
+            return jsonify({'error': 'Invalid equipment type'}), 400
+
+        history_notes = HistoryService.get_equipment_history(equipment_id, equipment_type)
+
+        # Convert to dict for JSON response
+        history_data = []
+        for note in history_notes:
+            note_dict = note.model_dump()
+            # Add relative URLs for attachments
+            for attachment in note_dict.get('attachments', []):
+                attachment['download_url'] = f"/api/history/attachment/{attachment['id']}/download"
+            history_data.append(note_dict)
+
+        return jsonify({
+            'success': True,
+            'history': history_data,
+            'count': len(history_data)
+        })
+
+    except Exception as e:
+        logger.error(f"Error getting equipment history: {e}")
+        return jsonify({'error': 'Failed to retrieve equipment history'}), 500
+
+
+@api_bp.route('/equipment/<equipment_type>/<equipment_id>/history', methods=['POST'])
+@permission_required(['equipment_ppm_write', 'equipment_ocm_write'])
+def add_equipment_history(equipment_type, equipment_id):
+    """Add a new history note to equipment."""
+    try:
+        if equipment_type not in ['ppm', 'ocm']:
+            return jsonify({'error': 'Invalid equipment type'}), 400
+
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Authentication required'}), 401
+
+        # Get note text from request
+        data = request.get_json()
+        if not data or not data.get('note_text'):
+            return jsonify({'error': 'Note text is required'}), 400
+
+        # Create history note
+        note_data = HistoryNoteCreate(
+            equipment_id=equipment_id,
+            equipment_type=equipment_type,
+            author_id=current_user.username,
+            author_name=current_user.username,  # Could be enhanced with display name
+            note_text=data['note_text']
+        )
+
+        history_note = HistoryService.create_history_note(note_data)
+        if not history_note:
+            return jsonify({'error': 'Failed to create history note'}), 500
+
+        # Log audit event
+        from app.services.audit_service import log_equipment_action
+        log_equipment_action(
+            'History Added',
+            equipment_type.upper(),
+            equipment_id,
+            current_user.username
+        )
+
+        return jsonify({
+            'success': True,
+            'message': 'History note added successfully',
+            'note': history_note.model_dump()
+        }), 201
+
+    except Exception as e:
+        logger.error(f"Error adding equipment history: {e}")
+        return jsonify({'error': 'Failed to add history note'}), 500
+
+
+@api_bp.route('/history/<note_id>/attachment', methods=['POST'])
+@permission_required(['equipment_ppm_write', 'equipment_ocm_write'])
+def add_history_attachment(note_id):
+    """Add an attachment to a history note."""
+    try:
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Authentication required'}), 401
+
+        # Check if file was uploaded
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file uploaded'}), 400
+
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+
+        # Add attachment to note
+        attachment = HistoryService.add_attachment_to_note(note_id, file, current_user.username)
+        if not attachment:
+            return jsonify({'error': 'Failed to add attachment'}), 500
+
+        return jsonify({
+            'success': True,
+            'message': 'Attachment added successfully',
+            'attachment': attachment.model_dump()
+        }), 201
+
+    except Exception as e:
+        logger.error(f"Error adding history attachment: {e}")
+        return jsonify({'error': 'Failed to add attachment'}), 500
+
+
+@api_bp.route('/history/attachment/<attachment_id>/download', methods=['GET'])
+@permission_required(['equipment_ppm_read', 'equipment_ocm_read'])
+def download_history_attachment(attachment_id):
+    """Download a history attachment."""
+    try:
+        # Find the attachment in all history notes
+        all_history = HistoryService.get_all_history()
+
+        for note in all_history:
+            attachment = note.get_attachment_by_id(attachment_id)
+            if attachment:
+                # Convert relative path to absolute path
+                from pathlib import Path
+                if os.path.isabs(attachment.file_path):
+                    file_path = attachment.file_path
+                else:
+                    # Handle relative paths stored in database
+                    relative_path = attachment.file_path
+
+                    # Normalize path separators (handle both / and \)
+                    relative_path = relative_path.replace('\\', '/')
+
+                    # The file_path in database already includes 'app/' prefix, so use it directly
+                    file_path = os.path.join(os.getcwd(), relative_path)
+
+                # Check if file exists
+                if not os.path.exists(file_path):
+                    logger.error(f"Attachment file not found: {file_path}")
+                    logger.error(f"Original file_path from database: {attachment.file_path}")
+                    return jsonify({'error': 'File not found'}), 404
+
+                logger.info(f"Sending attachment file: {file_path}")
+                # Send file
+                from flask import send_file
+                return send_file(
+                    file_path,
+                    as_attachment=True,
+                    download_name=attachment.original_filename,
+                    mimetype=attachment.mime_type
+                )
+
+        return jsonify({'error': 'Attachment not found'}), 404
+
+    except Exception as e:
+        logger.error(f"Error downloading attachment: {e}")
+        return jsonify({'error': 'Failed to download attachment'}), 500
+
+
+@api_bp.route('/history/<note_id>', methods=['PUT'])
+@permission_required(['equipment_ppm_write', 'equipment_ocm_write'])
+def update_history_note(note_id):
+    """Update a history note."""
+    try:
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Authentication required'}), 401
+
+        # Get the existing note first
+        existing_note = HistoryService.get_history_note(note_id)
+        if not existing_note:
+            return jsonify({'error': 'History note not found'}), 404
+
+        # Check if user can modify this note
+        if not HistoryService.can_user_modify_note(existing_note, current_user.username, getattr(current_user, 'role', None)):
+            return jsonify({'error': 'You do not have permission to edit this note'}), 403
+
+        # Get update data from request
+        data = request.get_json()
+        if not data or not data.get('note_text'):
+            return jsonify({'error': 'Note text is required'}), 400
+
+        # Create update data
+        try:
+            update_data = HistoryNoteUpdate(
+                note_text=data['note_text'],
+                modified_by=current_user.username,
+                modified_by_name=current_user.username  # Could be enhanced with display name
+            )
+        except ValueError as e:
+            return jsonify({'error': f'Validation error: {str(e)}'}), 400
+
+        # Update the note
+        updated_note = HistoryService.update_history_note(note_id, update_data)
+        if not updated_note:
+            return jsonify({'error': 'Failed to update history note'}), 500
+
+        return jsonify({
+            'success': True,
+            'message': 'History note updated successfully',
+            'note': updated_note.model_dump()
+        })
+
+    except Exception as e:
+        logger.error(f"Error updating history note: {e}")
+        return jsonify({'error': 'Failed to update history note'}), 500
+
+
+@api_bp.route('/history/<note_id>', methods=['DELETE'])
+@permission_required(['equipment_ppm_write', 'equipment_ocm_write'])
+def delete_history_note(note_id):
+    """Delete a history note."""
+    try:
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Authentication required'}), 401
+
+        # Get note details for audit log and permission check
+        note = HistoryService.get_history_note(note_id)
+        if not note:
+            return jsonify({'error': 'History note not found'}), 404
+
+        # Check if user can modify this note
+        if not HistoryService.can_user_modify_note(note, current_user.username, getattr(current_user, 'role', None)):
+            return jsonify({'error': 'You do not have permission to delete this note'}), 403
+
+        # Delete the note
+        success = HistoryService.delete_history_note(note_id)
+        if not success:
+            return jsonify({'error': 'Failed to delete history note'}), 500
+
+        # Log audit event
+        from app.services.audit_service import log_equipment_action
+        log_equipment_action(
+            'History Deleted',
+            note.equipment_type.upper(),
+            note.equipment_id,
+            current_user.username
+        )
+
+        return jsonify({
+            'success': True,
+            'message': 'History note deleted successfully'
+        })
+
+    except Exception as e:
+        logger.error(f"Error deleting history note: {e}")
+        return jsonify({'error': 'Failed to delete history note'}), 500
+
+
+# --- Department Management API Routes ---
+
+@api_bp.route("/departments", methods=["GET"])
+@permission_required(["settings_manage"])
+def get_departments():
+    """Get all departments."""
+    try:
+        departments = DepartmentService.get_all_departments()
+        return jsonify([dept.to_dict() for dept in departments]), 200
+    except Exception as e:
+        logger.error(f"Error getting departments: {str(e)}")
+        return jsonify({"error": "Failed to retrieve departments"}), 500
+
+@api_bp.route("/departments", methods=["POST"])
+@permission_required(["settings_manage"])
+def create_department():
+    """Create a new department."""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+
+        # Validate data
+        department_data = DepartmentCreate(**data)
+
+        # Create department
+        new_department = DepartmentService.create_department(department_data)
+
+        return jsonify(new_department.to_dict()), 201
+    except ValueError as e:
+        logger.warning(f"Validation error creating department: {str(e)}")
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error creating department: {str(e)}")
+        return jsonify({"error": "Failed to create department"}), 500
+
+@api_bp.route("/departments/<int:department_id>", methods=["GET"])
+@permission_required(["settings_manage"])
+def get_department(department_id):
+    """Get department by ID."""
+    try:
+        department = DepartmentService.get_department_by_id(department_id)
+        if not department:
+            return jsonify({"error": "Department not found"}), 404
+
+        return jsonify(department.to_dict()), 200
+    except Exception as e:
+        logger.error(f"Error getting department {department_id}: {str(e)}")
+        return jsonify({"error": "Failed to retrieve department"}), 500
+
+@api_bp.route("/departments/<int:department_id>", methods=["PUT"])
+@permission_required(["settings_manage"])
+def update_department(department_id):
+    """Update department by ID."""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+
+        # Validate data
+        update_data = DepartmentUpdate(**data)
+
+        # Update department
+        updated_department = DepartmentService.update_department(department_id, update_data)
+        if not updated_department:
+            return jsonify({"error": "Department not found"}), 404
+
+        return jsonify(updated_department.to_dict()), 200
+    except ValueError as e:
+        logger.warning(f"Validation error updating department {department_id}: {str(e)}")
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error updating department {department_id}: {str(e)}")
+        return jsonify({"error": "Failed to update department"}), 500
+
+@api_bp.route("/departments/<int:department_id>", methods=["DELETE"])
+@permission_required(["settings_manage"])
+def delete_department(department_id):
+    """Delete department by ID."""
+    try:
+        success = DepartmentService.delete_department(department_id)
+        if not success:
+            return jsonify({"error": "Department not found"}), 404
+
+        return jsonify({"message": "Department deleted successfully"}), 200
+    except ValueError as e:
+        logger.warning(f"Error deleting department {department_id}: {str(e)}")
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error deleting department {department_id}: {str(e)}")
+        return jsonify({"error": "Failed to delete department"}), 500
+
+@api_bp.route("/departments/dropdown", methods=["GET"])
+@permission_required(["dashboard_view"])
+def get_departments_dropdown():
+    """Get departments formatted for dropdown use."""
+    try:
+        departments = DepartmentService.get_departments_for_dropdown()
+        return jsonify(departments), 200
+    except Exception as e:
+        logger.error(f"Error getting departments for dropdown: {str(e)}")
+        return jsonify({"error": "Failed to retrieve departments"}), 500
+
+
+# --- Trainer Management API Routes ---
+
+@api_bp.route("/trainers", methods=["GET"])
+@permission_required(["settings_manage"])
+def get_trainers():
+    """Get all trainers with department information."""
+    try:
+        trainers = TrainerService.get_trainers_with_department_info()
+        return jsonify(trainers), 200
+    except Exception as e:
+        logger.error(f"Error getting trainers: {str(e)}")
+        return jsonify({"error": "Failed to retrieve trainers"}), 500
+
+@api_bp.route("/trainers", methods=["POST"])
+@permission_required(["settings_manage"])
+def create_trainer():
+    """Create a new trainer."""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+
+        # Validate data
+        trainer_data = TrainerCreate(**data)
+
+        # Create trainer
+        new_trainer = TrainerService.create_trainer(trainer_data)
+
+        return jsonify(new_trainer.to_dict()), 201
+    except ValueError as e:
+        logger.warning(f"Validation error creating trainer: {str(e)}")
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error creating trainer: {str(e)}")
+        return jsonify({"error": "Failed to create trainer"}), 500
+
+@api_bp.route("/trainers/<int:trainer_id>", methods=["GET"])
+@permission_required(["settings_manage"])
+def get_trainer(trainer_id):
+    """Get trainer by ID."""
+    try:
+        trainer = TrainerService.get_trainer_by_id(trainer_id)
+        if not trainer:
+            return jsonify({"error": "Trainer not found"}), 404
+
+        return jsonify(trainer.to_dict()), 200
+    except Exception as e:
+        logger.error(f"Error getting trainer {trainer_id}: {str(e)}")
+        return jsonify({"error": "Failed to retrieve trainer"}), 500
+
+@api_bp.route("/trainers/<int:trainer_id>", methods=["PUT"])
+@permission_required(["settings_manage"])
+def update_trainer(trainer_id):
+    """Update trainer by ID."""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+
+        # Validate data
+        update_data = TrainerUpdate(**data)
+
+        # Update trainer
+        updated_trainer = TrainerService.update_trainer(trainer_id, update_data)
+        if not updated_trainer:
+            return jsonify({"error": "Trainer not found"}), 404
+
+        return jsonify(updated_trainer.to_dict()), 200
+    except ValueError as e:
+        logger.warning(f"Validation error updating trainer {trainer_id}: {str(e)}")
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error updating trainer {trainer_id}: {str(e)}")
+        return jsonify({"error": "Failed to update trainer"}), 500
+
+@api_bp.route("/trainers/<int:trainer_id>", methods=["DELETE"])
+@permission_required(["settings_manage"])
+def delete_trainer(trainer_id):
+    """Delete trainer by ID."""
+    try:
+        success = TrainerService.delete_trainer(trainer_id)
+        if not success:
+            return jsonify({"error": "Trainer not found"}), 404
+
+        return jsonify({"message": "Trainer deleted successfully"}), 200
+    except ValueError as e:
+        logger.warning(f"Error deleting trainer {trainer_id}: {str(e)}")
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error deleting trainer {trainer_id}: {str(e)}")
+        return jsonify({"error": "Failed to delete trainer"}), 500
+
+@api_bp.route("/trainers/dropdown", methods=["GET"])
+@permission_required(["dashboard_view"])
+def get_trainers_dropdown():
+    """Get trainers formatted for dropdown use."""
+    try:
+        trainers = TrainerService.get_trainers_for_dropdown()
+        return jsonify(trainers), 200
+    except Exception as e:
+        logger.error(f"Error getting trainers for dropdown: {str(e)}")
+        return jsonify({"error": "Failed to retrieve trainers"}), 500
+
+@api_bp.route("/trainers/department/<int:department_id>", methods=["GET"])
+@permission_required(["dashboard_view"])
+def get_trainers_by_department(department_id):
+    """Get trainers by department ID."""
+    try:
+        trainers = TrainerService.get_trainers_by_department(department_id)
+        return jsonify([trainer.to_dict() for trainer in trainers]), 200
+    except Exception as e:
+        logger.error(f"Error getting trainers by department {department_id}: {str(e)}")
+        return jsonify({"error": "Failed to retrieve trainers"}), 500
+
+    except Exception as e:
+        logger.error(f"Error deleting history note: {e}")
+        return jsonify({'error': 'Failed to delete history note'}), 500

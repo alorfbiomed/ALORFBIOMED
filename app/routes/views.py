@@ -20,12 +20,18 @@ from app.services.email_service import EmailService
 from app.services.barcode_service import BarcodeService
 from app.services.backup_service import BackupService
 from app.services.import_export import ImportExportService
+from app.services.history_service import HistoryService
+from app.services.quarter_service import QuarterService
+from app.services.department_service import DepartmentService
+from app.services.trainer_service import TrainerService
+from app.models.history import HistoryNoteCreate, HistoryNoteUpdate
 from app.constants import (
     DEPARTMENTS, TRAINING_MODULES, QUARTER_STATUS_OPTIONS, GENERAL_STATUS_OPTIONS,
     DEVICES_BY_DEPARTMENT, ALL_DEVICES, TRAINERS
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 import functools # For wraps decorator
+from app.decorators import permission_required  # Import the proper permission decorator
 
 views_bp = Blueprint('views', __name__)
 logger = logging.getLogger('app')
@@ -33,32 +39,6 @@ logger = logging.getLogger('app')
 # Allowed file extensions
 ALLOWED_EXTENSIONS = {'csv'}
 SETTINGS_FILE = Path("data/settings.json")
-
-def permission_required(required_permissions):
-    """
-    Decorator to check if a user has the required permissions to access a view.
-    `required_permissions` is a list of permission names (strings).
-    """
-    def decorator(f):
-        @functools.wraps(f)
-        def decorated_function(*args, **kwargs):
-            if not current_user.is_authenticated:
-                flash('You need to be logged in to access this page.', 'warning')
-                return redirect(url_for('auth.login'))
-
-            # Allow if user has ANY of the required permissions
-            has_any_permission = False
-            for perm in required_permissions:
-                if current_user.has_permission(perm):
-                    has_any_permission = True
-                    break
-
-            if not has_any_permission:
-                flash(f'You do not have permission to access this page. Required: {", ".join(required_permissions)}.', 'danger')
-                return redirect(url_for('views.index'))
-            return f(*args, **kwargs)
-        return decorated_function
-    return decorator
 
 
 
@@ -97,26 +77,9 @@ def index():
 
     for item in all_equipment:
         if item['data_type'] == 'ppm':
-            q2_info = item.get('PPM_Q_II', {})
-            if isinstance(q2_info, dict):
-                q2_date = q2_info.get('quarter_date')
-                q2_engineer = q2_info.get('engineer', '')
-                item['display_next_maintenance'] = q2_date if q2_date else 'N/A'
-                
-                if q2_date:
-                    try:
-                        q2_date_obj = EmailService.parse_date_flexible(q2_date).date()
-                        if q2_date_obj < today:
-                            q2_status = 'maintained' if q2_engineer and (q2_engineer.strip() if q2_engineer else '') else 'overdue'
-                        elif q2_date_obj == today:
-                            q2_status = 'maintained'
-                        else:
-                            q2_status = 'upcoming'
-                        item['Status'] = q2_status.capitalize()
-                    except ValueError:
-                        item['display_next_maintenance'] = 'N/A'
-            else:
-                item['display_next_maintenance'] = 'N/A'
+            # Use Quarter Service to determine which quarter data to display
+            display_data = QuarterService.get_display_data_for_equipment(item, today)
+            item.update(display_data)
         else:
             item['display_next_maintenance'] = item.get('Next_Maintenance', 'N/A')
         
@@ -167,6 +130,21 @@ def index():
         else:
             item['status_class'] = 'secondary'
 
+    # Get quarter summary information with error handling
+    try:
+        quarter_summary = QuarterService.get_dashboard_summary(today)
+        logger.info(f"Quarter summary generated successfully: {quarter_summary}")
+    except Exception as e:
+        logger.error(f"Error generating quarter summary: {str(e)}", exc_info=True)
+        # Provide fallback quarter info
+        quarter_summary = {
+            'current_date': today.strftime('%Y-%m-%d'),
+            'current_calendar_quarter': 3,  # Default fallback
+            'current_quarter_name': 'Q3',   # Default fallback
+            'quarter_keys': ['PPM_Q_I', 'PPM_Q_II', 'PPM_Q_III', 'PPM_Q_IV'],
+            'quarter_names': ['Q1', 'Q2', 'Q3', 'Q4']
+        }
+
     return render_template('index.html',
                            current_date=current_date_str,
                            total_machines=total_machines,
@@ -181,7 +159,8 @@ def index():
                            upcoming_30_days=upcoming_30_days,
                            upcoming_60_days=upcoming_60_days,
                            upcoming_90_days=upcoming_90_days,
-                           equipment=all_equipment)
+                           equipment=all_equipment,
+                           quarter_info=quarter_summary)
 
 @views_bp.route('/logout')
 @login_required
@@ -202,15 +181,15 @@ def health_check():
 @views_bp.route('/equipment/<data_type>')
 @permission_required(['equipment_ppm_read', 'equipment_ocm_read'])
 def list_equipment(data_type):
-    """Display list of equipment (either PPM or OCM)."""
-    # if not session.get('is_admin'): # Replaced by decorator
-    #     return redirect(url_for('views.login'))
+    """Display all equipment records on a single page (pagination removed for performance)."""
     if data_type not in ('ppm', 'ocm'):
         flash("Invalid equipment type specified.", "warning")
         return redirect(url_for('views.index'))
-    
+
     try:
+        # Get all data (no pagination)
         equipment_data = DataService.get_all_entries(data_type)
+        
         if isinstance(equipment_data, dict):
             equipment_data = [equipment_data]
             
@@ -252,11 +231,17 @@ def list_equipment(data_type):
                             quarter_info['status'] = 'N/A'
                             quarter_info['status_class'] = 'secondary'
         
-        return render_template('equipment/list.html', equipment=equipment_data, data_type=data_type)
+        return render_template('equipment/list.html',
+                             equipment=equipment_data,
+                             data_type=data_type,
+                             total_records=len(equipment_data))
     except Exception as e:
         logger.error(f"Error loading {data_type} list: {str(e)}")
         flash(f"Error loading {data_type.upper()} equipment data.", "danger")
-        return render_template('equipment/list.html', equipment=[], data_type=data_type)
+        return render_template('equipment/list.html',
+                             equipment=[],
+                             data_type=data_type,
+                             total_records=0)
 
 @views_bp.route('/equipment/ppm/add', methods=['GET', 'POST'])
 @permission_required(['equipment_ppm_write'])
@@ -739,7 +724,10 @@ def save_email_settings():
         current_settings = DataService.load_settings()
         current_settings.update({
             'recipient_email': data.get('recipient_email', '').strip(),
-            'cc_emails': data.get('cc_emails', '').strip()
+            'cc_emails': data.get('cc_emails', '').strip(),
+            'use_daily_send_time': data.get('use_daily_send_time', True),
+            'use_legacy_interval': data.get('use_legacy_interval', False),
+            'email_send_time': data.get('email_send_time', '09:00')
         })
         
         DataService.save_settings(current_settings)
@@ -939,15 +927,29 @@ def download_bulk_barcodes(data_type):
 @views_bp.route('/equipment/machine-assignment')
 @permission_required(['equipment_ppm_write', 'equipment_ocm_write'])
 def machine_assignment():
-    """Display the machine assignment page."""
-    # if not session.get('is_admin'): # Replaced by decorator
-    #     return redirect(url_for('views.login'))
-    
-    return render_template('equipment/machine_assignment.html',
-                         departments=DEPARTMENTS,
-                         training_modules=TRAINING_MODULES,
-                         devices_by_department=DEVICES_BY_DEPARTMENT,
-                         trainers=TRAINERS)
+    """Display the machine assignment page with master data management."""
+    try:
+        # Get departments from new service (fallback to constants if empty)
+        departments_data = DepartmentService.get_departments_for_dropdown()
+        departments_list = [dept['name'] for dept in departments_data] if departments_data else DEPARTMENTS
+
+        # Get trainers from new service (fallback to constants if empty)
+        trainers_data = TrainerService.get_trainers_for_dropdown()
+        trainers_list = [trainer['name'] for trainer in trainers_data] if trainers_data else TRAINERS
+
+        return render_template('equipment/machine_assignment.html',
+                             departments=departments_list,
+                             training_modules=TRAINING_MODULES,
+                             devices_by_department=DEVICES_BY_DEPARTMENT,
+                             trainers=trainers_list)
+    except Exception as e:
+        logger.error(f"Error loading machine assignment page: {str(e)}")
+        # Fallback to constants if services fail
+        return render_template('equipment/machine_assignment.html',
+                             departments=DEPARTMENTS,
+                             training_modules=TRAINING_MODULES,
+                             devices_by_department=DEVICES_BY_DEPARTMENT,
+                             trainers=TRAINERS)
 
 @views_bp.route('/equipment/machine-assignment', methods=['POST'])
 @permission_required(['equipment_ppm_write', 'equipment_ocm_write'])
@@ -982,11 +984,15 @@ def refresh_dashboard():
         ppm_data = DataService.get_all_entries(data_type='ppm')
         if isinstance(ppm_data, dict):
             ppm_data = [ppm_data]
-        
+        for item in ppm_data:
+            item['data_type'] = 'ppm'
+
         ocm_data = DataService.get_all_entries(data_type='ocm')
         if isinstance(ocm_data, dict):
             ocm_data = [ocm_data]
-        
+        for item in ocm_data:
+            item['data_type'] = 'ocm'
+
         all_equipment = ppm_data + ocm_data
         today = datetime.now().date()
         
@@ -995,7 +1001,13 @@ def refresh_dashboard():
         upcoming_7_days = upcoming_14_days = upcoming_21_days = 0
         upcoming_30_days = upcoming_60_days = upcoming_90_days = 0
         
+        # Process PPM equipment with Quarter Service
         for item in all_equipment:
+            if item.get('data_type') == 'ppm':
+                # Use Quarter Service to determine current quarter data
+                display_data = QuarterService.get_display_data_for_equipment(item, today)
+                item.update(display_data)
+
             status = item.get('Status', 'N/A').lower()
             if status == 'overdue':
                 overdue_count += 1
@@ -1018,6 +1030,20 @@ def refresh_dashboard():
             elif status == 'maintained':
                 maintained_count += 1
         
+        # Get quarter summary information with error handling
+        try:
+            quarter_summary = QuarterService.get_dashboard_summary(today)
+        except Exception as e:
+            logger.error(f"Error generating quarter summary in refresh endpoint: {str(e)}", exc_info=True)
+            # Provide fallback quarter info
+            quarter_summary = {
+                'current_date': today.strftime('%Y-%m-%d'),
+                'current_calendar_quarter': 3,  # Default fallback
+                'current_quarter_name': 'Q3',   # Default fallback
+                'quarter_keys': ['PPM_Q_I', 'PPM_Q_II', 'PPM_Q_III', 'PPM_Q_IV'],
+                'quarter_names': ['Q1', 'Q2', 'Q3', 'Q4']
+            }
+
         return jsonify({
             'success': True,
             'data': {
@@ -1033,7 +1059,8 @@ def refresh_dashboard():
                 'upcoming_30_days': upcoming_30_days,
                 'upcoming_60_days': upcoming_60_days,
                 'upcoming_90_days': upcoming_90_days,
-                'current_time': datetime.now().strftime("%A, %d %B %Y — %H:%M:%S")
+                'current_time': datetime.now().strftime("%A, %d %B %Y — %H:%M:%S"),
+                'quarter_info': quarter_summary
             }
         })
     except Exception as e:
@@ -1266,14 +1293,44 @@ def create_user():
             settings = DataService.load_settings()
             users = settings.get('users', [])
 
+            # Check if username already exists
+            for existing_user in users:
+                if existing_user.get('username') == username:
+                    flash('Username already exists. Please choose a different username.', 'danger')
+                    return render_template('create_user.html')
+
             # Hash the password
             logger.critical("Hashing the password")
             hashed_password = generate_password_hash(password)
 
+            # Handle profile image upload
+            profile_image_url = None
+            if 'profile_image' in request.files:
+                profile_image = request.files['profile_image']
+                if profile_image and profile_image.filename:
+                    logger.info(f"Processing profile image upload for user {username}")
+
+                    # Import file utilities
+                    from app.utils.file_utils import save_uploaded_file, ensure_upload_directories
+
+                    # Ensure upload directories exist
+                    ensure_upload_directories()
+
+                    # Save the profile image
+                    success, error_msg, file_info = save_uploaded_file(profile_image, 'profiles', 'image')
+                    if success:
+                        profile_image_url = file_info['relative_path']
+                        logger.info(f"Profile image saved successfully: {profile_image_url}")
+                    else:
+                        logger.warning(f"Failed to save profile image: {error_msg}")
+                        flash(f'Profile image upload failed: {error_msg}', 'warning')
+                        # Continue with user creation even if image upload fails
+
             new_user = {
                 'username': username,
                 'password': hashed_password,
-                'role': role
+                'role': role,
+                'profile_image_url': profile_image_url
             }
 
             logger.critical(f"New user: {new_user}")
@@ -1282,6 +1339,16 @@ def create_user():
             settings['users'] = users
             logger.critical("Saving settings")
             DataService.save_settings(settings)
+
+            # Log audit event
+            from app.services.audit_service import AuditService
+            AuditService.log_event(
+                event_type="User Created",
+                performed_by=current_user.username if current_user.is_authenticated else "System",
+                description=f"New user '{username}' created with role '{role}'",
+                status=AuditService.STATUS_SUCCESS,
+                details={"username": username, "role": role, "has_profile_image": profile_image_url is not None}
+            )
 
             logger.critical("User created successfully")
             flash('User created successfully!', 'success')
@@ -1292,4 +1359,197 @@ def create_user():
 
     logger.critical("Rendering create_user.html template")
     return render_template('create_user.html')
+
+
+@views_bp.route('/history/<note_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_history_note(note_id):
+    """Edit an existing history note."""
+    try:
+        # Get the existing note
+        note = HistoryService.get_history_note(note_id)
+        if not note:
+            flash('History note not found.', 'warning')
+            return redirect(url_for('views.index'))
+
+        # Check if user can modify this note
+        if not HistoryService.can_user_modify_note(note, current_user.username, getattr(current_user, 'role', None)):
+            flash('You do not have permission to edit this note.', 'danger')
+            return redirect(url_for('views.equipment_history',
+                                  equipment_type=note.equipment_type,
+                                  equipment_id=note.equipment_id))
+
+        # Get equipment details
+        equipment = DataService.get_entry(note.equipment_type, note.equipment_id)
+        if not equipment:
+            flash(f'Equipment with serial {note.equipment_id} not found.', 'warning')
+            return redirect(url_for('views.index'))
+
+        if request.method == 'POST':
+            note_text = request.form.get('note_text', '').strip()
+
+            if not note_text:
+                flash('Note text is required.', 'danger')
+                return render_template('equipment/edit_history.html',
+                                     note=note,
+                                     equipment=equipment,
+                                     form_data=request.form,
+                                     current_datetime=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+            # Create update data
+            try:
+                update_data = HistoryNoteUpdate(
+                    note_text=note_text,
+                    modified_by=current_user.username,
+                    modified_by_name=current_user.username
+                )
+            except ValueError as e:
+                flash(f'Validation error: {str(e)}', 'danger')
+                return render_template('equipment/edit_history.html',
+                                     note=note,
+                                     equipment=equipment,
+                                     form_data=request.form,
+                                     current_datetime=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+            # Update the note
+            updated_note = HistoryService.update_history_note(note_id, update_data)
+            if updated_note:
+                # Handle file uploads if any
+                uploaded_files = request.files.getlist('attachments')
+                for file in uploaded_files:
+                    if file and file.filename:
+                        attachment = HistoryService.add_attachment_to_note(
+                            note_id, file, current_user.username
+                        )
+                        if not attachment:
+                            flash(f'Failed to upload file: {file.filename}', 'warning')
+
+                flash('History note updated successfully!', 'success')
+                return redirect(url_for('views.equipment_history',
+                                      equipment_type=note.equipment_type,
+                                      equipment_id=note.equipment_id))
+            else:
+                flash('Failed to update history note.', 'danger')
+
+        return render_template('equipment/edit_history.html',
+                             note=note,
+                             equipment=equipment,
+                             form_data={'note_text': note.note_text},
+                             current_datetime=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+    except Exception as e:
+        logger.error(f"Error editing history note: {e}")
+        flash('Error editing history note.', 'danger')
+        return redirect(url_for('views.index'))
+
+
+# Equipment History Routes
+
+@views_bp.route('/equipment/<equipment_type>/<equipment_id>/history')
+@login_required
+def equipment_history(equipment_type, equipment_id):
+    """Display equipment history page."""
+    try:
+        if equipment_type not in ['ppm', 'ocm']:
+            flash('Invalid equipment type.', 'danger')
+            return redirect(url_for('views.index'))
+
+        # Get equipment details
+        equipment = DataService.get_entry(equipment_type, equipment_id)
+        if not equipment:
+            flash(f'Equipment with serial {equipment_id} not found.', 'warning')
+            return redirect(url_for('views.list_equipment', data_type=equipment_type))
+
+        # Get equipment history
+        history_notes = HistoryService.get_equipment_history(equipment_id, equipment_type)
+
+        return render_template('equipment/history.html',
+                             equipment=equipment,
+                             equipment_type=equipment_type,
+                             equipment_id=equipment_id,
+                             history_notes=history_notes)
+
+    except Exception as e:
+        logger.error(f"Error loading equipment history: {e}")
+        flash('Error loading equipment history.', 'danger')
+        return redirect(url_for('views.list_equipment', data_type=equipment_type))
+
+
+@views_bp.route('/equipment/<equipment_type>/<equipment_id>/history/add', methods=['GET', 'POST'])
+@login_required
+def add_equipment_history(equipment_type, equipment_id):
+    """Add new history note to equipment."""
+    try:
+        if equipment_type not in ['ppm', 'ocm']:
+            flash('Invalid equipment type.', 'danger')
+            return redirect(url_for('views.index'))
+
+        # Get equipment details
+        equipment = DataService.get_entry(equipment_type, equipment_id)
+        if not equipment:
+            flash(f'Equipment with serial {equipment_id} not found.', 'warning')
+            return redirect(url_for('views.list_equipment', data_type=equipment_type))
+
+        if request.method == 'POST':
+            note_text = request.form.get('note_text', '').strip()
+
+            if not note_text:
+                flash('Note text is required.', 'danger')
+                return render_template('equipment/add_history.html',
+                                     equipment=equipment,
+                                     equipment_type=equipment_type,
+                                     equipment_id=equipment_id,
+                                     form_data=request.form,
+                                     current_datetime=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+            # Create history note
+            note_data = HistoryNoteCreate(
+                equipment_id=equipment_id,
+                equipment_type=equipment_type,
+                author_id=current_user.username,
+                author_name=current_user.username,
+                note_text=note_text
+            )
+
+            history_note = HistoryService.create_history_note(note_data)
+            if history_note:
+                # Handle file uploads if any
+                uploaded_files = request.files.getlist('attachments')
+                for file in uploaded_files:
+                    if file and file.filename:
+                        attachment = HistoryService.add_attachment_to_note(
+                            history_note.id, file, current_user.username
+                        )
+                        if not attachment:
+                            flash(f'Failed to upload file: {file.filename}', 'warning')
+
+                # Log audit event
+                from app.services.audit_service import log_equipment_action
+                log_equipment_action(
+                    'History Added',
+                    equipment_type.upper(),
+                    equipment_id,
+                    current_user.username
+                )
+
+                flash('History note added successfully!', 'success')
+                return redirect(url_for('views.equipment_history',
+                                      equipment_type=equipment_type,
+                                      equipment_id=equipment_id))
+            else:
+                flash('Failed to add history note.', 'danger')
+
+        return render_template('equipment/add_history.html',
+                             equipment=equipment,
+                             equipment_type=equipment_type,
+                             equipment_id=equipment_id,
+                             form_data={},
+                             current_datetime=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+    except Exception as e:
+        logger.error(f"Error adding equipment history: {e}")
+        flash('Error adding equipment history.', 'danger')
+        return redirect(url_for('views.equipment_history',
+                              equipment_type=equipment_type,
+                              equipment_id=equipment_id))
 
