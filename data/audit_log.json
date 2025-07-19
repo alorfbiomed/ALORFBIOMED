@@ -8034,5 +8034,164 @@
     "description": "Accessed audit log page",
     "status": "Info",
     "details": {}
+  },
+  {
+    "id": 589,
+    "timestamp": "2025-07-10 04:46:45",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250710_044644_638890.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250710_044644_638890.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 590,
+    "timestamp": "2025-07-10 04:46:45",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 24h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250710_044644_638890.zip",
+      "size_mb": 0.23,
+      "interval_hours": 24,
+      "automatic": true
+    }
+  },
+  {
+    "id": 591,
+    "timestamp": "2025-07-19 19:21:19",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250719_192118_740775.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250719_192118_740775.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 592,
+    "timestamp": "2025-07-19 19:21:19",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 24h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250719_192118_740775.zip",
+      "size_mb": 0.23,
+      "interval_hours": 24,
+      "automatic": true
+    }
+  },
+  {
+    "id": 593,
+    "timestamp": "2025-07-19 19:21:23",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250719_192123_240591.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250719_192123_240591.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 594,
+    "timestamp": "2025-07-19 19:21:23",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 24h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250719_192123_240591.zip",
+      "size_mb": 0.23,
+      "interval_hours": 24,
+      "automatic": true
+    }
+  },
+  {
+    "id": 595,
+    "timestamp": "2025-07-19 19:30:26",
+    "event_type": "User Action",
+    "performed_by": "User",
+    "description": "Accessed audit log page",
+    "status": "Info",
+    "details": {}
+  },
+  {
+    "id": 596,
+    "timestamp": "2025-07-19 19:38:37",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250719_193836_759710.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250719_193836_759710.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 597,
+    "timestamp": "2025-07-19 19:38:37",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 24h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250719_193836_759710.zip",
+      "size_mb": 0.23,
+      "interval_hours": 24,
+      "automatic": true
+    }
+  },
+  {
+    "id": 598,
+    "timestamp": "2025-07-19 19:38:40",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Full application backup created: full_backup_20250719_193839_770662.zip",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250719_193839_770662.zip",
+      "size_mb": 0.23,
+      "files_backed_up": 28,
+      "compression_level": 9
+    }
+  },
+  {
+    "id": 599,
+    "timestamp": "2025-07-19 19:38:40",
+    "event_type": "Backup Created",
+    "performed_by": "System",
+    "description": "Automatic full backup created successfully (interval: 24h)",
+    "status": "Success",
+    "details": {
+      "backup_type": "full",
+      "filename": "full_backup_20250719_193839_770662.zip",
+      "size_mb": 0.23,
+      "interval_hours": 24,
+      "automatic": true
+    }
   }
 ]
