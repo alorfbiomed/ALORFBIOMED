@@ -782,24 +782,31 @@ def training_management_page():
     """Display the training management page."""
     # if not session.get('is_admin'): # Replaced by decorator
     #     return redirect(url_for('views.login'))
-    
+
     try:
         all_trainings = training_service.get_all_trainings()
+
+        # Get dynamic trainer data from TrainerService instead of hardcoded constants
+        dynamic_trainers = TrainerService.get_trainers_for_dropdown()
+        trainer_names = [trainer['value'] for trainer in dynamic_trainers]  # Extract names for backward compatibility
+
         return render_template('training/list.html',
                              trainings=all_trainings,
                              departments=DEPARTMENTS,
                              training_modules=TRAINING_MODULES,
-                             trainers=TRAINERS,
+                             trainers=trainer_names,
                              devices_by_department=DEVICES_BY_DEPARTMENT,
                              all_devices=ALL_DEVICES)
     except Exception as e:
         logger.error(f"Error loading training management page: {str(e)}")
         flash("Error loading training data.", "danger")
+
+        # Fallback to empty trainers list on error
         return render_template('training/list.html',
                              trainings=[],
                              departments=DEPARTMENTS,
                              training_modules=TRAINING_MODULES,
-                             trainers=TRAINERS,
+                             trainers=[],
                              devices_by_department=DEVICES_BY_DEPARTMENT,
                              all_devices=ALL_DEVICES)
 

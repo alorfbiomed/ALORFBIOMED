@@ -526,9 +526,34 @@
 
 {% block scripts %}
 {{ super() }}
+<!-- Include shared trainer synchronization module -->
+<script src="{{ url_for('static', filename='js/trainer-sync.js') }}"></script>
 <script>
 const devicesByDepartment = {{ devices_by_department|tojson }};
-const trainers = {{ trainers|tojson }}; // Use trainers for machine assignment dropdowns
+let trainers = {{ trainers|tojson }}; // Initial trainers from server - will be updated dynamically
+
+// Function to refresh trainer data using the shared trainer sync module
+async function refreshTrainers() {
+    if (window.trainerSync) {
+        trainers = await window.trainerSync.refreshTrainers();
+        return trainers;
+    } else {
+        console.warn('TrainerSync module not available, using fallback');
+        // Fallback to direct API call if module not available
+        try {
+            const response = await fetch('/api/trainers/dropdown');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const trainerData = await response.json();
+            trainers = trainerData.map(trainer => trainer.value || trainer.name);
+            return trainers;
+        } catch (error) {
+            console.error('Error refreshing trainers:', error);
+            return trainers;
+        }
+    }
+}
 
 // Working implementation copied from machine_assignment.html
 function generateMachineAssignments(department, containerId, existingAssignments = []) {
@@ -641,6 +666,46 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('- devicesByDepartment:', devicesByDepartment);
     console.log('- trainers:', trainers);
 
+    // Set up trainer synchronization using the shared module
+    if (window.trainerSync) {
+        // Add listener for trainer updates
+        window.trainerSync.addListener((updatedTrainers, trainerData) => {
+            console.log('Training Page: Trainers updated via TrainerSync', updatedTrainers);
+            trainers = updatedTrainers;
+
+            // Regenerate machine assignments for currently selected departments
+            const addDepartment = document.getElementById('addDepartment')?.value;
+            const editDepartment = document.getElementById('editDepartment')?.value;
+
+            if (addDepartment) {
+                console.log('Regenerating add form machine assignments with updated trainers');
+                generateMachineAssignments(addDepartment, 'addMachineAssignmentsContainer', []);
+            }
+
+            if (editDepartment) {
+                console.log('Regenerating edit form machine assignments with updated trainers');
+                const editForm = document.getElementById('editTrainingForm');
+                const existingAssignments = editForm ? JSON.parse(editForm.dataset.machineAssignments || '[]') : [];
+                generateMachineAssignments(editDepartment, 'editMachineAssignmentsContainer', existingAssignments);
+            }
+        });
+
+        // Initialize with latest trainer data
+        window.trainerSync.init().then((latestTrainers) => {
+            trainers = latestTrainers;
+            console.log('Training Page: Initialized with latest trainers', trainers);
+        });
+    }
+
+    // Fallback: Listen for trainer updates directly (for backward compatibility)
+    window.addEventListener('trainersUpdated', function(event) {
+        console.log('Training Page: Received trainersUpdated event (fallback)', event.detail);
+        if (!window.trainerSync) {
+            trainers = event.detail.trainers;
+            // Regenerate machine assignments as above...
+        }
+    });
+
     // Register department dropdowns for real-time synchronization
     const filterDepartmentSelect = document.getElementById('filterDepartment');
     const addDepartmentSelect = document.getElementById('addDepartment');
@@ -691,7 +756,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     console.log('Event handlers setup complete');
-    
+
+    // The trainer sync module will automatically initialize and refresh trainer data
+    // No need for manual refresh here as it's handled by the TrainerSync module
+
     // Modern date pickers are automatically initialized by the shared module
     // Just ensure they refresh when modals are shown
     console.log('Training page: Modern date pickers will be handled by shared module');

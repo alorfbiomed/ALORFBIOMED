@@ -567,6 +567,8 @@
 
 {% block scripts %}
 {{ super() }}
+<!-- Include shared trainer synchronization module -->
+<script src="{{ url_for('static', filename='js/trainer-sync.js') }}"></script>
 <script>
 const devicesByDepartment = {{ devices_by_department|tojson }};
 const trainers = {{ trainers|tojson }};
@@ -865,6 +867,15 @@ function deleteTrainer(trainerId) {
             if (result.success) {
                 showAlert('Trainer deleted successfully', 'success');
                 loadTrainers();
+
+                // Broadcast trainer data change event for real-time synchronization
+                console.log('Broadcasting trainerDataChanged event for deletion');
+                window.dispatchEvent(new CustomEvent('trainerDataChanged', {
+                    detail: {
+                        action: 'deleted',
+                        trainerId: trainerId
+                    }
+                }));
             } else {
                 showAlert(result.data.error || 'Error deleting trainer', 'danger');
             }
@@ -1081,6 +1092,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 showAlert(`Trainer ${currentEditingTrainer ? 'updated' : 'created'} successfully`, 'success');
                 bootstrap.Modal.getInstance(document.getElementById('trainerModal')).hide();
                 loadTrainers();
+
+                // Broadcast trainer data change event for real-time synchronization
+                console.log('Broadcasting trainerDataChanged event');
+                window.dispatchEvent(new CustomEvent('trainerDataChanged', {
+                    detail: {
+                        action: currentEditingTrainer ? 'updated' : 'created',
+                        trainer: result.data
+                    }
+                }));
             } else {
                 showAlert(result.data.error || 'Error saving trainer', 'danger');
             }

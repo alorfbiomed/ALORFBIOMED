@@ -88,5 +88,14 @@
     "information": "Migrated from constants on 2025-07-08",
     "created_date": "2025-07-08T21:32:56.488785",
     "updated_date": "2025-07-08T21:32:56.488785"
+  },
+  {
+    "id": 11,
+    "name": "TestTrainer",
+    "department_id": 25,
+    "telephone": null,
+    "information": "Test trainer for real-time synchronization",
+    "created_date": "2025-07-24T02:35:10.081769",
+    "updated_date": "2025-07-24T02:35:10.081769"
   }
 ]
