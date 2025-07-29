@@ -9,7 +9,7 @@ import json
 import os
 from pathlib import Path
 from datetime import datetime
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, session, current_app, send_file
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, session, current_app, send_file, make_response
 from flask_login import current_user, login_required
 import tempfile
 import zipfile
@@ -964,7 +964,7 @@ def save_machine_assignment():
     """Save machine assignments."""
     # if not session.get('is_admin'): # Replaced by decorator
     #     return redirect(url_for('views.login')) # Incorrect for JSON endpoint
-    
+
     try:
         data = request.get_json()
         assignments = data.get('assignments', [])
@@ -979,6 +979,269 @@ def save_machine_assignment():
             'success': False,
             'message': 'Error saving machine assignments.'
         }), 500
+
+@views_bp.route('/equipment/history-log')
+@permission_required(['equipment_ppm_read', 'equipment_ocm_read'])
+def history_log():
+    """Display consolidated history log for all equipment."""
+    try:
+        from app.services.history_log_service import HistoryLogService
+
+        # Get search and filter parameters
+        search_query = request.args.get('search', '').strip()
+        equipment_type_filter = request.args.get('type', '').strip()
+        department_filter = request.args.get('department', '').strip()
+        start_date = request.args.get('start_date', '').strip()
+        end_date = request.args.get('end_date', '').strip()
+        sort_by = request.args.get('sort', 'created_at')
+        sort_order = request.args.get('order', 'desc')
+        page = int(request.args.get('page', 1))
+        per_page = int(request.args.get('per_page', 50))
+
+        # Get consolidated history data
+        history_data = HistoryLogService.get_consolidated_history(
+            search_query=search_query,
+            equipment_type_filter=equipment_type_filter,
+            department_filter=department_filter,
+            start_date=start_date,
+            end_date=end_date,
+            sort_by=sort_by,
+            sort_order=sort_order,
+            page=page,
+            per_page=per_page
+        )
+
+        # Get filter options for dropdowns
+        departments = HistoryLogService.get_available_departments()
+
+        return render_template('equipment/history_log.html',
+                             history_data=history_data,
+                             departments=departments,
+                             search_query=search_query,
+                             equipment_type_filter=equipment_type_filter,
+                             department_filter=department_filter,
+                             start_date=start_date,
+                             end_date=end_date,
+                             sort_by=sort_by,
+                             sort_order=sort_order,
+                             page=page,
+                             per_page=per_page)
+
+    except Exception as e:
+        logger.error(f"Error loading history log: {str(e)}")
+        flash('Error loading history log. Please try again.', 'danger')
+        return redirect(url_for('views.index'))
+
+@views_bp.route('/equipment/history-log/export')
+@permission_required(['equipment_ppm_read', 'equipment_ocm_read'])
+def export_history_log():
+    """Export history log data to CSV."""
+    try:
+        from app.services.history_log_service import HistoryLogService
+        import csv
+        from io import StringIO
+
+        # Get all history data without pagination
+        history_data = HistoryLogService.get_consolidated_history(
+            search_query=request.args.get('search', ''),
+            equipment_type_filter=request.args.get('type', ''),
+            department_filter=request.args.get('department', ''),
+            start_date=request.args.get('start_date', ''),
+            end_date=request.args.get('end_date', ''),
+            sort_by=request.args.get('sort', 'created_at'),
+            sort_order=request.args.get('order', 'desc'),
+            page=1,
+            per_page=10000  # Get all records
+        )
+
+        # Create CSV content
+        output = StringIO()
+        writer = csv.writer(output)
+
+        # Write header
+        writer.writerow([
+            'ID', 'Type', 'Department', 'Name', 'Model', 'Manufacturer',
+            'Serial', 'Date Created', 'Author', 'Note Text', 'Is Edited',
+            'Attachments Count', 'Last Updated'
+        ])
+
+        # Write data rows
+        for record in history_data['records']:
+            writer.writerow([
+                record.get('id', ''),
+                record.get('equipment_type', ''),
+                record.get('department', ''),
+                record.get('name', ''),
+                record.get('model', ''),
+                record.get('manufacturer', ''),
+                record.get('equipment_id', ''),
+                record.get('created_at', ''),
+                record.get('author_name', ''),
+                record.get('note_text', ''),
+                'Yes' if record.get('is_edited', False) else 'No',
+                record.get('attachments_count', 0),
+                record.get('updated_at', '')
+            ])
+
+        # Create response
+        csv_content = output.getvalue()
+        output.close()
+
+        # Generate filename with timestamp
+        from datetime import datetime
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f'equipment_history_log_{timestamp}.csv'
+
+        response = make_response(csv_content)
+        response.headers['Content-Type'] = 'text/csv'
+        response.headers['Content-Disposition'] = f'attachment; filename={filename}'
+
+        return response
+
+    except Exception as e:
+        logger.error(f"Error exporting history log: {str(e)}")
+        flash('Error exporting history log. Please try again.', 'danger')
+        return redirect(url_for('views.history_log'))
+
+
+@views_bp.route('/equipment/history-log/template')
+@permission_required(['equipment_ppm_write', 'equipment_ocm_write'])
+def download_history_template():
+    """Download CSV template for history import."""
+    try:
+        import csv
+        from io import StringIO
+
+        # Create CSV template
+        output = StringIO()
+        writer = csv.writer(output)
+
+        # Write header with example data
+        writer.writerow([
+            'Equipment Type', 'Equipment Serial', 'Author Name', 'Note Text', 'Created Date'
+        ])
+
+        # Write example rows
+        writer.writerow([
+            'PPM', 'EXAMPLE001', 'admin', 'Example maintenance note - replace with actual content', '2025-01-01 10:00:00'
+        ])
+        writer.writerow([
+            'OCM', 'EXAMPLE002', 'admin', 'Example operational note - replace with actual content', '2025-01-01 11:00:00'
+        ])
+
+        # Create response
+        csv_content = output.getvalue()
+        output.close()
+
+        response = make_response(csv_content)
+        response.headers['Content-Type'] = 'text/csv'
+        response.headers['Content-Disposition'] = 'attachment; filename=history_import_template.csv'
+
+        return response
+
+    except Exception as e:
+        logger.error(f"Error generating history template: {str(e)}")
+        flash('Error generating template. Please try again.', 'danger')
+        return redirect(url_for('views.history_log'))
+
+@views_bp.route('/equipment/history-log/import', methods=['GET', 'POST'])
+@permission_required(['equipment_ppm_write', 'equipment_ocm_write'])
+def import_history_log():
+    """Import history data from CSV."""
+    if request.method == 'GET':
+        return render_template('equipment/import_history.html')
+
+    try:
+        # Check if file was uploaded
+        if 'file' not in request.files:
+            flash('No file selected.', 'danger')
+            return render_template('equipment/import_history.html')
+
+        file = request.files['file']
+        if file.filename == '':
+            flash('No file selected.', 'danger')
+            return render_template('equipment/import_history.html')
+
+        if not file.filename.lower().endswith('.csv'):
+            flash('Please upload a CSV file.', 'danger')
+            return render_template('equipment/import_history.html')
+
+        # Process CSV file
+        import csv
+        from io import StringIO
+
+        # Read file content
+        file_content = file.read().decode('utf-8')
+        csv_reader = csv.DictReader(StringIO(file_content))
+
+        # Validate headers
+        required_headers = ['Equipment Type', 'Equipment Serial', 'Author Name', 'Note Text', 'Created Date']
+        if not all(header in csv_reader.fieldnames for header in required_headers):
+            flash(f'CSV file must contain these headers: {", ".join(required_headers)}', 'danger')
+            return render_template('equipment/import_history.html')
+
+        # Process rows
+        imported_count = 0
+        error_count = 0
+        errors = []
+
+        for row_num, row in enumerate(csv_reader, start=2):  # Start at 2 because row 1 is header
+            try:
+                # Validate required fields
+                equipment_type = row.get('Equipment Type', '').strip().lower()
+                equipment_serial = row.get('Equipment Serial', '').strip()
+                author_name = row.get('Author Name', '').strip()
+                note_text = row.get('Note Text', '').strip()
+                created_date = row.get('Created Date', '').strip()
+
+                if not all([equipment_type, equipment_serial, author_name, note_text]):
+                    errors.append(f'Row {row_num}: Missing required fields')
+                    error_count += 1
+                    continue
+
+                if equipment_type not in ['ppm', 'ocm']:
+                    errors.append(f'Row {row_num}: Equipment Type must be PPM or OCM')
+                    error_count += 1
+                    continue
+
+                # Create history note
+                from app.models.history import HistoryNoteCreate
+                note_data = HistoryNoteCreate(
+                    equipment_id=equipment_serial,
+                    equipment_type=equipment_type,
+                    author_id=current_user.username,
+                    author_name=author_name,
+                    note_text=note_text
+                )
+
+                history_note = HistoryService.create_history_note(note_data)
+                if history_note:
+                    imported_count += 1
+                else:
+                    errors.append(f'Row {row_num}: Failed to create history note')
+                    error_count += 1
+
+            except Exception as e:
+                errors.append(f'Row {row_num}: {str(e)}')
+                error_count += 1
+
+        # Show results
+        if imported_count > 0:
+            flash(f'Successfully imported {imported_count} history records.', 'success')
+
+        if error_count > 0:
+            flash(f'{error_count} records failed to import. See details below.', 'warning')
+            for error in errors[:10]:  # Show first 10 errors
+                flash(error, 'danger')
+            if len(errors) > 10:
+                flash(f'... and {len(errors) - 10} more errors.', 'danger')
+
+        return redirect(url_for('views.history_log'))
+
+    except Exception as e:
+        logger.error(f"Error importing history: {str(e)}")
+        flash('Error importing history data. Please check your file format.', 'danger')
+        return render_template('equipment/import_history.html')
 
 @views_bp.route('/refresh-dashboard')
 @permission_required(['dashboard_view'])

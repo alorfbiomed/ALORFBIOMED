@@ -1,0 +1,361 @@
+{% extends "base.html" %}
+
+{% block title %}Equipment History Log{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-2">
+                        <i class="fas fa-history text-warning"></i>
+                        Equipment History Log
+                    </h1>
+                    <p class="text-muted mb-0">Consolidated view of all equipment history records</p>
+                </div>
+                <div>
+                    <span class="badge bg-info fs-6">
+                        {{ history_data.pagination.total_records }} Total Records
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-search"></i> Search & Filter
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('views.history_log') }}" class="row g-3">
+                <!-- Text Search -->
+                <div class="col-md-4">
+                    <label for="search" class="form-label">Search</label>
+                    <input type="text" class="form-control" id="search" name="search" 
+                           value="{{ search_query }}" 
+                           placeholder="Search equipment name, serial, department, notes...">
+                </div>
+                
+                <!-- Equipment Type Filter -->
+                <div class="col-md-2">
+                    <label for="type" class="form-label">Type</label>
+                    <select class="form-select" id="type" name="type">
+                        <option value="">All Types</option>
+                        <option value="PPM" {% if equipment_type_filter == 'PPM' %}selected{% endif %}>PPM</option>
+                        <option value="OCM" {% if equipment_type_filter == 'OCM' %}selected{% endif %}>OCM</option>
+                    </select>
+                </div>
+                
+                <!-- Department Filter -->
+                <div class="col-md-2">
+                    <label for="department" class="form-label">Department</label>
+                    <select class="form-select" id="department" name="department">
+                        <option value="">All Departments</option>
+                        {% for dept in departments %}
+                            <option value="{{ dept }}" {% if department_filter == dept %}selected{% endif %}>{{ dept }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Date Range -->
+                <div class="col-md-2">
+                    <label for="start_date" class="form-label">From Date</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date" value="{{ start_date }}">
+                </div>
+                
+                <div class="col-md-2">
+                    <label for="end_date" class="form-label">To Date</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date" value="{{ end_date }}">
+                </div>
+                
+                <!-- Filter Buttons -->
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Apply Filters
+                    </button>
+                    <a href="{{ url_for('views.history_log') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Clear Filters
+                    </a>
+                    <a href="{{ url_for('views.export_history_log') }}" class="btn btn-success">
+                        <i class="fas fa-download"></i> Export CSV
+                    </a>
+                    <a href="{{ url_for('views.import_history_log') }}" class="btn btn-primary">
+                        <i class="fas fa-upload"></i> Import CSV
+                    </a>
+                    <a href="{{ url_for('views.download_history_template') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-file-csv"></i> Template
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- History Table -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">History Records</h5>
+            <div class="d-flex align-items-center gap-2">
+                <!-- Sort Options -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" 
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-sort"></i> Sort
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('views.history_log', sort='created_at', order='desc', **history_data.filters) }}">
+                            <i class="fas fa-clock"></i> Newest First
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('views.history_log', sort='created_at', order='asc', **history_data.filters) }}">
+                            <i class="fas fa-clock"></i> Oldest First
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ url_for('views.history_log', sort='equipment_type', order='asc', **history_data.filters) }}">
+                            <i class="fas fa-tag"></i> Type A-Z
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('views.history_log', sort='department', order='asc', **history_data.filters) }}">
+                            <i class="fas fa-building"></i> Department A-Z
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('views.history_log', sort='name', order='asc', **history_data.filters) }}">
+                            <i class="fas fa-tools"></i> Equipment Name A-Z
+                        </a></li>
+                    </ul>
+                </div>
+                
+                <!-- Per Page Options -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" 
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ per_page }} per page
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('views.history_log', per_page=25, **history_data.filters) }}">25 per page</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('views.history_log', per_page=50, **history_data.filters) }}">50 per page</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('views.history_log', per_page=100, **history_data.filters) }}">100 per page</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-body p-0">
+            {% if history_data.records %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th style="width: 60px;">ID</th>
+                                <th style="width: 80px;">Type</th>
+                                <th style="width: 120px;">Department</th>
+                                <th>Name</th>
+                                <th>Model</th>
+                                <th style="width: 120px;">Serial</th>
+                                <th style="width: 140px;">Date Created</th>
+                                <th style="width: 80px;">Files</th>
+                                <th style="width: 200px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in history_data.records %}
+                                <tr>
+                                    <td>{{ record.id }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if record.equipment_type == 'PPM' %}primary{% else %}success{% endif %}">
+                                            {{ record.equipment_type }}
+                                        </span>
+                                    </td>
+                                    <td>{{ record.department }}</td>
+                                    <td>
+                                        <div class="text-truncate" style="max-width: 200px;" title="{{ record.name }}">
+                                            {{ record.name }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="text-truncate" style="max-width: 150px;" title="{{ record.model }}">
+                                            {{ record.model }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <code class="small">{{ record.equipment_id }}</code>
+                                    </td>
+                                    <td>
+                                        <small>{{ record.created_at }}</small>
+                                        {% if record.is_edited %}
+                                            <br><span class="badge bg-warning text-dark small">Edited</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if record.attachments_count > 0 %}
+                                            <span class="badge bg-info">
+                                                <i class="fas fa-paperclip"></i> {{ record.attachments_count }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{{ url_for('views.equipment_history', equipment_type=record.equipment_type.lower(), equipment_id=record.equipment_id) }}" 
+                                               class="btn btn-outline-info" title="View Full History">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ url_for('views.edit_history_note', note_id=record.note_id) }}"
+                                               class="btn btn-outline-warning" title="Edit Note">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-outline-danger delete-history-btn" 
+                                                    data-note-id="{{ record.note_id }}" 
+                                                    data-equipment-id="{{ record.equipment_id }}"
+                                                    title="Delete Note">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                {% if history_data.pagination.total_pages > 1 %}
+                    <div class="card-footer">
+                        <nav aria-label="History log pagination">
+                            <ul class="pagination justify-content-center mb-0">
+                                {% if history_data.pagination.has_prev %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('views.history_log', page=history_data.pagination.prev_page, **history_data.filters) }}">
+                                            <i class="fas fa-chevron-left"></i> Previous
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for page_num in range(1, history_data.pagination.total_pages + 1) %}
+                                    {% if page_num == history_data.pagination.page %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ page_num }}</span>
+                                        </li>
+                                    {% elif page_num <= 3 or page_num > history_data.pagination.total_pages - 3 or (page_num >= history_data.pagination.page - 2 and page_num <= history_data.pagination.page + 2) %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ url_for('views.history_log', page=page_num, **history_data.filters) }}">{{ page_num }}</a>
+                                        </li>
+                                    {% elif page_num == 4 or page_num == history_data.pagination.total_pages - 3 %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if history_data.pagination.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('views.history_log', page=history_data.pagination.next_page, **history_data.filters) }}">
+                                            Next <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        
+                        <div class="text-center mt-2">
+                            <small class="text-muted">
+                                Showing {{ ((history_data.pagination.page - 1) * history_data.pagination.per_page) + 1 }} to 
+                                {{ [history_data.pagination.page * history_data.pagination.per_page, history_data.pagination.total_records] | min }} 
+                                of {{ history_data.pagination.total_records }} records
+                            </small>
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No History Records Found</h5>
+                    <p class="text-muted">
+                        {% if search_query or equipment_type_filter or department_filter or start_date or end_date %}
+                            Try adjusting your search filters or 
+                            <a href="{{ url_for('views.history_log') }}">clear all filters</a>.
+                        {% else %}
+                            No equipment history records are available yet.
+                        {% endif %}
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteHistoryModal" tabindex="-1" aria-labelledby="deleteHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteHistoryModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this history record?</p>
+                <p class="text-danger"><strong>This action cannot be undone.</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteHistory">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle delete history buttons
+    const deleteButtons = document.querySelectorAll('.delete-history-btn');
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteHistoryModal'));
+    const confirmDeleteBtn = document.getElementById('confirmDeleteHistory');
+    let currentNoteId = null;
+    
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            currentNoteId = this.dataset.noteId;
+            const equipmentId = this.dataset.equipmentId;
+            
+            // Update modal content
+            const modalBody = document.querySelector('#deleteHistoryModal .modal-body');
+            modalBody.innerHTML = `
+                <p>Are you sure you want to delete this history record for equipment <strong>${equipmentId}</strong>?</p>
+                <p class="text-danger"><strong>This action cannot be undone and will also delete any attached files.</strong></p>
+            `;
+            
+            deleteModal.show();
+        });
+    });
+    
+    confirmDeleteBtn.addEventListener('click', function() {
+        if (currentNoteId) {
+            // Send delete request
+            fetch(`/api/history/${currentNoteId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload page to reflect changes
+                    window.location.reload();
+                } else {
+                    alert('Error deleting history record: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error deleting history record. Please try again.');
+            });
+            
+            deleteModal.hide();
+        }
+    });
+});
+</script>
+{% endblock %}

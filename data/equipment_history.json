@@ -25,27 +25,27 @@
     ]
   },
   {
-    "id": "f12423f1-9294-4190-baab-6aea86ddb2c5",
-    "equipment_id": "34234",
-    "equipment_type": "ocm",
+    "id": "403ed806-7eba-4bb9-ac00-d1ca17378b47",
+    "equipment_id": "17030016",
+    "equipment_type": "ppm",
     "author_id": "admin",
     "author_name": "admin",
-    "note_text": "sadcsadasdasdasda",
-    "created_at": "2025-06-29 23:27:39",
-    "updated_at": "2025-06-29 23:27:39",
+    "note_text": "note: IR: Misaligned step-on weighing scale has been sent to the Biomedical Department for repair. A standby unit has been provided as a temporary replacement.",
+    "created_at": "2025-07-29 20:38:41",
+    "updated_at": "2025-07-29 20:38:41",
     "last_modified_by": null,
     "last_modified_by_name": null,
     "is_edited": false,
     "attachments": [
       {
-        "id": "9c2cad76-ed70-4e7f-a249-5f78c0db8a6f",
-        "note_id": "f12423f1-9294-4190-baab-6aea86ddb2c5",
-        "original_filename": "incident_related_medical_device.pdf",
-        "stored_filename": "a256b7a0-92f3-476d-97ee-ee111f8f75f1.pdf",
-        "file_path": "app/static/uploads/history\\a256b7a0-92f3-476d-97ee-ee111f8f75f1.pdf",
+        "id": "a528b858-eb1d-4808-8f2f-b26d58cfc490",
+        "note_id": "403ed806-7eba-4bb9-ac00-d1ca17378b47",
+        "original_filename": "17030016.pdf",
+        "stored_filename": "8ca199a4-5353-4c7c-b57d-b1a3d44796dc.pdf",
+        "file_path": "app/static/uploads/history\\8ca199a4-5353-4c7c-b57d-b1a3d44796dc.pdf",
         "mime_type": "application/pdf",
-        "file_size": 2708815,
-        "upload_date": "2025-06-29 23:27:39"
+        "file_size": 1053807,
+        "upload_date": "2025-07-29 20:38:41"
       }
     ]
   }

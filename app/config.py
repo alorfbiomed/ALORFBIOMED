@@ -34,6 +34,9 @@ class Config:
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
 
+    # File upload configuration
+    MAX_CONTENT_LENGTH = 50 * 1024 * 1024  # 50MB max file upload
+
     # Reminder system configuration
     REMINDER_DAYS = 60  # Default days ahead to check for maintenance
 

@@ -555,6 +555,13 @@ class DataService:
             DataService.save_data(all_data, data_type)
             logger.info(f"Successfully added new {data_type} entry with NO: {new_no}")
 
+            # Sync machine to department
+            try:
+                from app.services.machine_sync_service import MachineSyncService
+                MachineSyncService.sync_equipment_entry(validated_entry, data_type)
+            except Exception as e:
+                logger.warning(f"Failed to sync machine to department for {data_type} entry: {e}")
+
             return validated_entry
 
         except ValidationError as e:
@@ -622,6 +629,14 @@ class DataService:
                     data[i] = updated_data
                     found = True
                     logger.debug(f"Updated entry data: {updated_data}")
+
+                    # Sync machine to department changes
+                    try:
+                        from app.services.machine_sync_service import MachineSyncService
+                        MachineSyncService.handle_equipment_update(entry, updated_data, data_type)
+                    except Exception as e:
+                        logger.warning(f"Failed to sync machine changes for {data_type} entry: {e}")
+
                     break
             
             if not found:

@@ -394,7 +394,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function validateFile(file) {
-        const maxSize = 10 * 1024 * 1024; // 10MB
+        const maxSize = 50 * 1024 * 1024; // 50MB
+        const compressionThreshold = 10 * 1024 * 1024; // 10MB
         const allowedTypes = [
             'image/jpeg', 'image/png', 'image/gif', 'image/webp',
             'application/pdf', 'application/msword',
@@ -403,8 +404,13 @@ document.addEventListener('DOMContentLoaded', function() {
         ];
 
         if (file.size > maxSize) {
-            alert(`File "${file.name}" is too large. Maximum size is 10MB.`);
+            alert(`File "${file.name}" is too large. Maximum size is 50MB. For very large files, consider compressing them before upload.`);
             return false;
+        }
+
+        if (file.size > compressionThreshold) {
+            // Show info about automatic compression for large files
+            console.log(`Large file detected: ${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB). Server will attempt automatic compression.`);
         }
 
         if (!allowedTypes.includes(file.type)) {

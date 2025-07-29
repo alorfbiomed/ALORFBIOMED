@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block title %}Import History Data{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-2">
+                        <i class="fas fa-upload text-success"></i>
+                        Import History Data
+                    </h1>
+                    <p class="text-muted mb-0">Bulk import equipment history records from CSV file</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('views.history_log') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to History Log
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Import Form -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-file-csv"></i> Upload CSV File
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-4">
+                            <label for="file" class="form-label">Select CSV File <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" id="file" name="file" accept=".csv" required>
+                            <div class="form-text">
+                                Upload a CSV file with equipment history data. Maximum file size: 10MB.
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <h6 class="alert-heading">
+                                <i class="fas fa-info-circle"></i> Before You Import
+                            </h6>
+                            <ul class="mb-0">
+                                <li>Download the template below to see the required format</li>
+                                <li>Ensure all equipment serial numbers exist in your PPM/OCM records</li>
+                                <li>Use the exact column headers as shown in the template</li>
+                                <li>Date format should be: YYYY-MM-DD HH:MM:SS</li>
+                                <li>Equipment Type must be either "PPM" or "OCM"</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-upload"></i> Import History Data
+                            </button>
+                            <a href="{{ url_for('views.history_log') }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Instructions Sidebar -->
+        <div class="col-lg-4">
+            <!-- Template Download -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-download"></i> Download Template
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Download the CSV template with the correct format and example data.</p>
+                    <a href="{{ url_for('views.download_history_template') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-download"></i> Download Template
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Required Columns -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-columns"></i> Required Columns
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Column</th>
+                                    <th>Required</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>Equipment Type</code></td>
+                                    <td><span class="badge bg-danger">Yes</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>Equipment Serial</code></td>
+                                    <td><span class="badge bg-danger">Yes</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>Author Name</code></td>
+                                    <td><span class="badge bg-danger">Yes</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>Note Text</code></td>
+                                    <td><span class="badge bg-danger">Yes</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>Created Date</code></td>
+                                    <td><span class="badge bg-warning">Optional</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Data Validation Rules -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-check-circle"></i> Validation Rules
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled small">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Equipment Type:</strong> Must be "PPM" or "OCM"
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Equipment Serial:</strong> Must exist in your equipment records
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Note Text:</strong> 10-5000 characters
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Date Format:</strong> YYYY-MM-DD HH:MM:SS
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>File Format:</strong> UTF-8 encoded CSV
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // File input validation
+    const fileInput = document.getElementById('file');
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    
+    fileInput.addEventListener('change', function() {
+        const file = this.files[0];
+        
+        if (file) {
+            // Check file size
+            if (file.size > maxSize) {
+                alert('File size exceeds 50MB limit. Please choose a smaller file or compress it before upload.');
+                this.value = '';
+                return;
+            }
+            
+            // Check file extension
+            if (!file.name.toLowerCase().endsWith('.csv')) {
+                alert('Please select a CSV file.');
+                this.value = '';
+                return;
+            }
+            
+            // Show file info
+            const fileInfo = document.createElement('div');
+            fileInfo.className = 'mt-2 text-muted small';
+            fileInfo.innerHTML = `
+                <i class="fas fa-file-csv me-1"></i>
+                Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)
+            `;
+            
+            // Remove existing file info
+            const existingInfo = this.parentNode.querySelector('.file-info');
+            if (existingInfo) {
+                existingInfo.remove();
+            }
+            
+            fileInfo.className += ' file-info';
+            this.parentNode.appendChild(fileInfo);
+        }
+    });
+    
+    // Form submission validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const file = fileInput.files[0];
+        
+        if (!file) {
+            e.preventDefault();
+            alert('Please select a CSV file to import.');
+            return;
+        }
+        
+        // Show loading state
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importing...';
+        submitBtn.disabled = true;
+        
+        // Re-enable button after 30 seconds (in case of error)
+        setTimeout(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }, 30000);
+    });
+});
+</script>
+{% endblock %}

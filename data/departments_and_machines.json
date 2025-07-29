@@ -37,7 +37,6 @@
   "5B": [
     "DVT MACHINE",
     "ECG MACHINE",
-    "FETAL DOPPLER",
     "INFUSION PUMP",
     "PULSE OXIMETER",
     "REFRIGERATOR",
@@ -58,6 +57,7 @@
   "6B": [
     "DVT MACHINE",
     "ECG MACHINE",
+    "FETAL DOPPLER",
     "INFUSION PUMP",
     "NEBULIZER",
     "PULSE OXIMETER",

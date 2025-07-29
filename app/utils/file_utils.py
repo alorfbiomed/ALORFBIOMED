@@ -4,6 +4,8 @@ File upload utilities for secure file handling.
 import os
 import uuid
 import mimetypes
+import gzip
+import shutil
 from pathlib import Path
 from typing import Optional, Tuple, List
 from werkzeug.utils import secure_filename
@@ -28,8 +30,11 @@ ALLOWED_EXTENSIONS = {
     'rtf': ['application/rtf', 'text/rtf']
 }
 
-# Maximum file size (10MB)
-MAX_FILE_SIZE = 10 * 1024 * 1024
+# Maximum file size (50MB for history attachments)
+MAX_FILE_SIZE = 50 * 1024 * 1024
+
+# Compression threshold (files larger than this will be compressed)
+COMPRESSION_THRESHOLD = 10 * 1024 * 1024  # 10MB
 
 # Upload directories
 UPLOAD_DIRS = {
@@ -47,6 +52,42 @@ def ensure_upload_directories():
         except Exception as e:
             logger.error(f"Failed to create upload directory {dir_path}: {e}")
             raise
+
+
+def compress_file(file_path: str) -> Tuple[bool, str, int]:
+    """
+    Compress a file using gzip compression.
+
+    Args:
+        file_path: Path to the file to compress
+
+    Returns:
+        Tuple[bool, str, int]: (success, compressed_file_path, compressed_size)
+    """
+    try:
+        compressed_path = file_path + '.gz'
+
+        with open(file_path, 'rb') as f_in:
+            with gzip.open(compressed_path, 'wb') as f_out:
+                shutil.copyfileobj(f_in, f_out)
+
+        # Get compressed file size
+        compressed_size = os.path.getsize(compressed_path)
+        original_size = os.path.getsize(file_path)
+
+        # Only keep compressed version if it's significantly smaller
+        if compressed_size < original_size * 0.8:  # At least 20% reduction
+            os.remove(file_path)  # Remove original
+            logger.info(f"File compressed: {original_size} -> {compressed_size} bytes ({compressed_size/original_size*100:.1f}%)")
+            return True, compressed_path, compressed_size
+        else:
+            os.remove(compressed_path)  # Remove compressed version
+            logger.info(f"File compression not beneficial, keeping original: {original_size} bytes")
+            return False, file_path, original_size
+
+    except Exception as e:
+        logger.error(f"Error compressing file {file_path}: {e}")
+        return False, file_path, os.path.getsize(file_path)
 
 
 def is_allowed_file(filename: str, file_type: str = 'all') -> bool:
@@ -104,7 +145,7 @@ def validate_file(file: FileStorage, file_type: str = 'all') -> Tuple[bool, str]
     file.seek(0)  # Reset file pointer
     
     if file_size > MAX_FILE_SIZE:
-        return False, f"File size too large. Maximum size: {MAX_FILE_SIZE // (1024*1024)}MB"
+        return False, f"File size too large. Maximum size: {MAX_FILE_SIZE // (1024*1024)}MB. For large files, consider compressing them before upload."
     
     if file_size == 0:
         return False, "File is empty"
@@ -174,26 +215,77 @@ def save_uploaded_file(file: FileStorage, upload_type: str, file_type: str = 'al
         # Save file
         file_path = os.path.join(upload_dir, stored_filename)
         file.save(file_path)
-        
-        # Get file info
-        file_size = os.path.getsize(file_path)
-        mime_type = mimetypes.guess_type(file_path)[0] or file.mimetype or 'application/octet-stream'
+
+        # Get initial file size
+        original_size = os.path.getsize(file_path)
+
+        # Compress large files if beneficial
+        is_compressed = False
+        final_file_path = file_path
+        final_file_size = original_size
+
+        if original_size > COMPRESSION_THRESHOLD:
+            logger.info(f"File size {original_size} bytes exceeds compression threshold, attempting compression")
+            compressed, compressed_path, compressed_size = compress_file(file_path)
+            if compressed:
+                is_compressed = True
+                final_file_path = compressed_path
+                final_file_size = compressed_size
+                # Update stored filename to include .gz extension
+                stored_filename = stored_filename + '.gz'
+
+        mime_type = mimetypes.guess_type(original_filename)[0] or file.mimetype or 'application/octet-stream'
         
         file_info = {
             'original_filename': original_filename,
             'stored_filename': stored_filename,
-            'file_path': file_path,
+            'file_path': final_file_path,
             'relative_path': f"/static/uploads/{upload_type}/{stored_filename}",
-            'file_size': file_size,
-            'mime_type': mime_type
+            'file_size': final_file_size,
+            'original_size': original_size,
+            'mime_type': mime_type,
+            'is_compressed': is_compressed
         }
         
         logger.info(f"File saved successfully: {file_path}")
         return True, "", file_info
-        
+
     except Exception as e:
         logger.error(f"Error saving file: {e}")
         return False, f"Failed to save file: {str(e)}", {}
+
+
+def get_file_for_download(file_path: str, original_filename: str) -> Tuple[str, str]:
+    """
+    Get the appropriate file path and filename for download.
+    Handles decompression of compressed files if needed.
+
+    Args:
+        file_path: Path to the stored file (may be compressed)
+        original_filename: Original filename for download
+
+    Returns:
+        Tuple[str, str]: (download_file_path, download_filename)
+    """
+    try:
+        if file_path.endswith('.gz'):
+            # File is compressed, decompress for download
+            temp_path = file_path[:-3]  # Remove .gz extension
+
+            with gzip.open(file_path, 'rb') as f_in:
+                with open(temp_path, 'wb') as f_out:
+                    shutil.copyfileobj(f_in, f_out)
+
+            logger.info(f"Decompressed file for download: {file_path} -> {temp_path}")
+            return temp_path, original_filename
+        else:
+            # File is not compressed
+            return file_path, original_filename
+
+    except Exception as e:
+        logger.error(f"Error preparing file for download: {e}")
+        # Return original path as fallback
+        return file_path, original_filename
 
 
 def delete_file(file_path: str) -> bool:
