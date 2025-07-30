@@ -944,18 +944,28 @@ def machine_assignment():
         trainers_data = TrainerService.get_trainers_for_dropdown()
         trainers_list = [trainer['name'] for trainer in trainers_data] if trainers_data else TRAINERS
 
+        # Get fresh devices by department from JSON file
+        from app.services.machine_sync_service import MachineSyncService
+        devices_by_department = MachineSyncService._load_departments_machines()
+
         return render_template('equipment/machine_assignment.html',
                              departments=departments_list,
                              training_modules=TRAINING_MODULES,
-                             devices_by_department=DEVICES_BY_DEPARTMENT,
+                             devices_by_department=devices_by_department,
                              trainers=trainers_list)
     except Exception as e:
         logger.error(f"Error loading machine assignment page: {str(e)}")
-        # Fallback to constants if services fail
+        # Fallback to constants if services fail - also load fresh data
+        from app.services.machine_sync_service import MachineSyncService
+        try:
+            devices_by_department = MachineSyncService._load_departments_machines()
+        except:
+            devices_by_department = DEVICES_BY_DEPARTMENT
+
         return render_template('equipment/machine_assignment.html',
                              departments=DEPARTMENTS,
                              training_modules=TRAINING_MODULES,
-                             devices_by_department=DEVICES_BY_DEPARTMENT,
+                             devices_by_department=devices_by_department,
                              trainers=TRAINERS)
 
 @views_bp.route('/equipment/machine-assignment', methods=['POST'])

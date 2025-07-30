@@ -75,12 +75,45 @@
                             </div>
                         </div>
 
+                        <!-- Add New Machine Section (Initially Hidden) -->
+                        <div id="addMachineSection" style="display: none;">
+                            <hr>
+                            <div class="card border-success mb-4">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Add New Machine</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <label for="newMachineName" class="form-label">Machine Name <span class="text-danger">*</span></label>
+                                            <input type="text" id="newMachineName" class="form-control" placeholder="Enter machine name (e.g., ULTRASOUND MACHINE)" required>
+                                        </div>
+                                        <div class="col-md-4 d-flex align-items-end">
+                                            <button type="button" id="addMachineBtn" class="btn btn-success me-2">
+                                                <i class="fas fa-plus me-1"></i>Add Machine
+                                            </button>
+                                            <button type="button" id="cancelAddMachineBtn" class="btn btn-secondary">
+                                                <i class="fas fa-times me-1"></i>Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Machine Assignment Section (Initially Hidden) -->
                         <div id="machineAssignmentSection" style="display: none;">
                             <hr>
-                            <h5>Machine Assignments</h5>
-                            <p class="text-muted">Select machines and assign trainers for the chosen department.</p>
-                            
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h5>Machine Assignments</h5>
+                                    <p class="text-muted mb-0">Select machines and assign trainers for the chosen department.</p>
+                                </div>
+                                <button type="button" id="showAddMachineBtn" class="btn btn-outline-success">
+                                    <i class="fas fa-plus me-1"></i>Add New Machine
+                                </button>
+                            </div>
+
                             <div id="machineList" class="row">
                                 <!-- Machine assignment rows will be dynamically generated here -->
                             </div>
@@ -260,14 +293,20 @@
                             <label class="form-check-label"></label>
                         </div>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <label class="form-label machine-name"></label>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-5">
                         <select class="form-select trainer-select" name="trainer" disabled>
                             <option value="">Select Trainer</option>
                             <!-- Trainer options will be populated dynamically by JavaScript -->
                         </select>
+                    </div>
+                    <div class="col-md-2 text-end">
+                        <button type="button" class="btn btn-outline-danger btn-sm delete-machine-btn"
+                                title="Remove machine from this department">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -569,6 +608,8 @@
 {{ super() }}
 <!-- Include shared trainer synchronization module -->
 <script src="{{ url_for('static', filename='js/trainer-sync.js') }}"></script>
+<!-- Include machine synchronization module -->
+<script src="{{ url_for('static', filename='js/machine-sync.js') }}"></script>
 <script>
 const devicesByDepartment = {{ devices_by_department|tojson }};
 const trainers = {{ trainers|tojson }};
@@ -578,6 +619,90 @@ let departments = [];
 let trainersData = [];
 let currentEditingDepartment = null;
 let currentEditingTrainer = null;
+
+// Global function to generate machine assignments (accessible from machine sync listeners)
+function generateMachineAssignments(department) {
+    const machines = devicesByDepartment[department] || [];
+    const machineList = document.getElementById('machineList');
+    const machineRowTemplate = document.getElementById('machineRowTemplate');
+
+    if (!machineList || !machineRowTemplate) {
+        console.error('Machine list or template not found');
+        return;
+    }
+
+    machineList.innerHTML = '';
+
+    machines.forEach(machine => {
+        const template = machineRowTemplate.content.cloneNode(true);
+
+        // Set machine name
+        const machineNameLabel = template.querySelector('.machine-name');
+        machineNameLabel.textContent = machine;
+
+        // Set checkbox value
+        const checkbox = template.querySelector('.machine-checkbox');
+        checkbox.value = machine;
+        checkbox.id = `machine_${machine.replace(/\s+/g, '_')}`;
+
+        // Set label for attribute
+        const label = template.querySelector('.form-check-label');
+        label.setAttribute('for', checkbox.id);
+
+        // Populate trainer options
+        const trainerSelect = template.querySelector('.trainer-select');
+        trainers.forEach(trainer => {
+            const option = document.createElement('option');
+            option.value = trainer;
+            option.textContent = trainer;
+            trainerSelect.appendChild(option);
+        });
+
+        // Add event listener to checkbox
+        checkbox.addEventListener('change', function() {
+            const trainerSelect = this.closest('.machine-assignment-row').querySelector('.trainer-select');
+            trainerSelect.disabled = !this.checked;
+            if (!this.checked) {
+                trainerSelect.value = '';
+            }
+        });
+
+        // Add event listener to delete button
+        const deleteBtn = template.querySelector('.delete-machine-btn');
+        deleteBtn.addEventListener('click', function() {
+            deleteMachineFromDepartment(machine, department);
+        });
+
+        machineList.appendChild(template);
+    });
+}
+
+// Global function to delete machine from department (accessible from event handlers)
+function deleteMachineFromDepartment(machineName, department) {
+    // Show confirmation dialog
+    const confirmMessage = `Are you sure you want to remove "${machineName}" from "${department}"? This will also remove it from training forms for this department.`;
+
+    if (confirm(confirmMessage)) {
+        // Use the machine sync service to remove the machine
+        window.machineSync.removeMachine(department, machineName)
+            .then(response => {
+                if (response.success) {
+                    // Show success message
+                    alert(`Machine "${machineName}" removed from department "${department}"`);
+
+                    // Refresh the current department's machine list
+                    generateMachineAssignments(department);
+                } else {
+                    // Show error message
+                    alert(`Failed to remove machine: ${response.error || 'Unknown error'}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error removing machine:', error);
+                alert(`Failed to remove machine: ${error.message || 'Network error'}`);
+            });
+    }
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     const departmentSelect = document.getElementById('departmentSelect');
@@ -596,49 +721,7 @@ document.addEventListener('DOMContentLoaded', function() {
             machineList.innerHTML = '';
         }
     });
-    
-    function generateMachineAssignments(department) {
-        const machines = devicesByDepartment[department] || [];
-        machineList.innerHTML = '';
-        
-        machines.forEach(machine => {
-            const template = machineRowTemplate.content.cloneNode(true);
-            
-            // Set machine name
-            const machineNameLabel = template.querySelector('.machine-name');
-            machineNameLabel.textContent = machine;
-            
-            // Set checkbox value
-            const checkbox = template.querySelector('.machine-checkbox');
-            checkbox.value = machine;
-            checkbox.id = `machine_${machine.replace(/\s+/g, '_')}`;
-            
-            // Set label for attribute
-            const label = template.querySelector('.form-check-label');
-            label.setAttribute('for', checkbox.id);
-            
-            // Populate trainer options
-            const trainerSelect = template.querySelector('.trainer-select');
-            trainers.forEach(trainer => {
-                const option = document.createElement('option');
-                option.value = trainer;
-                option.textContent = trainer;
-                trainerSelect.appendChild(option);
-            });
-            
-            // Add event listener to checkbox
-            checkbox.addEventListener('change', function() {
-                const trainerSelect = this.closest('.machine-assignment-row').querySelector('.trainer-select');
-                trainerSelect.disabled = !this.checked;
-                if (!this.checked) {
-                    trainerSelect.value = '';
-                }
-            });
-            
-            machineList.appendChild(template);
-        });
-    }
-    
+
     // Form submission
     document.getElementById('machineAssignmentForm').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -683,6 +766,75 @@ function clearAssignments() {
         select.value = '';
     });
 }
+
+// Add New Machine Functions
+function showAddMachineForm() {
+    document.getElementById('addMachineSection').style.display = 'block';
+    document.getElementById('newMachineName').focus();
+}
+
+function hideAddMachineForm() {
+    document.getElementById('addMachineSection').style.display = 'none';
+    document.getElementById('newMachineName').value = '';
+}
+
+async function addNewMachine() {
+    const departmentSelect = document.getElementById('departmentSelect');
+    const machineNameInput = document.getElementById('newMachineName');
+
+    const department = departmentSelect.value;
+    const machineName = machineNameInput.value.trim().toUpperCase();
+
+    if (!department) {
+        alert('Please select a department first.');
+        return;
+    }
+
+    if (!machineName) {
+        alert('Please enter a machine name.');
+        machineNameInput.focus();
+        return;
+    }
+
+    try {
+        // Use the new machine sync system
+        const result = await window.machineSync.addMachine(department, machineName);
+
+        if (result.success) {
+            // Success - data is already refreshed by machineSync
+            hideAddMachineForm();
+            alert(result.message);
+        } else if (result.alreadyExists) {
+            // Already exists - show appropriate message
+            alert(result.message);
+        } else {
+            // Other error
+            alert(result.message || 'Error adding machine. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error adding machine:', error);
+        alert('Error adding machine. Please try again.');
+    }
+}
+
+// Event listeners for add machine functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Show add machine form button
+    document.getElementById('showAddMachineBtn').addEventListener('click', showAddMachineForm);
+
+    // Cancel add machine button
+    document.getElementById('cancelAddMachineBtn').addEventListener('click', hideAddMachineForm);
+
+    // Add machine button
+    document.getElementById('addMachineBtn').addEventListener('click', addNewMachine);
+
+    // Enter key in machine name input
+    document.getElementById('newMachineName').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            addNewMachine();
+        }
+    });
+});
 
 // Department Management Functions
 function loadDepartments() {
@@ -1114,6 +1266,32 @@ document.addEventListener('DOMContentLoaded', function() {
     // Button event listeners
     document.getElementById('addDepartmentBtn').addEventListener('click', () => showDepartmentModal());
     document.getElementById('addTrainerBtn').addEventListener('click', () => showTrainerModal());
+
+    // Initialize machine sync and register listener
+    window.machineSync.init().then((latestMachines) => {
+        // Update local devicesByDepartment with latest data
+        Object.assign(devicesByDepartment, latestMachines);
+        console.log('Machine Assignment Page: Initialized with latest machines', Object.keys(latestMachines).length, 'departments');
+
+        // Refresh current department if one is selected
+        const currentDepartment = document.getElementById('departmentSelect').value;
+        if (currentDepartment) {
+            generateMachineAssignments(currentDepartment);
+        }
+    });
+
+    // Register listener for machine updates
+    window.registerMachineListener((updatedMachines) => {
+        console.log('Machine Assignment Page: Received machine update');
+        // Update local devicesByDepartment
+        Object.assign(devicesByDepartment, updatedMachines);
+
+        // Refresh current department if one is selected
+        const currentDepartment = document.getElementById('departmentSelect').value;
+        if (currentDepartment) {
+            generateMachineAssignments(currentDepartment);
+        }
+    });
 });
 </script>
 {% endblock %}

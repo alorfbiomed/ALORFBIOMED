@@ -32,11 +32,11 @@ class HistoryAttachment(BaseModel):
     @field_validator('file_size')
     @classmethod
     def validate_file_size(cls, v: int) -> int:
-        """Validate file size is positive and within limits (50MB)."""
+        """Validate file size is positive and within limits (100MB)."""
         if v <= 0:
             raise ValueError("File size must be positive")
-        if v > 50 * 1024 * 1024:  # 50MB limit
-            raise ValueError("File size cannot exceed 50MB")
+        if v > 100 * 1024 * 1024:  # 100MB limit
+            raise ValueError("File size cannot exceed 100MB")
         return v
 
 

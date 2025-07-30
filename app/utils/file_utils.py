@@ -6,6 +6,7 @@ import uuid
 import mimetypes
 import gzip
 import shutil
+from datetime import datetime
 from pathlib import Path
 from typing import Optional, Tuple, List
 from werkzeug.utils import secure_filename
@@ -30,8 +31,8 @@ ALLOWED_EXTENSIONS = {
     'rtf': ['application/rtf', 'text/rtf']
 }
 
-# Maximum file size (50MB for history attachments)
-MAX_FILE_SIZE = 50 * 1024 * 1024
+# Maximum file size (100MB for history attachments)
+MAX_FILE_SIZE = 100 * 1024 * 1024
 
 # Compression threshold (files larger than this will be compressed)
 COMPRESSION_THRESHOLD = 10 * 1024 * 1024  # 10MB
@@ -160,38 +161,52 @@ def validate_file(file: FileStorage, file_type: str = 'all') -> Tuple[bool, str]
     return True, ""
 
 
-def generate_secure_filename(original_filename: str) -> str:
+def generate_secure_filename(original_filename: str, custom_prefix: str = None) -> str:
     """
-    Generate a secure filename with UUID prefix.
-    
+    Generate a secure filename with optional custom prefix or UUID prefix.
+
     Args:
         original_filename: Original filename
-    
+        custom_prefix: Optional custom prefix for the filename
+
     Returns:
-        str: Secure filename with UUID prefix
+        str: Secure filename with custom prefix or UUID prefix
     """
     if not original_filename:
         return str(uuid.uuid4())
-    
+
     # Get file extension
     extension = ""
     if '.' in original_filename:
         extension = '.' + original_filename.rsplit('.', 1)[1].lower()
-    
-    # Generate UUID-based filename
-    secure_name = str(uuid.uuid4()) + extension
+
+    if custom_prefix:
+        # Use custom prefix and make it secure
+        secure_prefix = secure_filename(custom_prefix)
+        # Remove any remaining unsafe characters and limit length
+        secure_prefix = ''.join(c for c in secure_prefix if c.isalnum() or c in '-_')
+        secure_prefix = secure_prefix[:100]  # Limit length to avoid filesystem issues
+
+        # Add timestamp suffix to ensure uniqueness
+        timestamp_suffix = datetime.now().strftime('%H%M%S')
+        secure_name = f"{secure_prefix}-{timestamp_suffix}{extension}"
+    else:
+        # Generate UUID-based filename (fallback)
+        secure_name = str(uuid.uuid4()) + extension
+
     return secure_name
 
 
-def save_uploaded_file(file: FileStorage, upload_type: str, file_type: str = 'all') -> Tuple[bool, str, dict]:
+def save_uploaded_file(file: FileStorage, upload_type: str, file_type: str = 'all', custom_filename_prefix: str = None) -> Tuple[bool, str, dict]:
     """
     Save an uploaded file securely.
-    
+
     Args:
         file: The uploaded file
         upload_type: Type of upload ('history' or 'profiles')
         file_type: Type of file ('image', 'document', or 'all')
-    
+        custom_filename_prefix: Optional custom prefix for filename
+
     Returns:
         Tuple[bool, str, dict]: (success, error_message, file_info)
     """
@@ -210,7 +225,7 @@ def save_uploaded_file(file: FileStorage, upload_type: str, file_type: str = 'al
         
         # Generate secure filename
         original_filename = secure_filename(file.filename)
-        stored_filename = generate_secure_filename(original_filename)
+        stored_filename = generate_secure_filename(original_filename, custom_filename_prefix)
         
         # Save file
         file_path = os.path.join(upload_dir, stored_filename)

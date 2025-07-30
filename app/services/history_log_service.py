@@ -3,6 +3,7 @@ Service for managing consolidated equipment history log.
 """
 import json
 import logging
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
@@ -14,9 +15,13 @@ logger = logging.getLogger(__name__)
 
 class HistoryLogService:
     """Service for consolidated equipment history management."""
-    
+
     HISTORY_DATA_PATH = Path(Config.DATA_DIR) / 'equipment_history.json'
-    
+
+    # Cache for equipment data to avoid repeated file loading
+    _equipment_cache = {}
+    _cache_timestamp = {}
+
     @staticmethod
     def _load_history_data() -> List[Dict[str, Any]]:
         """Load history data from JSON file."""
@@ -24,7 +29,7 @@ class HistoryLogService:
             if not HistoryLogService.HISTORY_DATA_PATH.exists():
                 logger.warning(f"History file {HistoryLogService.HISTORY_DATA_PATH} not found")
                 return []
-            
+
             with open(HistoryLogService.HISTORY_DATA_PATH, 'r', encoding='utf-8') as file:
                 data = json.load(file)
                 logger.debug(f"Loaded {len(data)} history entries")
@@ -32,23 +37,72 @@ class HistoryLogService:
         except Exception as e:
             logger.error(f"Error loading history data: {e}")
             return []
-    
+
     @staticmethod
-    def _get_equipment_details(equipment_id: str, equipment_type: str) -> Dict[str, Any]:
-        """Get equipment details from PPM/OCM data."""
+    def _load_equipment_cache() -> Dict[str, Dict[str, Any]]:
+        """Load and cache equipment data for both PPM and OCM."""
         try:
-            equipment_data = DataService.load_data(equipment_type)
-            
-            for equipment in equipment_data:
-                serial_field = 'SERIAL' if equipment_type == 'ppm' else 'Serial'
-                if equipment.get(serial_field) == equipment_id:
-                    return {
+            current_time = time.time()
+            cache_key = 'equipment_data'
+
+            # Check if cache is still valid (5 minutes)
+            if (cache_key in HistoryLogService._equipment_cache and
+                cache_key in HistoryLogService._cache_timestamp and
+                current_time - HistoryLogService._cache_timestamp[cache_key] < 300):
+                return HistoryLogService._equipment_cache[cache_key]
+
+            logger.debug("Loading equipment data into cache...")
+
+            # Load PPM and OCM data
+            ppm_data = DataService.load_data('ppm')
+            ocm_data = DataService.load_data('ocm')
+
+            # Build equipment lookup dictionary
+            equipment_lookup = {}
+
+            # Process PPM data
+            for equipment in ppm_data:
+                serial = equipment.get('SERIAL')
+                if serial:
+                    equipment_lookup[f"ppm_{serial}"] = {
+                        'department': equipment.get('Department', 'Unknown'),
+                        'name': equipment.get('Name') or equipment.get('MODEL') or equipment.get('EQUIPMENT', 'Unknown'),
+                        'model': equipment.get('MODEL', 'Unknown'),
+                        'manufacturer': equipment.get('MANUFACTURER', 'Unknown')
+                    }
+
+            # Process OCM data
+            for equipment in ocm_data:
+                serial = equipment.get('Serial')
+                if serial:
+                    equipment_lookup[f"ocm_{serial}"] = {
                         'department': equipment.get('Department', 'Unknown'),
                         'name': equipment.get('Name') or equipment.get('MODEL') or equipment.get('EQUIPMENT', 'Unknown'),
                         'model': equipment.get('MODEL') or equipment.get('Model', 'Unknown'),
                         'manufacturer': equipment.get('MANUFACTURER') or equipment.get('Manufacturer', 'Unknown')
                     }
-            
+
+            # Cache the data
+            HistoryLogService._equipment_cache[cache_key] = equipment_lookup
+            HistoryLogService._cache_timestamp[cache_key] = current_time
+
+            logger.debug(f"Cached {len(equipment_lookup)} equipment records")
+            return equipment_lookup
+
+        except Exception as e:
+            logger.error(f"Error loading equipment cache: {e}")
+            return {}
+
+    @staticmethod
+    def _get_equipment_details(equipment_id: str, equipment_type: str) -> Dict[str, Any]:
+        """Get equipment details from cached equipment data."""
+        try:
+            equipment_cache = HistoryLogService._load_equipment_cache()
+            cache_key = f"{equipment_type.lower()}_{equipment_id}"
+
+            if cache_key in equipment_cache:
+                return equipment_cache[cache_key]
+
             # Equipment not found
             return {
                 'department': 'Unknown',
@@ -56,7 +110,7 @@ class HistoryLogService:
                 'model': 'Unknown',
                 'manufacturer': 'Unknown'
             }
-            
+
         except Exception as e:
             logger.error(f"Error getting equipment details for {equipment_type} {equipment_id}: {e}")
             return {

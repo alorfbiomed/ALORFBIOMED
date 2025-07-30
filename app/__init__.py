@@ -7,9 +7,14 @@ and provides email reminders for upcoming maintenance tasks.
 import asyncio
 import logging
 import os
-from logging.handlers import RotatingFileHandler
 from pathlib import Path
 import threading # Added import
+
+# Windows-compatible logging import (not used directly here, but available if needed)
+try:
+    from concurrent_log_handler import ConcurrentRotatingFileHandler
+except ImportError:
+    from logging.handlers import RotatingFileHandler
 
 # Load environment variables from .env file
 try:

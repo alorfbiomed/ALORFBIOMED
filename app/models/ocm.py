@@ -19,8 +19,8 @@ class OCMEntry(BaseModel):
     Serial: str
     Manufacturer: str
     Log_Number: str = Field(..., alias="Log_Number")
-    Installation_Date: str = Field(..., alias="Installation_Date")
-    Warranty_End: str = Field(..., alias="Warranty_End")
+    Installation_Date: Optional[str] = Field(default="N/A", alias="Installation_Date")
+    Warranty_End: Optional[str] = Field(default="N/A", alias="Warranty_End")
     Service_Date: str = Field(..., alias="Service_Date")
     Engineer: str
     Next_Maintenance: str = Field(..., alias="Next_Maintenance")
@@ -79,8 +79,8 @@ class OCMEntryCreate(BaseModel):
     Department: str
     LOG_NO: str
     PPM: Optional[str] = ''
-    Installation_Date: str
-    Warranty_End: str
+    Installation_Date: Optional[str] = "N/A"
+    Warranty_End: Optional[str] = "N/A"
     Service_Date: str
     Next_Maintenance: str
     ENGINEER: str

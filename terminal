@@ -1,0 +1,15 @@
+# Check if nginx is running and test configuration syntax
+sudo systemctl status nginx
+echo "--- Configuration Test ---"
+sudo nginx -t
+
+# Check what's using ports 80 and 443
+echo "=== Port 80 Usage ==="
+sudo lsof -i :80
+echo ""
+echo "=== Port 443 Usage ==="
+sudo lsof -i :443
+echo ""
+echo "=== Docker containers on these ports ==="
+docker ps --format "table {{.Names}}\t{{.Ports}}" | grep -E "(80|443)"
+

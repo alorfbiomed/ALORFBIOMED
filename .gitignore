@@ -1,0 +1,98 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv/
+
+# Flask
+instance/
+.webassets-cache
+flask_session/
+
+# Environment variables
+
+
+# Database
+
+
+# Logs
+*.log
+logs/
+
+# Data files (keep structure but exclude sensitive data)
+data_before_restore_*/
+
+# Uploads
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Debug files
+debug_*.py
+test_*.py
+quick_test_*.py
+fix_push_notifications.py
+simple_push_test.py
+
+# Cookie files
+*.txt
+cookie.txt
+new_session_cookie.txt
+
+# Migration temporary files
+migrations/versions/*.py
+
+# Documentation drafts
+*.md
+!README.md
+
+# Backup files
+*.backup
+*.backup_*

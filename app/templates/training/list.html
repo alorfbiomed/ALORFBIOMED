@@ -528,6 +528,8 @@
 {{ super() }}
 <!-- Include shared trainer synchronization module -->
 <script src="{{ url_for('static', filename='js/trainer-sync.js') }}"></script>
+<!-- Include machine synchronization module -->
+<script src="{{ url_for('static', filename='js/machine-sync.js') }}"></script>
 <script>
 const devicesByDepartment = {{ devices_by_department|tojson }};
 let trainers = {{ trainers|tojson }}; // Initial trainers from server - will be updated dynamically
@@ -694,6 +696,46 @@ document.addEventListener('DOMContentLoaded', function() {
         window.trainerSync.init().then((latestTrainers) => {
             trainers = latestTrainers;
             console.log('Training Page: Initialized with latest trainers', trainers);
+        });
+
+        // Initialize machine sync and register listener
+        window.machineSync.init().then((latestMachines) => {
+            // Update local devicesByDepartment with latest data
+            Object.assign(devicesByDepartment, latestMachines);
+            console.log('Training Page: Initialized with latest machines', Object.keys(latestMachines).length, 'departments');
+
+            // Refresh any currently selected departments
+            const addDepartment = document.getElementById('addDepartment').value;
+            const editDepartment = document.getElementById('editDepartment').value;
+
+            if (addDepartment) {
+                generateMachineAssignments(addDepartment, 'addMachineAssignmentsContainer', []);
+            }
+            if (editDepartment) {
+                const editForm = document.getElementById('editTrainingForm');
+                const existingAssignments = editForm ? JSON.parse(editForm.dataset.machineAssignments || '[]') : [];
+                generateMachineAssignments(editDepartment, 'editMachineAssignmentsContainer', existingAssignments);
+            }
+        });
+
+        // Register listener for machine updates
+        window.registerMachineListener((updatedMachines) => {
+            console.log('Training Page: Received machine update');
+            // Update local devicesByDepartment
+            Object.assign(devicesByDepartment, updatedMachines);
+
+            // Refresh any currently selected departments
+            const addDepartment = document.getElementById('addDepartment').value;
+            const editDepartment = document.getElementById('editDepartment').value;
+
+            if (addDepartment) {
+                generateMachineAssignments(addDepartment, 'addMachineAssignmentsContainer', []);
+            }
+            if (editDepartment) {
+                const editForm = document.getElementById('editTrainingForm');
+                const existingAssignments = editForm ? JSON.parse(editForm.dataset.machineAssignments || '[]') : [];
+                generateMachineAssignments(editDepartment, 'editMachineAssignmentsContainer', existingAssignments);
+            }
         });
     }
 

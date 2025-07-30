@@ -1,10 +1,19 @@
 """
 Logger setup for the application.
+Windows-compatible logging with concurrent file access support.
 """
 import logging
 import os
-from logging.handlers import RotatingFileHandler
 from pathlib import Path
+
+# Use Windows-compatible concurrent log handler to prevent PermissionError
+try:
+    from concurrent_log_handler import ConcurrentRotatingFileHandler
+    CONCURRENT_HANDLER_AVAILABLE = True
+except ImportError:
+    from logging.handlers import RotatingFileHandler
+    CONCURRENT_HANDLER_AVAILABLE = False
+    print("⚠️  concurrent-log-handler not available, using standard RotatingFileHandler")
 
 def setup_logger(app_name: str = 'app') -> logging.Logger:
     """
@@ -22,16 +31,25 @@ def setup_logger(app_name: str = 'app') -> logging.Logger:
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
 
-    # Set up file handler with rotation
+    # Set up file handler with rotation (Windows-compatible)
     log_dir = Path(__file__).parent.parent / 'logs'
     log_dir.mkdir(exist_ok=True)
     log_file = log_dir / 'app.log'
-    
-    file_handler = RotatingFileHandler(
-        log_file,
-        maxBytes=10000000,  # 10MB
-        backupCount=5
-    )
+
+    # Use concurrent handler if available (prevents Windows PermissionError)
+    if CONCURRENT_HANDLER_AVAILABLE:
+        file_handler = ConcurrentRotatingFileHandler(
+            log_file,
+            maxBytes=10000000,  # 10MB
+            backupCount=5,
+            use_gzip=False  # Optional: set to True to compress old logs
+        )
+    else:
+        file_handler = RotatingFileHandler(
+            log_file,
+            maxBytes=10000000,  # 10MB
+            backupCount=5
+        )
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(log_format)
 

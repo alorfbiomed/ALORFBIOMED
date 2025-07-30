@@ -85,7 +85,7 @@
                                                name="attachments"
                                                multiple
                                                accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.txt,.rtf">
-                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('attachments').click()">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="event.stopPropagation(); document.getElementById('attachments').click()">
                                             <i class="fas fa-folder-open me-1"></i>
                                             Browse Files
                                         </button>
@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function validateFile(file) {
-        const maxSize = 50 * 1024 * 1024; // 50MB
+        const maxSize = 100 * 1024 * 1024; // 100MB
         const compressionThreshold = 10 * 1024 * 1024; // 10MB
         const allowedTypes = [
             'image/jpeg', 'image/png', 'image/gif', 'image/webp',
@@ -360,7 +360,7 @@ document.addEventListener('DOMContentLoaded', function() {
         ];
 
         if (file.size > maxSize) {
-            alert(`File "${file.name}" is too large. Maximum size is 50MB. For very large files, consider compressing them before upload.`);
+            alert(`File "${file.name}" is too large. Maximum size is 100MB. For very large files, consider compressing them before upload.`);
             return false;
         }
 
@@ -440,8 +440,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Drag and drop functionality
     const uploadArea = document.getElementById('fileUploadArea');
 
-    uploadArea.addEventListener('click', function() {
-        fileInput.click();
+    uploadArea.addEventListener('click', function(event) {
+        // Only trigger file input if the click is not from the Browse Files button
+        if (event.target.tagName !== 'BUTTON' && !event.target.closest('button')) {
+            fileInput.click();
+        }
     });
 });
 

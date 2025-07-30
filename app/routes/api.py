@@ -1647,6 +1647,103 @@ def get_trainers_by_department(department_id):
         logger.error(f"Error getting trainers by department {department_id}: {str(e)}")
         return jsonify({"error": "Failed to retrieve trainers"}), 500
 
+
+# --- Machine Assignment API Routes ---
+
+@api_bp.route("/departments-machines", methods=["GET"])
+@permission_required(["equipment_ppm_read", "equipment_ocm_read"])
+def get_departments_machines():
+    """Get fresh departments and machines data from JSON file."""
+    try:
+        from app.services.machine_sync_service import MachineSyncService
+        departments_machines = MachineSyncService._load_departments_machines()
+        return jsonify(departments_machines), 200
+    except Exception as e:
+        logger.error(f"Error getting departments and machines: {str(e)}")
+        return jsonify({"error": "Failed to retrieve departments and machines data"}), 500
+
+
+@api_bp.route("/departments-machines/<department>", methods=["GET"])
+@permission_required(["equipment_ppm_read", "equipment_ocm_read"])
+def get_machines_by_department(department):
+    """Get machines for a specific department."""
+    try:
+        from app.services.machine_sync_service import MachineSyncService
+        departments_machines = MachineSyncService._load_departments_machines()
+        machines = departments_machines.get(department, [])
+        return jsonify(machines), 200
+    except Exception as e:
+        logger.error(f"Error getting machines for department {department}: {str(e)}")
+        return jsonify({"error": "Failed to retrieve machines for department"}), 500
+
+
+@api_bp.route("/departments-machines/<department>/machines", methods=["POST"])
+@permission_required(["equipment_ppm_write", "equipment_ocm_write"])
+def add_machine_to_department(department):
+    """Add a new machine to a department."""
+    try:
+        data = request.get_json()
+        if not data or 'machine_name' not in data:
+            return jsonify({"error": "Machine name is required"}), 400
+
+        machine_name = data['machine_name'].strip()
+        if not machine_name:
+            return jsonify({"error": "Machine name cannot be empty"}), 400
+
+        from app.services.machine_sync_service import MachineSyncService
+        result = MachineSyncService.add_machine_to_department_with_status(department, machine_name)
+
+        if result['success']:
+            return jsonify({"message": result['message']}), 201
+        elif result['already_exists']:
+            return jsonify({"error": result['message']}), 409  # Conflict status for already exists
+        else:
+            return jsonify({"error": result['message']}), 500
+
+    except Exception as e:
+        logger.error(f"Error adding machine to department {department}: {str(e)}")
+        return jsonify({"error": "Failed to add machine to department"}), 500
+
+
+@api_bp.route("/departments-machines/<department>/machines/<machine_name>", methods=["DELETE"])
+@permission_required(["equipment_ppm_write", "equipment_ocm_write"])
+def remove_machine_from_department(department, machine_name):
+    """Remove a machine from a department."""
+    try:
+        from app.services.machine_sync_service import MachineSyncService
+        success = MachineSyncService.remove_machine_from_department_api(department, machine_name)
+
+        if success:
+            return jsonify({"message": f"Machine '{machine_name}' removed from department '{department}' successfully"}), 200
+        else:
+            return jsonify({"error": "Machine not found in department"}), 404
+
+    except Exception as e:
+        logger.error(f"Error removing machine from department {department}: {str(e)}")
+        return jsonify({"error": "Failed to remove machine from department"}), 500
+
+
+@api_bp.route("/machines/<machine_name>", methods=["DELETE"])
+@permission_required(["equipment_ppm_write", "equipment_ocm_write"])
+def delete_machine_completely(machine_name):
+    """Delete a machine from all departments and handle training record references."""
+    try:
+        from app.services.machine_sync_service import MachineSyncService
+        result = MachineSyncService.delete_machine_completely(machine_name)
+
+        if result["success"]:
+            return jsonify({
+                "message": result["message"],
+                "departments_affected": result["departments_affected"],
+                "training_records_updated": result["training_records_updated"]
+            }), 200
+        else:
+            return jsonify({"error": result["message"]}), 404
+
+    except Exception as e:
+        logger.error(f"Error deleting machine completely: {str(e)}")
+        return jsonify({"error": "Failed to delete machine"}), 500
+
     except Exception as e:
         logger.error(f"Error deleting history note: {e}")
         return jsonify({'error': 'Failed to delete history note'}), 500

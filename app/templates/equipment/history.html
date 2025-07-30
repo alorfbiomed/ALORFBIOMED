@@ -19,7 +19,11 @@
                                class="btn btn-light btn-sm">
                                 <i class="fas fa-plus"></i> Add History Note
                             </a>
-                            <a href="{{ url_for('views.list_equipment', data_type=equipment_type) }}" 
+                            <a href="{{ url_for('views.history_log') }}"
+                               class="btn btn-warning btn-sm">
+                                <i class="fas fa-history"></i> History Log
+                            </a>
+                            <a href="{{ url_for('views.list_equipment', data_type=equipment_type) }}"
                                class="btn btn-outline-light btn-sm">
                                 <i class="fas fa-arrow-left"></i> Back to List
                             </a>

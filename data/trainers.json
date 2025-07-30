@@ -4,98 +4,107 @@
     "name": "Marlene",
     "department_id": null,
     "telephone": null,
-    "information": "Migrated from constants on 2025-07-08",
-    "created_date": "2025-07-08T21:32:56.319329",
-    "updated_date": "2025-07-08T21:32:56.319329"
+    "information": "Migrated from constants on 2025-07-19",
+    "created_date": "2025-07-19T18:35:47.288355",
+    "updated_date": "2025-07-19T18:35:47.288358"
   },
   {
     "id": 2,
     "name": "Aundre",
     "department_id": null,
     "telephone": null,
-    "information": "Migrated from constants on 2025-07-08",
-    "created_date": "2025-07-08T21:32:56.335921",
-    "updated_date": "2025-07-08T21:32:56.335921"
+    "information": "Migrated from constants on 2025-07-19",
+    "created_date": "2025-07-19T18:35:47.289694",
+    "updated_date": "2025-07-19T18:35:47.289698"
   },
   {
     "id": 3,
     "name": "Marivic",
     "department_id": null,
     "telephone": null,
-    "information": "Migrated from constants on 2025-07-08",
-    "created_date": "2025-07-08T21:32:56.354465",
-    "updated_date": "2025-07-08T21:32:56.354465"
+    "information": "Migrated from constants on 2025-07-19",
+    "created_date": "2025-07-19T18:35:47.290588",
+    "updated_date": "2025-07-19T18:35:47.290591"
   },
   {
     "id": 4,
     "name": "Fevie",
     "department_id": null,
     "telephone": null,
-    "information": "Migrated from constants on 2025-07-08",
-    "created_date": "2025-07-08T21:32:56.373039",
-    "updated_date": "2025-07-08T21:32:56.373039"
+    "information": "Migrated from constants on 2025-07-19",
+    "created_date": "2025-07-19T18:35:47.291155",
+    "updated_date": "2025-07-19T18:35:47.291159"
   },
   {
     "id": 5,
     "name": "Marily",
     "department_id": null,
     "telephone": null,
-    "information": "Migrated from constants on 2025-07-08",
-    "created_date": "2025-07-08T21:32:56.391589",
-    "updated_date": "2025-07-08T21:32:56.391589"
+    "information": "Migrated from constants on 2025-07-19",
+    "created_date": "2025-07-19T18:35:47.292283",
+    "updated_date": "2025-07-19T18:35:47.292286"
   },
   {
     "id": 6,
     "name": "Ailene",
-    "department_id": 19,
+    "department_id": null,
     "telephone": null,
-    "information": "Migrated from constants on 2025-07-08",
-    "created_date": "2025-07-08T21:32:56.408753",
-    "updated_date": "2025-07-10T03:54:06.339955"
+    "information": "Migrated from constants on 2025-07-19",
+    "created_date": "2025-07-19T18:35:47.293176",
+    "updated_date": "2025-07-19T18:35:47.293178"
   },
   {
     "id": 7,
     "name": "Mary joy",
     "department_id": null,
     "telephone": null,
-    "information": "Migrated from constants on 2025-07-08",
-    "created_date": "2025-07-08T21:32:56.429249",
-    "updated_date": "2025-07-08T21:32:56.429249"
+    "information": "Migrated from constants on 2025-07-19",
+    "created_date": "2025-07-19T18:35:47.294456",
+    "updated_date": "2025-07-19T18:35:47.294459"
   },
   {
     "id": 8,
     "name": "Celina",
     "department_id": null,
     "telephone": null,
-    "information": "Migrated from constants on 2025-07-08",
-    "created_date": "2025-07-08T21:32:56.450699",
-    "updated_date": "2025-07-08T21:32:56.450699"
+    "information": "Migrated from constants on 2025-07-19",
+    "created_date": "2025-07-19T18:35:47.295245",
+    "updated_date": "2025-07-19T18:35:47.295248"
   },
   {
     "id": 9,
     "name": "Jijimol",
     "department_id": null,
     "telephone": null,
-    "information": "Migrated from constants on 2025-07-08",
-    "created_date": "2025-07-08T21:32:56.471222",
-    "updated_date": "2025-07-08T21:32:56.471222"
+    "information": "Migrated from constants on 2025-07-19",
+    "created_date": "2025-07-19T18:35:47.296630",
+    "updated_date": "2025-07-19T18:35:47.296632"
   },
   {
     "id": 10,
-    "name": "Atma",
+    "name": "Alma",
     "department_id": null,
     "telephone": null,
-    "information": "Migrated from constants on 2025-07-08",
-    "created_date": "2025-07-08T21:32:56.488785",
-    "updated_date": "2025-07-08T21:32:56.488785"
+    "information": "Migrated from constants on 2025-07-19",
+    "created_date": "2025-07-19T18:35:47.298241",
+    "updated_date": "2025-07-22T17:45:15.545799"
   },
   {
     "id": 11,
-    "name": "TestTrainer",
-    "department_id": 25,
+    "name": "waleed mohamed",
+    "department_id": 27,
+    "telephone": "+965-55683677",
+    "information": "training for the app",
+    "created_date": "2025-07-19T21:23:34.801861",
+    "updated_date": "2025-07-19T21:25:21.423155"
+  },
+  {
+    "id": 12,
+    "name": "MR. RAVI KISHORE REDY",
+    "department_id": 24,
     "telephone": null,
-    "information": "Test trainer for real-time synchronization",
-    "created_date": "2025-07-24T02:35:10.081769",
-    "updated_date": "2025-07-24T02:35:10.081769"
+    "information": "Migrated from constants on 2025-07-19",
+    "created_date": "2025-07-20T15:46:05.394552",
+    "updated_date": "2025-07-26T07:00:26.630937"
   }
 ]

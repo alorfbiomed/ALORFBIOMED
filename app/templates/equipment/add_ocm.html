@@ -52,30 +52,30 @@
             </div>
             <div class="col-md-4 mb-3">
                 <label for="Installation_Date" class="form-label">
-                    <i class="fas fa-calendar-alt text-primary me-2"></i>Installation Date <span class="text-danger">*</span>
+                    <i class="fas fa-calendar-alt text-primary me-2"></i>Installation Date
                 </label>
                 <div class="input-group">
                     <span class="input-group-text">
                         <i class="fas fa-calendar"></i>
                     </span>
-                    <input type="text" class="form-control modern-date-picker" id="Installation_Date" name="Installation_Date" 
-                           value="{{ form_data.Installation_Date or '' }}" placeholder="dd/mm/yyyy" 
+                    <input type="text" class="form-control modern-date-picker" id="Installation_Date" name="Installation_Date"
+                           value="{{ form_data.Installation_Date or '' }}" placeholder="dd/mm/yyyy (optional)"
                            pattern="^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\d{4}$"
-                           title="Please enter date in dd/mm/yyyy format" required>
+                           title="Please enter date in dd/mm/yyyy format">
                 </div>
             </div>
             <div class="col-md-4 mb-3">
                 <label for="Warranty_End" class="form-label">
-                    <i class="fas fa-shield-alt text-warning me-2"></i>Warranty End <span class="text-danger">*</span>
+                    <i class="fas fa-shield-alt text-warning me-2"></i>Warranty End
                 </label>
                 <div class="input-group">
                     <span class="input-group-text">
                         <i class="fas fa-calendar-times"></i>
                     </span>
-                    <input type="text" class="form-control modern-date-picker" id="Warranty_End" name="Warranty_End" 
-                           value="{{ form_data.Warranty_End or '' }}" placeholder="dd/mm/yyyy" 
+                    <input type="text" class="form-control modern-date-picker" id="Warranty_End" name="Warranty_End"
+                           value="{{ form_data.Warranty_End or '' }}" placeholder="dd/mm/yyyy (optional)"
                            pattern="^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\d{4}$"
-                           title="Please enter date in dd/mm/yyyy format" required>
+                           title="Please enter date in dd/mm/yyyy format">
                 </div>
             </div>
         </div>
