@@ -19,6 +19,8 @@ class Config:
     SCHEDULER_ENABLED = os.environ.get('SCHEDULER_ENABLED', 'true').lower() == 'true'
 
     # Use absolute paths for data files in development
+    # NOTE: Only ppm.json should be used for PPM data storage.
+    # Do not create or reference ppm_data.json as it was a duplicate file that has been removed.
     PPM_JSON_PATH = os.path.join('data', 'ppm.json')
     OCM_JSON_PATH = os.path.join('data', 'ocm.json')
     TRAINING_JSON_PATH = os.path.join('data', 'training.json')
@@ -35,7 +37,7 @@ class Config:
     SESSION_COOKIE_SAMESITE = 'Lax'
 
     # File upload configuration
-    MAX_CONTENT_LENGTH = 50 * 1024 * 1024  # 50MB max file upload
+    MAX_CONTENT_LENGTH = 100 * 1024 * 1024  # 100MB max file upload
 
     # Reminder system configuration
     REMINDER_DAYS = 60  # Default days ahead to check for maintenance

@@ -213,6 +213,22 @@
                             OCM List
                         </a>
                     </li>
+                    {% if current_user.is_authenticated and current_user.has_permission('equipment_ppm_write') %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('views.machine_assignment') }}">
+                            <i class="fas fa-database"></i>
+                            Master Data
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if current_user.is_authenticated and current_user.has_permission('equipment_ppm_read') %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('views.history_log') }}">
+                            <i class="fas fa-history"></i>
+                            History
+                        </a>
+                    </li>
+                    {% endif %}
                     {% if current_user.is_authenticated and current_user.has_permission('equipment_ppm_import_export') %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('views.import_export_page') }}">

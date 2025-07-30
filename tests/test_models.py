@@ -1,316 +1,293 @@
+"""
+Test cases for data models.
+"""
 import pytest
+from datetime import datetime
 from pydantic import ValidationError
 
-from app.models.ppm import PPMEntry, QuarterData
-from app.models.ocm import OCMEntry
+from app.models.history import (
+    HistoryNote,
+    HistoryNoteCreate,
+    HistoryNoteUpdate,
+    HistoryAttachment,
+    HistorySearchFilter
+)
+from app.models.ppm import PPMEntry, PPMEntryCreate, QuarterData
+from app.models.ocm import OCMEntry, OCMEntryCreate
+from app.models.department import Department, DepartmentCreate
+from app.models.trainer import Trainer, TrainerCreate
 
 
-# Test data for PPMEntry
-valid_ppm_data = {
-    "EQUIPMENT": "Test Equipment",
-    "MODEL": "Test Model",
-    "Name": "Optional Name",
-    "SERIAL": "SN123",
-    "MANUFACTURER": "Test Manufacturer",
-    "Department": "Test Department",
-    "LOG_NO": "Log001",
-    "Installation_Date": "01/01/2023",
-    "Warranty_End": "01/01/2025",
-    # Eng1-Eng4 removed
-    "Status": "Upcoming",
-    "PPM_Q_I": {"engineer": "Eng Q1", "quarter_date": "01/04/2023"},
-    "PPM_Q_II": {"engineer": "Eng Q2", "quarter_date": "01/07/2023"},
-    "PPM_Q_III": {"engineer": "Eng Q3", "quarter_date": "01/10/2023"},
-    "PPM_Q_IV": {"engineer": "Eng Q4", "quarter_date": "01/01/2024"},
-}
+class TestHistoryModels:
+    """Test cases for history-related models."""
 
-# Test data for OCMEntry
-valid_ocm_data = {
-    "EQUIPMENT": "OCM Equipment",
-    "MODEL": "OCM Model",
-    "Name": "Optional OCM Name",
-    "SERIAL": "SN456",
-    "MANUFACTURER": "OCM Manufacturer",
-    "Department": "OCM Department",
-    "LOG_NO": "Log002",
-    "Installation_Date": "01/02/2023",
-    "Warranty_End": "01/02/2025",
-    "Service_Date": "01/06/2024",
-    "Next_Maintenance": "01/06/2025",
-    "ENGINEER": "Engineer X",
-    "Status": "Maintained",
-}
+    def test_history_note_create_valid(self):
+        """Test creating a valid HistoryNoteCreate."""
+        note_data = {
+            "equipment_id": "TEST001",
+            "equipment_type": "ppm",
+            "author_id": "admin",
+            "author_name": "Admin User",
+            "note_text": "Test history note"
+        }
+        
+        note = HistoryNoteCreate(**note_data)
+        
+        assert note.equipment_id == "TEST001"
+        assert note.equipment_type == "ppm"
+        assert note.author_id == "admin"
+        assert note.note_text == "Test history note"
 
-
-class TestPPMEntry:
-    def test_successful_creation(self):
-        entry = PPMEntry(**valid_ppm_data)
-        assert entry.EQUIPMENT == valid_ppm_data["EQUIPMENT"]
-        assert entry.MODEL == valid_ppm_data["MODEL"]
-        assert entry.Name == valid_ppm_data["Name"]
-        assert entry.Status == "Upcoming"
-        assert entry.PPM_Q_I.engineer == "Eng Q1"
-        assert entry.PPM_Q_I.quarter_date == "01/04/2023"
-
-    def test_optional_and_invalid_date_formats(self):
-        # Test valid None and empty string for optional dates
-        data_none_install = valid_ppm_data.copy()
-        data_none_install["Installation_Date"] = None
-        entry_none_install = PPMEntry(**data_none_install)
-        assert entry_none_install.Installation_Date is None
-
-        data_empty_warranty = valid_ppm_data.copy()
-        data_empty_warranty["Warranty_End"] = ""
-        entry_empty_warranty = PPMEntry(**data_empty_warranty)
-        assert entry_empty_warranty.Warranty_End == "" # Or None, depending on Pydantic coercion for Optional[str] with allow_empty_str
-
-        # Test invalid format for Installation_Date
-        data_invalid_install = valid_ppm_data.copy()
-        data_invalid_install["Installation_Date"] = "2023-01-01" # Invalid format
-        with pytest.raises(ValidationError) as excinfo_install:
-            PPMEntry(**data_invalid_install)
-        assert "Installation_Date" in str(excinfo_install.value)
-        assert "Invalid date format" in str(excinfo_install.value)
-
-        # Test invalid format for Warranty_End
-        data_invalid_warranty = valid_ppm_data.copy()
-        data_invalid_warranty["Warranty_End"] = "01-01-2025" # Invalid format
-        with pytest.raises(ValidationError) as excinfo_warranty:
-            PPMEntry(**data_invalid_warranty)
-        assert "Warranty_End" in str(excinfo_warranty.value)
-        assert "Invalid date format" in str(excinfo_warranty.value)
-
-
-    def test_empty_required_fields(self):
-        # Eng1-4 removed, Installation_Date and Warranty_End are optional
-        required_fields = ["EQUIPMENT", "MODEL", "SERIAL", "MANUFACTURER", "Department", "LOG_NO"]
-        for field in required_fields:
-            data = valid_ppm_data.copy()
-            data[field] = "" # Empty string
-            with pytest.raises(ValidationError) as excinfo:
-                PPMEntry(**data)
-            assert field in str(excinfo.value) # Check that the error message mentions the field
-
-    def test_invalid_status(self):
-        data = valid_ppm_data.copy()
-        data["Status"] = "InvalidStatus"
+    def test_history_note_create_invalid_equipment_type(self):
+        """Test creating HistoryNoteCreate with invalid equipment type."""
+        note_data = {
+            "equipment_id": "TEST001",
+            "equipment_type": "invalid",  # Should be 'ppm' or 'ocm'
+            "author_id": "admin",
+            "author_name": "Admin User",
+            "note_text": "Test note"
+        }
+        
         with pytest.raises(ValidationError):
-            PPMEntry(**data)
+            HistoryNoteCreate(**note_data)
 
-    def test_quarter_data_empty_engineer(self):
-        data = valid_ppm_data.copy()
-        data["PPM_Q_I"] = {"engineer": " "} # Engineer field with only whitespace
-        # Based on QuarterData validator: `if v is None or not v.strip(): return None`
-        # So, " " becomes None, which is valid.
-        entry = PPMEntry(**data)
-        assert entry.PPM_Q_I.engineer is None
-
-    def test_quarter_data_structure(self):
-        # Test successful creation with full QuarterData
-        data = valid_ppm_data.copy()
-        data["PPM_Q_II"] = {"engineer": "EngTest", "quarter_date": "15/05/2023"}
-        entry = PPMEntry(**data)
-        assert entry.PPM_Q_II.engineer == "EngTest"
-        assert entry.PPM_Q_II.quarter_date == "15/05/2023"
-
-        # Test with engineer being None in QuarterData
-        data["PPM_Q_III"] = {"engineer": None, "quarter_date": "15/08/2023"}
-        entry = PPMEntry(**data)
-        assert entry.PPM_Q_III.engineer is None
-        assert entry.PPM_Q_III.quarter_date == "15/08/2023"
-
-        # Test with quarter_date being None
-        data["PPM_Q_IV"] = {"engineer": "EngTestQ4", "quarter_date": None}
-        entry = PPMEntry(**data)
-        assert entry.PPM_Q_IV.engineer == "EngTestQ4"
-        assert entry.PPM_Q_IV.quarter_date is None
-
-        # Test with both being None
-        data["PPM_Q_I"] = {"engineer": None, "quarter_date": None}
-        entry = PPMEntry(**data)
-        assert entry.PPM_Q_I.engineer is None
-        assert entry.PPM_Q_I.quarter_date is None
-
-        # Test with only engineer provided (quarter_date will be None)
-        data["PPM_Q_II"] = {"engineer": "OnlyEng"}
-        entry = PPMEntry(**data)
-        assert entry.PPM_Q_II.engineer == "OnlyEng"
-        assert entry.PPM_Q_II.quarter_date is None
-
-        # Test with only quarter_date provided (engineer will be None)
-        # This case {"quarter_date": "date"} is not how QuarterData is defined if engineer is required
-        # but QuarterData has engineer: Optional[str]=None. So this is valid.
-        data["PPM_Q_III"] = {"quarter_date": "A_Date_Str"}
-        entry = PPMEntry(**data)
-        assert entry.PPM_Q_III.engineer is None
-        assert entry.PPM_Q_III.quarter_date == "A_Date_Str"
-
-
-class TestOCMEntry:
-    def test_successful_creation(self):
-        entry = OCMEntry(**valid_ocm_data)
-        assert entry.EQUIPMENT == valid_ocm_data["EQUIPMENT"]
-        assert entry.MODEL == valid_ocm_data["MODEL"]
-        assert entry.Name == valid_ocm_data["Name"]
-        assert entry.Status == "Maintained"
-        assert entry.ENGINEER == "Engineer X"
-
-    def test_invalid_date_format(self):
-        date_fields = ["Installation_Date", "Warranty_End", "Service_Date", "Next_Maintenance"]
-        for field in date_fields:
-            data = valid_ocm_data.copy()
-            data[field] = "2023-01-01"  # Invalid format
-            with pytest.raises(ValidationError):
-                OCMEntry(**data)
-
-    def test_empty_required_fields(self):
-        required_fields = ["EQUIPMENT", "MODEL", "SERIAL", "MANUFACTURER", "Department", "LOG_NO", "ENGINEER"]
-        for field in required_fields:
-            data = valid_ocm_data.copy()
-            data[field] = ""
-            with pytest.raises(ValidationError):
-                OCMEntry(**data)
-
-    def test_invalid_status(self):
-        data = valid_ocm_data.copy()
-        data["Status"] = "NonExistentStatus"
+    def test_history_note_create_empty_note_text(self):
+        """Test creating HistoryNoteCreate with empty note text."""
+        note_data = {
+            "equipment_id": "TEST001",
+            "equipment_type": "ppm",
+            "author_id": "admin",
+            "author_name": "Admin User",
+            "note_text": ""  # Empty text should be invalid
+        }
+        
         with pytest.raises(ValidationError):
-            OCMEntry(**data)
+            HistoryNoteCreate(**note_data)
+
+    def test_history_note_full_model(self):
+        """Test creating a full HistoryNote model."""
+        note_data = {
+            "id": "test-id-123",
+            "equipment_id": "TEST001",
+            "equipment_type": "ppm",
+            "author_id": "admin",
+            "author_name": "Admin User",
+            "note_text": "Test history note",
+            "created_at": "2025-07-30 10:00:00",
+            "attachments": []
+        }
+        
+        note = HistoryNote(**note_data)
+        
+        assert note.id == "test-id-123"
+        assert note.is_edited is False
+        assert note.updated_at is None
+
+    def test_history_attachment_valid(self):
+        """Test creating a valid HistoryAttachment."""
+        attachment_data = {
+            "id": "attach-123",
+            "original_filename": "document.pdf",
+            "stored_filename": "uuid-123.pdf",
+            "file_size": 1024,
+            "content_type": "application/pdf",
+            "uploaded_by": "admin",
+            "uploaded_at": "2025-07-30 10:00:00"
+        }
+        
+        attachment = HistoryAttachment(**attachment_data)
+        
+        assert attachment.original_filename == "document.pdf"
+        assert attachment.file_size == 1024
+
+    def test_history_attachment_invalid_file_size(self):
+        """Test creating HistoryAttachment with invalid file size."""
+        attachment_data = {
+            "id": "attach-123",
+            "original_filename": "document.pdf",
+            "stored_filename": "uuid-123.pdf",
+            "file_size": 101 * 1024 * 1024,  # Larger than 100MB limit
+            "content_type": "application/pdf",
+            "uploaded_by": "admin",
+            "uploaded_at": "2025-07-30 10:00:00"
+        }
+        
+        with pytest.raises(ValidationError, match="File size cannot exceed 100MB"):
+            HistoryAttachment(**attachment_data)
+
+    def test_history_search_filter(self):
+        """Test creating HistorySearchFilter."""
+        filter_data = {
+            "search_text": "maintenance",
+            "equipment_type": "ppm",
+            "department": "X-RAY",
+            "author": "admin",
+            "date_from": "2025-01-01",
+            "date_to": "2025-12-31"
+        }
+        
+        search_filter = HistorySearchFilter(**filter_data)
+        
+        assert search_filter.search_text == "maintenance"
+        assert search_filter.equipment_type == "ppm"
 
 
-# Test data for Training model
-new_format_training_data_valid = {
-    "id": 1,
-    "employee_id": "E1001",
-    "name": "John Doe",
-    "department": "Production A",
-    "machine_trainer_assignments": [
-        {"machine": "CNC Mill", "trainer": "Alice"},
-        {"machine": "Lathe X1000", "trainer": "Bob"}
-    ],
-    "last_trained_date": "2023-01-15",
-    "next_due_date": "2024-01-15"
-}
+class TestPPMModels:
+    """Test cases for PPM-related models."""
 
-old_format_training_data_str_machines = {
-    "id": 2,
-    "employee_id": "E1002",
-    "name": "Jane Smith",
-    "department": "Production B",
-    "trainer": "Charlie",
-    "trained_on_machines": "Packaging Line 1,Conveyor Belt Z",
-    "last_trained_date": "2023-02-20",
-    "next_due_date": "2024-02-20"
-}
+    def test_quarter_data_valid(self):
+        """Test creating valid QuarterData."""
+        quarter_data = {
+            "quarter_date": "15/07/2025",
+            "engineer": "JOHN DOE"
+        }
+        
+        quarter = QuarterData(**quarter_data)
+        
+        assert quarter.quarter_date == "15/07/2025"
+        assert quarter.engineer == "JOHN DOE"
 
-old_format_training_data_list_machines = {
-    "id": 3,
-    "employee_id": "E1003",
-    "name": "Mike Brown",
-    "department": "Maintenance",
-    "trainer": "David",
-    "trained_on_machines": ["Tool Grinder", "Hydraulic Press"],
-    "last_trained_date": "2023-03-10",
-    "next_due_date": "2024-03-10"
-}
+    def test_ppm_entry_create_valid(self):
+        """Test creating valid PPMEntryCreate."""
+        ppm_data = {
+            "SERIAL": "TEST001",
+            "DEPARTMENT": "X-RAY",
+            "NAME": "X-Ray Machine",
+            "MODEL": "XR-2000",
+            "MANUFACTURER": "Medical Corp",
+            "LOG_NO": "12345"
+        }
+        
+        ppm = PPMEntryCreate(**ppm_data)
+        
+        assert ppm.SERIAL == "TEST001"
+        assert ppm.DEPARTMENT == "X-RAY"
 
-old_format_training_data_no_trainer = {
-    "id": 4,
-    "employee_id": "E1004",
-    "name": "Sue Green",
-    "department": "Lab",
-    "trained_on_machines": ["Spectrometer"],
-    "last_trained_date": "2023-04-05",
-    "next_due_date": "2024-04-05"
-}
+    def test_ppm_entry_create_invalid_serial(self):
+        """Test creating PPMEntryCreate with invalid serial."""
+        ppm_data = {
+            "SERIAL": "",  # Empty serial should be invalid
+            "DEPARTMENT": "X-RAY",
+            "NAME": "X-Ray Machine"
+        }
+        
+        with pytest.raises(ValidationError):
+            PPMEntryCreate(**ppm_data)
 
-empty_assignments_training_data = {
-    "id": 5,
-    "employee_id": "E1005",
-    "name": "Chris White",
-    "department": "Production A",
-    "machine_trainer_assignments": [],
-    "last_trained_date": "2023-05-01",
-    "next_due_date": "2024-05-01"
-}
 
-# Import Training model
-from app.models.training import Training
+class TestOCMModels:
+    """Test cases for OCM-related models."""
 
-class TestTraining:
-    def test_from_dict_new_format(self):
-        training = Training.from_dict(new_format_training_data_valid)
-        assert training.id == 1
-        assert training.employee_id == "E1001"
-        assert training.name == "John Doe"
-        assert training.department == "Production A"
-        assert len(training.machine_trainer_assignments) == 2
-        assert training.machine_trainer_assignments[0] == {"machine": "CNC Mill", "trainer": "Alice"}
-        assert training.machine_trainer_assignments[1] == {"machine": "Lathe X1000", "trainer": "Bob"}
-        assert training.last_trained_date == "2023-01-15"
-        assert training.next_due_date == "2024-01-15"
+    def test_ocm_entry_create_valid(self):
+        """Test creating valid OCMEntryCreate."""
+        ocm_data = {
+            "SERIAL": "OCM001",
+            "DEPARTMENT": "SURGERY",
+            "NAME": "Surgical Equipment",
+            "MODEL": "SURG-100",
+            "MANUFACTURER": "Surgical Corp",
+            "LOG_NO": "54321"
+        }
+        
+        ocm = OCMEntryCreate(**ocm_data)
+        
+        assert ocm.SERIAL == "OCM001"
+        assert ocm.DEPARTMENT == "SURGERY"
 
-    def test_from_dict_old_format_str_machines(self):
-        training = Training.from_dict(old_format_training_data_str_machines)
-        assert training.id == 2
-        assert training.employee_id == "E1002"
-        assert training.name == "Jane Smith"
-        assert training.department == "Production B"
-        assert len(training.machine_trainer_assignments) == 2
-        assert {"machine": "Packaging Line 1", "trainer": "Charlie"} in training.machine_trainer_assignments
-        assert {"machine": "Conveyor Belt Z", "trainer": "Charlie"} in training.machine_trainer_assignments
-        assert training.last_trained_date == "2023-02-20"
 
-    def test_from_dict_old_format_list_machines(self):
-        training = Training.from_dict(old_format_training_data_list_machines)
-        assert training.id == 3
-        assert training.department == "Maintenance"
-        assert len(training.machine_trainer_assignments) == 2
-        assert {"machine": "Tool Grinder", "trainer": "David"} in training.machine_trainer_assignments
-        assert {"machine": "Hydraulic Press", "trainer": "David"} in training.machine_trainer_assignments
+class TestDepartmentModels:
+    """Test cases for Department-related models."""
 
-    def test_from_dict_old_format_no_trainer(self):
-        training = Training.from_dict(old_format_training_data_no_trainer)
-        assert training.id == 4
-        assert training.department == "Lab"
-        assert len(training.machine_trainer_assignments) == 1
-        assert training.machine_trainer_assignments[0] == {"machine": "Spectrometer", "trainer": None}
+    def test_department_create_valid(self):
+        """Test creating valid DepartmentCreate."""
+        dept_data = {
+            "name": "RADIOLOGY",
+            "description": "Radiology Department"
+        }
+        
+        dept = DepartmentCreate(**dept_data)
+        
+        assert dept.name == "RADIOLOGY"
+        assert dept.description == "Radiology Department"
 
-    def test_from_dict_empty_assignments(self):
-        training = Training.from_dict(empty_assignments_training_data)
-        assert training.id == 5
-        assert training.department == "Production A"
-        assert training.machine_trainer_assignments == []
+    def test_department_create_invalid_name(self):
+        """Test creating DepartmentCreate with invalid name."""
+        dept_data = {
+            "name": "",  # Empty name should be invalid
+            "description": "Test Department"
+        }
+        
+        with pytest.raises(ValidationError):
+            DepartmentCreate(**dept_data)
 
-    def test_from_dict_none_assignments(self):
-        data = new_format_training_data_valid.copy()
-        data["machine_trainer_assignments"] = None
-        training = Training.from_dict(data)
-        assert training.machine_trainer_assignments == [] # Should default to empty list
+    def test_department_full_model(self):
+        """Test creating full Department model."""
+        dept_data = {
+            "id": "dept-123",
+            "name": "CARDIOLOGY",
+            "description": "Cardiology Department",
+            "created_at": "2025-07-30 10:00:00"
+        }
+        
+        dept = Department(**dept_data)
+        
+        assert dept.id == "dept-123"
+        assert dept.name == "CARDIOLOGY"
 
-    def test_from_dict_missing_assignments_and_old_fields(self):
-        data = {
-            "id": 6, "employee_id": "E1006", "name": "No Machines", "department": "QA",
-            "last_trained_date": "2023-06-01"
-        } # No machine_trainer_assignments, no trained_on_machines, no trainer
-        training = Training.from_dict(data)
-        assert training.machine_trainer_assignments == []
 
-    def test_to_dict(self):
-        training = Training.from_dict(new_format_training_data_valid)
-        d = training.to_dict()
-        assert d["id"] == 1
-        assert d["employee_id"] == "E1001"
-        assert d["name"] == "John Doe"
-        assert d["department"] == "Production A"
-        assert len(d["machine_trainer_assignments"]) == 2
-        assert d["machine_trainer_assignments"][0] == {"machine": "CNC Mill", "trainer": "Alice"}
-        assert d["machine_trainer_assignments"][1] == {"machine": "Lathe X1000", "trainer": "Bob"}
-        assert d["last_trained_date"] == "2023-01-15"
-        assert d["next_due_date"] == "2024-01-15"
-        assert "trainer" not in d # Ensure old top-level trainer field is not present
+class TestTrainerModels:
+    """Test cases for Trainer-related models."""
 
-    def test_to_dict_empty_assignments(self):
-        training = Training.from_dict(empty_assignments_training_data)
-        d = training.to_dict()
-        assert d["machine_trainer_assignments"] == []
+    def test_trainer_create_valid(self):
+        """Test creating valid TrainerCreate."""
+        trainer_data = {
+            "name": "Dr. John Smith",
+            "specialization": "Radiology Equipment",
+            "email": "john.smith@hospital.com",
+            "phone": "+1234567890"
+        }
+        
+        trainer = TrainerCreate(**trainer_data)
+        
+        assert trainer.name == "Dr. John Smith"
+        assert trainer.email == "john.smith@hospital.com"
+
+    def test_trainer_create_invalid_email(self):
+        """Test creating TrainerCreate with invalid email."""
+        trainer_data = {
+            "name": "Dr. John Smith",
+            "specialization": "Radiology",
+            "email": "invalid-email",  # Invalid email format
+            "phone": "+1234567890"
+        }
+        
+        with pytest.raises(ValidationError):
+            TrainerCreate(**trainer_data)
+
+    def test_trainer_create_empty_name(self):
+        """Test creating TrainerCreate with empty name."""
+        trainer_data = {
+            "name": "",  # Empty name should be invalid
+            "specialization": "Radiology",
+            "email": "john@hospital.com"
+        }
+        
+        with pytest.raises(ValidationError):
+            TrainerCreate(**trainer_data)
+
+    def test_trainer_full_model(self):
+        """Test creating full Trainer model."""
+        trainer_data = {
+            "id": "trainer-123",
+            "name": "Dr. Jane Doe",
+            "specialization": "Surgical Equipment",
+            "email": "jane.doe@hospital.com",
+            "phone": "+0987654321",
+            "created_at": "2025-07-30 10:00:00",
+            "is_active": True
+        }
+        
+        trainer = Trainer(**trainer_data)
+        
+        assert trainer.id == "trainer-123"
+        assert trainer.is_active is True

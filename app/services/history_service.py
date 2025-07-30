@@ -247,21 +247,53 @@ class HistoryService:
     def add_attachment_to_note(note_id: str, file: FileStorage, uploaded_by: str) -> Optional[HistoryAttachment]:
         """
         Add an attachment to a history note.
-        
+
         Args:
             note_id: ID of the history note
             file: Uploaded file
             uploaded_by: Username of the person uploading
-        
+
         Returns:
             HistoryAttachment: Created attachment or None if failed
         """
         try:
             # Ensure upload directories exist
             ensure_upload_directories()
-            
-            # Save the uploaded file
-            success, error_msg, file_info = save_uploaded_file(file, 'history', 'all')
+
+            # Get equipment information for custom filename
+            custom_filename_prefix = None
+            history_data = HistoryService._load_history_data()
+
+            # Find the note to get equipment information
+            note_data = None
+            for note in history_data:
+                if note.get('id') == note_id:
+                    note_data = note
+                    break
+
+            if note_data:
+                equipment_id = note_data.get('equipment_id', '')
+                equipment_type = note_data.get('equipment_type', '')
+                created_date = note_data.get('created_at', '')
+
+                # Get equipment details for machine name
+                equipment = DataService.get_entry(equipment_type, equipment_id)
+                if equipment:
+                    machine_name = equipment.get('NAME', 'Unknown-Machine')
+                    # Clean machine name for filename
+                    machine_name = ''.join(c for c in machine_name if c.isalnum() or c in ' -_').replace(' ', '-')
+
+                    # Format date for filename (YYYY-MM-DD)
+                    try:
+                        date_part = created_date.split(' ')[0] if created_date else datetime.now().strftime('%Y-%m-%d')
+                    except:
+                        date_part = datetime.now().strftime('%Y-%m-%d')
+
+                    # Create custom filename prefix: {machine-name}-{Serial-No}-{Date-created}
+                    custom_filename_prefix = f"{machine_name}-{equipment_id}-{date_part}"
+
+            # Save the uploaded file with custom filename
+            success, error_msg, file_info = save_uploaded_file(file, 'history', 'all', custom_filename_prefix)
             if not success:
                 logger.error(f"Failed to save attachment: {error_msg}")
                 return None

@@ -15,6 +15,13 @@ from typing import Dict, Any, Optional
 from flask import request, session, g
 import sys
 
+# Use Windows-compatible concurrent log handler to prevent PermissionError
+try:
+    from concurrent_log_handler import ConcurrentRotatingFileHandler
+    CONCURRENT_HANDLER_AVAILABLE = True
+except ImportError:
+    CONCURRENT_HANDLER_AVAILABLE = False
+
 
 class StructuredFormatter(logging.Formatter):
     """Custom formatter for structured logging with JSON output"""
@@ -113,36 +120,60 @@ class LoggingService:
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         )
         
-        # Error log handler (structured JSON format)
+        # Error log handler (structured JSON format) - Windows-compatible
         error_log_path = os.path.join(log_dir, 'error.log')
-        error_handler = logging.handlers.RotatingFileHandler(
-            error_log_path,
-            maxBytes=10*1024*1024,  # 10MB
-            backupCount=5,
-            encoding='utf-8'
-        )
+        if CONCURRENT_HANDLER_AVAILABLE:
+            error_handler = ConcurrentRotatingFileHandler(
+                error_log_path,
+                maxBytes=10*1024*1024,  # 10MB
+                backupCount=5,
+                encoding='utf-8'
+            )
+        else:
+            error_handler = logging.handlers.RotatingFileHandler(
+                error_log_path,
+                maxBytes=10*1024*1024,  # 10MB
+                backupCount=5,
+                encoding='utf-8'
+            )
         error_handler.setLevel(logging.ERROR)
         error_handler.setFormatter(structured_formatter)
         
-        # Application log handler (human-readable format)
+        # Application log handler (human-readable format) - Windows-compatible
         app_log_path = os.path.join(log_dir, 'app.log')
-        app_handler = logging.handlers.RotatingFileHandler(
-            app_log_path,
-            maxBytes=10*1024*1024,  # 10MB
-            backupCount=5,
-            encoding='utf-8'
-        )
+        if CONCURRENT_HANDLER_AVAILABLE:
+            app_handler = ConcurrentRotatingFileHandler(
+                app_log_path,
+                maxBytes=10*1024*1024,  # 10MB
+                backupCount=5,
+                encoding='utf-8'
+            )
+        else:
+            app_handler = logging.handlers.RotatingFileHandler(
+                app_log_path,
+                maxBytes=10*1024*1024,  # 10MB
+                backupCount=5,
+                encoding='utf-8'
+            )
         app_handler.setLevel(logging.INFO)
         app_handler.setFormatter(simple_formatter)
         
-        # Debug log handler (development only)
+        # Debug log handler (development only) - Windows-compatible
         debug_log_path = os.path.join(log_dir, 'debug.log')
-        debug_handler = logging.handlers.RotatingFileHandler(
-            debug_log_path,
-            maxBytes=5*1024*1024,  # 5MB
-            backupCount=3,
-            encoding='utf-8'
-        )
+        if CONCURRENT_HANDLER_AVAILABLE:
+            debug_handler = ConcurrentRotatingFileHandler(
+                debug_log_path,
+                maxBytes=5*1024*1024,  # 5MB
+                backupCount=3,
+                encoding='utf-8'
+            )
+        else:
+            debug_handler = logging.handlers.RotatingFileHandler(
+                debug_log_path,
+                maxBytes=5*1024*1024,  # 5MB
+                backupCount=3,
+                encoding='utf-8'
+            )
         debug_handler.setLevel(logging.DEBUG)
         debug_handler.setFormatter(structured_formatter)
         

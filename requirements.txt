@@ -19,6 +19,9 @@ pydantic==2.5.0
 pandas==2.1.0
 python-dotenv==1.0.0
 
+# Windows-compatible logging (fixes PermissionError on log rotation)
+concurrent-log-handler==0.9.25
+
 # Scheduling and background tasks
 APScheduler==3.10.4
 schedule==1.2.0
